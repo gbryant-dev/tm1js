@@ -1,14 +1,18 @@
 import Hierarchy from "../models/Hierarchy";
 import ElementService from "./ElementService";
 import RestService from "./RestService";
+import SubsetService from "./SubsetService";
 
 class HierarchyService {
 
     private http: RestService;
     public elements: ElementService;
+    public subsets: SubsetService;
+
     constructor(http: RestService) {
         this.http = http;
         this.elements = new ElementService(this.http);
+        this.subsets = new SubsetService(this.http);
     }
 
     async create(hierarchy: Hierarchy) {

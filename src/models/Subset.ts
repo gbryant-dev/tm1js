@@ -1,44 +1,77 @@
-import Hierarchy from "./Hierarchy";
-import { HierarchyElement } from "./Element";
-
 class Subset {
 
     public name: string;
+    public dimensionName: string;
+    public hierarchyName: string;
+    public alias?: string;
     public uniqueName?: string;
     public expression?: string;
-    public hierarchy?: Hierarchy;
-    public elements?: HierarchyElement[] = [];
+    public elements?: string[] = [];
 
     constructor(
         name: string,
-        uniqueName?: string,
+        dimensionName: string,
+        hierarchyName: string = null,
+        alias?: string,
         expression?: string,
-        hierarchy?: Hierarchy,
-        elements?: HierarchyElement[]
+        elements?: string[],
+        uniqueName?: string,
     ) {
         this.name = name;
-        this.uniqueName = uniqueName;
+        this.dimensionName = dimensionName;
+        this.hierarchyName = hierarchyName || dimensionName;
+        this.alias = alias;
         this.expression = expression;
-
-        if (hierarchy) {
-            this.hierarchy = Hierarchy.fromJson(hierarchy)
-        }
-
-        if (elements) {
-            for (const element of elements) {
-                this.elements.push(HierarchyElement.fromJson(element))
-            }
-        }
+        this.elements = elements;
+        this.uniqueName = uniqueName;
     }
 
     static fromJson(data: any) {
         return new Subset(
             data.Name,
-            data.UniqueName,
+            data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
+            data.Hierarchy.Name,
+            data.Alias,
             data.Expression,
-            data.Hierarchy,
-            data.Elements
+            data.Elements.map((e: any) => e['Name']),
+            data.UniqueName
         )
+    }
+
+    get body() {
+        if (this.expression) {
+            return this.constructBodyDynamic();
+        } else {
+            return this.constructBodyStatic();
+        }
+    }
+
+    private constructBodyStatic() {
+        const body = {};
+        body['Name'] = this.name;
+        body['Alias'] = this.alias;
+
+        if (this.elements.length) {
+            body['Elements@odata.bind'] = [];
+        
+            for (const element of this.elements) {
+    
+                body['Elements@odata.bind'].push(
+                    `Dimensions('${this.dimensionName}')/Hierarchies('${this.hierarchyName}')/Elements('${element}')`
+                )
+            }
+        }
+
+        return body;
+    }
+
+    private constructBodyDynamic() {
+    
+        const body = {};
+        body['Name'] = this.name;
+        body['Alias'] = this.alias;
+        body['Expression'] = this.expression;
+        return body;
     }
 }
 

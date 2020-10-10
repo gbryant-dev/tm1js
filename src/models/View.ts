@@ -62,7 +62,7 @@ class NativeView extends View {
 
     removeColumn(column: ViewAxisSelection) {
         const index = this.columns.findIndex(col => {
-            return col.subset.hierarchy.name === column.subset.hierarchy.name
+            return col.subset.hierarchyName === column.subset.hierarchyName
         });
         this.columns.splice(index, 1);
     }
@@ -73,7 +73,7 @@ class NativeView extends View {
 
     removeRow(row: ViewAxisSelection) {
         const index = this.rows.findIndex(r => {
-            return r.subset.hierarchy.name === row.subset.hierarchy.name
+            return r.subset.hierarchyName === row.subset.hierarchyName
         });
 
         this.rows.splice(index, 1);
@@ -85,7 +85,7 @@ class NativeView extends View {
 
     removeTitle(title: ViewAxisTitle) {
         const index = this.titles.findIndex(t => {
-            return t.subset.hierarchy.name === title.subset.hierarchy.name
+            return t.subset.hierarchyName === title.subset.hierarchyName
         });
 
         this.titles.splice(index, 1);

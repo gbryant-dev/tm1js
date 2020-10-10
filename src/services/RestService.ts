@@ -34,7 +34,7 @@ class RestService {
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
                 'Accept': 'application/json; odata.metadata=none, text/plain',
-                'Tm1-SessionContext': 'tm1-ts'
+                'Tm1-SessionContext': 'TM1ts'
             },
             withCredentials: true,
             httpsAgent: new Agent({rejectUnauthorized: false})

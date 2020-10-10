@@ -14,12 +14,7 @@ class Cube {
         this.name = name;
         this.rules = rules;
         
-        if (dimensions.length) {
-            
-            for (const dimension of dimensions) {
-                this.dimensions.push(dimension)
-            }
-        }
+        this.dimensions = dimensions;
     }
 
     constructBody() {
