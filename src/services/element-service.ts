@@ -1,7 +1,6 @@
-import { AxiosResponse } from "axios";
-import { HierarchyElement } from "../models/Element";
-import ElementAttribute from "../models/ElementAttribute";
-import RestService from "./RestService";
+import { HierarchyElement } from "../models/element";
+import ElementAttribute from "../models/element-attribute";
+import RestService from "./rest-service";
 
 class ElementService {
 
@@ -52,7 +51,7 @@ class ElementService {
         return response['value'].map((ea: ElementAttribute) => ElementAttribute.fromJson(ea));
     }
 
-    async getElementsFilteredByAttribute(dimensionName: string, hierarchyName: string, attrName: string, attrValue: string | number) {
+    async getElementsFilteredByAttribute(dimensionName: string, hierarchyName: string, attrName: string, attrValue: string | number): Promise<string[]> {
         const attr = attrName.replace(/\s/g, '');
 
         let url = '';

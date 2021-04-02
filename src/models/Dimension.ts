@@ -1,4 +1,4 @@
-import Hierarchy from "./Hierarchy";
+import Hierarchy from "./hierarchy";
 
 class Dimension {
     public name: string;

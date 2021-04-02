@@ -1,5 +1,5 @@
-import { HierarchyElement } from "./Element";
-import Subset from "./Subset";
+import { HierarchyElement } from "./element";
+import Subset from "./subset";
 
 class View {
     name: string;

@@ -26,7 +26,7 @@
         - ViewAxisTitle
 - Dimension
     - Hierarchy
-        - Element
+        - Element 
         - Subset 
 - Process
 

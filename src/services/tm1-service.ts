@@ -1,7 +1,7 @@
-import RestService from "./RestService";
-import CubeService from "./cubeService";
-import DimensionService from "./DimensionService";
-import ProcessService from "./ProcessService";
+import RestService from "./rest-service";
+import CubeService from "./cube-service";
+import DimensionService from "./dimension-service";
+import ProcessService from "./process-service";
 
 class TM1Service {
 

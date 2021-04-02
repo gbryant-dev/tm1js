@@ -1,6 +1,6 @@
-import RestService from './RestService';
+import RestService from './rest-service';
 import Dimension from '../models/dimension';
-import HierarchyService from './HierarchyService';
+import HierarchyService from './hierarchy-service';
 
 class DimensionService {
 

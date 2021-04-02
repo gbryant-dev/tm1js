@@ -1,5 +1,5 @@
-import RestService from './RestService';
-import Cube from '../models/Cube';
+import RestService from './rest-service';
+import Cube from '../models/cube';
 
 class CubeService {
 

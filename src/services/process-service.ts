@@ -1,5 +1,5 @@
-import Process from "../models/Process";
-import RestService from "./RestService";
+import Process from "../models/process";
+import RestService from "./rest-service";
 
 
 class ProcessService {

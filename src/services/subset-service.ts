@@ -1,5 +1,5 @@
-import Subset from "../models/Subset";
-import RestService from "./RestService";
+import Subset from "../models/subset";
+import RestService from "./rest-service";
 
 
 class SubsetService {
