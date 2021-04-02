@@ -27,9 +27,9 @@ class TupleMap {
     return this._map.has(JSON.stringify(key))
   }
 
-  forEach(callbackfn: (value: string | number, key: [string, string], map: Map<[string, string], string | number>) => void, thisArg?: any): void {
+  forEach(callback: (value: string | number, key: [string, string], map: Map<[string, string], string | number>) => void, thisArg?: any): void {
     this._map.forEach((value, key) => {
-      callbackfn.call(thisArg, value, JSON.parse(key), this);
+      callback.call(thisArg, value, JSON.parse(key), this);
     });
   }
 

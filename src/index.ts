@@ -11,7 +11,8 @@ import TM1Service from './services/tm1-service';
 
     try {
         // Request goes here        
-        const dimensions = await tm1.dimensions.getAllNames();
+        const cube = await tm1.cubes.get('Revenue');
+        const dimensions = cube.dimensions.map(dim => dim);
         console.log(dimensions);
 
     } catch (e) {
