@@ -115,7 +115,7 @@ class NativeView extends View {
     return this.constructBody();
   }
 
-  // TODO
+  // *TODO* Abstract ViewAxisSelection and ViewAxisTitle into seperate classes
   constructBody() {
     const body = {};
     body['@odata.type'] = "ibm.tm1.api.v1.NativeView";
@@ -125,25 +125,47 @@ class NativeView extends View {
     
     body['Columns'] = [];
     for (const column of this.columns) {
-      body['Columns'].push({
-        'Subset@odata.bind': 
-        `Dimensions('${column.subset.dimensionName}')/Hierarchies('${column.subset.hierarchyName}')/Subsets('${column.subset.name}')`
-      });
+      let subset: any;
+      if (column.subset.name) {
+        subset = {
+          'Subset@odata.bind': 
+          `Dimensions('${column.subset.dimensionName}')/Hierarchies('${column.subset.hierarchyName}')/Subsets('${column.subset.name}')`
+        }
+      } else {
+        subset = {Subset: column.subset.body};
+      }
+
+      body['Columns'].push(subset);
     }
 
     body['Rows'] = [];
     for (const row of this.rows) {
-      body['Rows'].push({
-        'Subset@odata.bind':
-        `Dimensions('${row.subset.dimensionName}')/Hierarchies('${row.subset.hierarchyName}')/Subsets('${row.subset.name}')`
-      });
+      let subset: any;
+      if (row.subset.name) {
+        subset = {
+          'Subset@odata.bind': 
+          `Dimensions('${row.subset.dimensionName}')/Hierarchies('${row.subset.hierarchyName}')/Subsets('${row.subset.name}')`
+        }
+      } else {
+        subset = {Subset: row.subset.body};
+      }
     }
 
     body['Titles'] = [];
+
     for (const title of this.titles) {
+      let subset: any;
+      if (title.subset.name) {
+        subset = {
+          'Subset@odata.bind': 
+          `Dimensions('${title.subset.dimensionName}')/Hierarchies('${title.subset.hierarchyName}')/Subsets('${title.subset.name}')`
+        }
+      } else {
+        subset = {Subset: title.subset.body};
+      }
+
       body['Titles'].push({
-        'Subset@odata.bind':
-        `Dimensions('${title.subset.dimensionName}')/Hierarchies('${title.subset.hierarchyName}')/Subsets('${title.subset.name}')`,
+        ...subset,
         'Selected@odata.bind':
         `Dimensions('${title.subset.dimensionName}')/Hierarchies('${title.subset.hierarchyName}')/Elements('${title.selected.name}')`
       });

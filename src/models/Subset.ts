@@ -50,6 +50,7 @@ class Subset {
         const body = {};
         body['Name'] = this.name;
         body['Alias'] = this.alias;
+        body['Hierarchy@odata.bind'] = `Dimensions('${this.dimensionName}')/Hierarchies('${this.hierarchyName}')`;
 
         if (this.elements.length) {
             body['Elements@odata.bind'] = [];
@@ -70,6 +71,7 @@ class Subset {
         const body = {};
         body['Name'] = this.name;
         body['Alias'] = this.alias;
+        body['Hierarchy@odata.bind'] = `Dimensions('${this.dimensionName}')/Hierarchies('${this.hierarchyName}')`;
         body['Expression'] = this.expression;
         return body;
     }
