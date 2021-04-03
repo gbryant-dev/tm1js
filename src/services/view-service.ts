@@ -26,9 +26,16 @@ class ViewService {
     return NativeView.fromJson(response);
   }
 
-  async getAll(): Promise<(NativeView | MDXView)[]> {
-    const response = await this.http.GET('/api/v1/Views?$expand=Dimensions($select=Name)');
-    return response['value'].map((view: any) => NativeView.fromJson(view));
+  async getAll(cubeName: string, isPrivate: boolean = false): Promise<(NativeView | MDXView)[]> {
+    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    const url = `/api/v1/Cubes('${cubeName}')/${viewType}?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name)`;
+    const response = await this.http.GET(url);
+    console.log(response);
+    return response['value'].map((view: any) => {
+      return view['@odata.type'] === '#ibm.tm1.api.v1.MDXView' ?
+        MDXView.fromJson(view) :
+        NativeView.fromJson(view)
+    });
   }
 
   async create(cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
@@ -41,8 +48,9 @@ class ViewService {
     return this.http.PATCH(`/api/v1/Cubes('${cubeName}')/${viewType}('${view.name}')`, view.body);
   }
 
-  async delete(viewName: string) {
-    return this.http.DELETE(`/api/v1/Views('${viewName}')`);
+  async delete(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
+    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    return this.http.DELETE(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')`);
   }
 
 }

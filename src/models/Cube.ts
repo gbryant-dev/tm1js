@@ -1,5 +1,11 @@
 import Dimension from "./dimension";
 
+// interface CubeBody {
+//   Name: string;
+//   'Dimensions@odata.bind': Array<string>;
+//   Rules?: string | null;
+// }
+
 class Cube {
 
   public name: string;
@@ -18,7 +24,10 @@ class Cube {
   }
 
   constructBody() {
-    const body = {}
+    let body = {
+      Name: this.name,
+      'Dimensions@odata.bind': []
+    }
 
     body['Name'] = this.name;
     body['Dimensions@odata.bind'] = [];

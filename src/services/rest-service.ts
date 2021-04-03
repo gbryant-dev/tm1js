@@ -13,6 +13,7 @@ class RestService {
     public namespace?: string;
     private baseUrl: string;
     private http: AxiosInstance;
+    private _version: string;
 
     constructor(
         address: string,
@@ -82,10 +83,12 @@ class RestService {
        // Build auth header
         console.log('Starting session...');
 
-        const request = '/api/v1/Configuration/ProductVersion/$value';
+        const url = '/api/v1/Configuration/ProductVersion/$value';
     
         try {
-            return await this.GET(request, {responseType: 'text'});
+            const version = await this.GET(url, {responseType: 'text'});
+            this._version = version as unknown as string;
+            return version;
             
         } catch (error) {
             if (error.status === 401) {
@@ -98,11 +101,17 @@ class RestService {
                     authHeader = 'Basic ' + Buffer.from(`${this.user}:${this.password}`).toString('base64');
                 }
 
-                return await this.GET(request, {headers: {'Authorization': authHeader}, responseType: 'text'})
+                const version = await this.GET(url, {headers: {'Authorization': authHeader}, responseType: 'text'})
+                this._version = version as unknown as string;
+                return version;
 
             }
         }
 
+    }
+
+    get version() {
+      return this._version;
     }
     
     async GET(url: string, config: AxiosRequestConfig = {}) {

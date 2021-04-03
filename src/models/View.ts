@@ -165,6 +165,7 @@ class NativeView extends View {
           `Dimensions('${row.subset.dimensionName}')/Hierarchies('${row.subset.hierarchyName}')/Subsets('${row.subset.name}')`
         }
       } else {
+        console.log(row.subset.body);
         subset = {Subset: row.subset.body};
       }
 

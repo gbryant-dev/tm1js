@@ -25,6 +25,10 @@ class TM1Service {
         await _rest.startSession();
         return new TM1Service(_rest);
     }
+
+    get version() {
+      return this._rest.version;
+    }
 }
 
 export default TM1Service;

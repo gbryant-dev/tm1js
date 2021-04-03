@@ -1,11 +1,17 @@
 import RestService from './rest-service';
 import Cube from '../models/cube';
+import ViewService from './view-service';
+import { View } from '../models/view';
+import { MinimalVersion } from '../utils/decorators';
+
 
 class CubeService {
 
     private http: RestService;
+    public views: ViewService;
     constructor(http: RestService) {
         this.http = http;
+        this.views = new ViewService(http);
     }
 
     async get(cubeName: string): Promise<Cube> {

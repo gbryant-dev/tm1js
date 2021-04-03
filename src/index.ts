@@ -8,17 +8,10 @@ import TM1Service from './services/tm1-service';
 
   const config = { address: 'localhost', port: 8543, user: 'admin', password: '', ssl: true };
   const tm1 = await TM1Service.connect(config);
-  const viewService = tm1.views;
 
   try {
-    // Request goes here   
-    const view = await viewService.get('Revenue', 'Default 2') as NativeView;
-    view.suppressEmptyCells();
-    console.log(view.body);
-    const response = await viewService.update('Revenue', view);
-    console.log(response);
-
-
+    console.log(tm1.version);
+    await tm1.cubes.get('Revenue');
   } catch (e) {
     console.log(e);
   }
