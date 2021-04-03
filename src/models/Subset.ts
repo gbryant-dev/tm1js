@@ -38,6 +38,10 @@ class Subset {
         )
     }
 
+    addElement(name: string) {
+      this.elements.push(name);
+    }
+
     get body() {
         if (this.expression) {
             return this.constructBodyDynamic();

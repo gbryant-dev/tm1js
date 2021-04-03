@@ -2,6 +2,7 @@ import RestService from "./rest-service";
 import CubeService from "./cube-service";
 import DimensionService from "./dimension-service";
 import ProcessService from "./process-service";
+import ViewService from "./view-service";
 
 class TM1Service {
 
@@ -9,12 +10,14 @@ class TM1Service {
     public cubes: CubeService;
     public dimensions: DimensionService;
     public processes: ProcessService;
+    public views: ViewService;
     constructor(rest: RestService) {
         // this._rest = new RestService(rest.address, rest.port, rest.user, rest.password, rest.ssl, rest.namespace); 
         this._rest = rest;
         this.cubes = new CubeService(this._rest);
         this.dimensions = new DimensionService(this._rest);
         this.processes = new ProcessService(this._rest);
+        this.views = new ViewService(this._rest);
     }
 
     static async connect(config: any) {

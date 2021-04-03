@@ -1,3 +1,5 @@
+
+import { ViewAxisSelection, ViewAxisTitle } from './view-axis';
 import { HierarchyElement } from "./element";
 import Subset from "./subset";
 
@@ -52,16 +54,30 @@ class NativeView extends View {
   ) {
     super();
     this.name = name;
-    this.columns = columns;
-    this.rows = rows;
-    this.titles = titles;
+
+    for (const c of columns) {
+      const column = ViewAxisSelection.fromJson(c);
+      this.columns.push(column);
+    }
+
+    for (const r of rows) {
+      const row = ViewAxisSelection.fromJson(r);
+      this.rows.push(row);
+    }
+
+    for (const t of titles) {
+      const title = ViewAxisTitle.fromJson(t);
+      this.titles.push(title);
+    }
+
     this.suppressEmptyColumns = suppressEmptyColumns;
     this.suppressEmptyRows = suppressEmptyRows;
 
   }
 
   addColumn(subset: Subset) {
-    this.columns.push({ subset });
+    const axis = new ViewAxisSelection(subset);
+    this.columns.push(axis);
   }
 
   removeColumn(column: ViewAxisSelection) {
@@ -72,7 +88,8 @@ class NativeView extends View {
   }
 
   addRow(subset: Subset) {
-    this.rows.push({ subset });
+    const axis = new ViewAxisSelection(subset);
+    this.rows.push(axis);
   }
 
   removeRow(row: ViewAxisSelection) {
@@ -84,7 +101,8 @@ class NativeView extends View {
   }
 
   addTitle(subset: Subset, selection: HierarchyElement) {
-    this.titles.push({ subset, selected: selection });
+    const axis = new ViewAxisTitle(subset, selection);
+    this.titles.push(axis);
   }
 
   removeTitle(title: ViewAxisTitle) {
@@ -149,6 +167,8 @@ class NativeView extends View {
       } else {
         subset = {Subset: row.subset.body};
       }
+
+      body['Rows'].push(subset);
     }
 
     body['Titles'] = [];
@@ -175,13 +195,13 @@ class NativeView extends View {
   }
 }
 
-interface ViewAxisSelection {
-  subset: Subset;
-}
+// interface ViewAxisSelection {
+//   subset: Subset;
+// }
 
-interface ViewAxisTitle {
-  subset: Subset;
-  selected: HierarchyElement;
-}
+// interface ViewAxisTitle {
+//   subset: Subset;
+//   selected: HierarchyElement;
+// }
 
 export { View, NativeView, MDXView }

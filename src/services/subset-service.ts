@@ -11,7 +11,8 @@ class SubsetService {
 
     async get(dimensionName: string, hierarchyName: string = null, subsetName: string, isPrivate: boolean = false) {
         const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets';
-        const response = await this.http.GET(`/ap1/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName || dimensionName}')/${subsetType}('${subsetName}')?$select=*,Alias&$expand=Hierarchy($select=Name),Elements($select=Name)`);
+        console.log(`/ap1/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName || dimensionName}')/${subsetType}('${subsetName}')?$select=*,Alias&$expand=Hierarchy($select=Name),Elements($select=Name)`);
+        const response = await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName || dimensionName}')/${subsetType}('${subsetName}')?$select=*,Alias&$expand=Hierarchy($select=Name),Elements($select=Name)`);
         return Subset.fromJson(response);
     }
 
