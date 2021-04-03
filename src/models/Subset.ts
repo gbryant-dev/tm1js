@@ -29,7 +29,8 @@ class Subset {
     static fromJson(data: any) {
         return new Subset(
             data.Name,
-            data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
+            // data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
+            data.Hierarchy.Dimension.Name,
             data.Hierarchy.Name,
             data.Alias,
             data.Expression,
