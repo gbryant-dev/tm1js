@@ -1,6 +1,8 @@
 class HierarchyElement {
     
     public name: string;
+    public hierarchyName: string;
+    public dimensionName: string;
     public type?: ElementType;
     public uniqueName?: string;
     public level?: number;
@@ -16,6 +18,9 @@ class HierarchyElement {
         attributes?: {[id: string]: string | number}
     ) {
         this.name = name;
+        this.dimensionName = uniqueName.substring(1, uniqueName.indexOf('].['));
+        // *TODO* - Make this hierarchy aware
+        this.hierarchyName = uniqueName.substring(1, uniqueName.indexOf('].['));
         this.type = type;
         this.uniqueName = uniqueName;
         this.level = level;

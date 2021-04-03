@@ -133,7 +133,6 @@ class NativeView extends View {
     return this.constructBody();
   }
 
-  // *TODO* Abstract ViewAxisSelection and ViewAxisTitle into seperate classes
   constructBody() {
     const body = {};
     body['@odata.type'] = "ibm.tm1.api.v1.NativeView";

@@ -3,6 +3,8 @@ import Cube from '../models/cube';
 import ViewService from './view-service';
 import { View } from '../models/view';
 import { MinimalVersion } from '../utils/decorators';
+import { HierarchyElement } from '../models/element';
+import { FedCellDescriptor, RuleSyntaxError } from '../models/response-types';
 
 
 class CubeService {
@@ -34,6 +36,26 @@ class CubeService {
 
     async delete(cubeName: string) {
         return this.http.DELETE(`/api/v1/Cubes('${cubeName}')`);
+    }
+
+    @MinimalVersion(11.1)
+    async checkRules(cubeName: string): Promise<RuleSyntaxError[]> {
+      const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckRules`, null);
+      return response['value'];
+    }
+
+    @MinimalVersion(11.1)
+    async checkFeeders(cubeName: string, elements: HierarchyElement[]): Promise<FedCellDescriptor[]> {
+      // Construct body consisting of elements that define the cell
+      const body = { 'Tuple@odata.bind': [] };
+
+      elements.map(element => {
+        const path = `Dimensions('${element.dimensionName}')/Hierarchies('${element.hierarchyName}')/Elements('${element.name}')`;
+        body['Tuple@odata.bind'].push(path);
+      });
+
+      const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckFeeders`, body);
+      return response['value'];
     }
 
 }

@@ -10,8 +10,8 @@ import TM1Service from './services/tm1-service';
   const tm1 = await TM1Service.connect(config);
 
   try {
-    console.log(tm1.version);
-    await tm1.cubes.get('Revenue');
+    const response = await tm1.cubes.checkRules('Revenue');
+    console.log(response);
   } catch (e) {
     console.log(e);
   }
