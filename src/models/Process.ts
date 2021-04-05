@@ -230,4 +230,4 @@ interface ProcessParameter {
     Type: ProcessVariableType;
 }
 
-export default Process;
+export { Process as default, ProcessParameter };

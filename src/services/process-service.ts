@@ -1,4 +1,4 @@
-import Process from "../models/process";
+import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
 
 
@@ -62,18 +62,21 @@ class ProcessService {
     }
 
     async create(process: Process): Promise<any> {
-        const response = await this.http.POST(`/api/v1/Processes`, process.body);
-        return response;
+        return await this.http.POST(`/api/v1/Processes`, process.body);
     }
 
     async update(process: Process): Promise<any> {
-        const response = await this.http.PATCH(`/api/v1/Processes('${process.name}')`, process.body);
-        return response;
+        return await this.http.PATCH(`/api/v1/Processes('${process.name}')`, process.body);
     }
 
     async delete(processName: string): Promise<any> {
-        const response = await this.http.DELETE(`/api/v1/Processes('${processName}')`);
-        return response;
+        return await this.http.DELETE(`/api/v1/Processes('${processName}')`);
+    }
+
+    async execute(processName: string, parameters: ProcessParameter[]) {
+      const url = `/api/v1/Processes('${processName})/tm1.Execute`;
+      const body = { Parameters: parameters };
+      return await this.http.POST(url, body);
     }
 
     async exists(processName: string): Promise<boolean> {

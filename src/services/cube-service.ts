@@ -4,7 +4,7 @@ import ViewService from './view-service';
 import { View } from '../models/view';
 import { MinimalVersion } from '../utils/decorators';
 import { HierarchyElement } from '../models/element';
-import { FedCellDescriptor, RuleSyntaxError } from '../models/response-types';
+import { FedCellDescriptor, RuleSyntaxError } from '../models/misc';
 
 
 class CubeService {
@@ -53,7 +53,7 @@ class CubeService {
         const path = `Dimensions('${element.dimensionName}')/Hierarchies('${element.hierarchyName}')/Elements('${element.name}')`;
         body['Tuple@odata.bind'].push(path);
       });
-
+      console.log(body);
       const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckFeeders`, body);
       return response['value'];
     }

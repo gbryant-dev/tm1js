@@ -3,6 +3,12 @@ import { ViewAxisSelection, ViewAxisTitle } from './view-axis';
 import { HierarchyElement } from "./element";
 import Subset from "./subset";
 
+
+enum ViewType {
+  NATIVE = 'ibm.tm1.api.v1.NativeView',
+  MDX = 'ibm.tm1.api.v1.MDXView'
+}
+
 abstract class View {
   abstract name: string;
 }
@@ -27,7 +33,7 @@ class MDXView extends View {
 
   constructBody() {
     const body = {}
-    body['@odata.type'] = "ibm.tm1.api.v1.MDXView";
+    body['@odata.type'] = ViewType.MDX;
     body['Name'] = this.name;
     body['MDX'] = this.mdx;
 
@@ -135,7 +141,7 @@ class NativeView extends View {
 
   constructBody() {
     const body = {};
-    body['@odata.type'] = "ibm.tm1.api.v1.NativeView";
+    body['@odata.type'] = ViewType.NATIVE;
     body['Name'] = this.name;
     body['SuppressEmptyColumns'] = this.suppressEmptyColumns;
     body['SuppressEmptyRows'] = this.suppressEmptyRows;
@@ -195,13 +201,4 @@ class NativeView extends View {
   }
 }
 
-// interface ViewAxisSelection {
-//   subset: Subset;
-// }
-
-// interface ViewAxisTitle {
-//   subset: Subset;
-//   selected: HierarchyElement;
-// }
-
-export { View, NativeView, MDXView }
+export { View, NativeView, MDXView, ViewType }

@@ -1,5 +1,5 @@
 import RestService from './rest-service';
-import { View, NativeView, MDXView } from '../models/view';
+import { View, NativeView, MDXView, ViewType } from '../models/view';
 
 class ViewService {
 
@@ -12,7 +12,7 @@ class ViewService {
     const viewType = isPrivate ? 'PrivateViews' : 'Views';
     const response = await this.http.GET(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')?$expand=*`);
     // return View.fromJson(response);
-    if (response['@odata.type'] === '#ibm.tm1.api.v1.MDXView') {
+    if (response['@odata.type'] === `#${ViewType.MDX}`) {
       return MDXView.fromJson(response);
     } else {
       return await this.getNativeView(cubeName, viewName, isPrivate);
@@ -32,7 +32,7 @@ class ViewService {
     const response = await this.http.GET(url);
     console.log(response);
     return response['value'].map((view: any) => {
-      return view['@odata.type'] === '#ibm.tm1.api.v1.MDXView' ?
+      return view['@odata.type'] === `#${ViewType.MDX}` ?
         MDXView.fromJson(view) :
         NativeView.fromJson(view)
     });
