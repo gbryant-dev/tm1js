@@ -3,7 +3,7 @@ import { HierarchyElement } from "./element";
 
 interface RuleSyntaxError {
   LineNumber: number;
-  Message: number;  
+  Message: number;
 }
 
 interface FedCellDescriptor {
@@ -12,4 +12,41 @@ interface FedCellDescriptor {
   Fed: boolean;
 }
 
-export { RuleSyntaxError, FedCellDescriptor }
+enum ProcessProcedure {
+  Prolog,
+
+  Metadata
+}
+
+interface ProcessSyntaxError {
+  Procedure: string;
+  LineNumber: number;
+  Message: string;
+}
+
+enum ProcessExecuteStatusCode {
+  CompletedSuccessfully = "CompletedSuccessfully",
+  Aborted = "Aborted",
+  HasMinorErrors = "HasMinorErrors",
+  QuitCalled = "QuitCalled",
+  CompletedWithMessages = "CompletedWithMessages",
+  RollbackCalled = "RollbackCalled"
+}
+
+interface ErrorLogFile {
+  Filename: string;
+  Content?: string
+}
+
+interface ProcessExecuteResult {
+  ProcessExecuteStatusCode: ProcessExecuteStatusCode,
+  ErrorLogFile?: ErrorLogFile
+}
+
+export {
+  RuleSyntaxError,
+  FedCellDescriptor,
+  ProcessSyntaxError,
+  ProcessExecuteResult,
+  ProcessExecuteStatusCode
+}

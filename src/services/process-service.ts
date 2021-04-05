@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+import { ProcessExecuteResult, ProcessSyntaxError } from "../models/misc";
 import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
 
@@ -73,10 +75,30 @@ class ProcessService {
         return await this.http.DELETE(`/api/v1/Processes('${processName}')`);
     }
 
-    async execute(processName: string, parameters: ProcessParameter[]) {
-      const url = `/api/v1/Processes('${processName})/tm1.Execute`;
+    async execute(processName: string, parameters?: { Name: string, Value: string | number }[]) {
+      const url = `/api/v1/Processes('${processName}')/tm1.Execute`;
       const body = { Parameters: parameters };
       return await this.http.POST(url, body);
+    }
+
+    async executeWithReturn (processName: string, parameters: { Name: string, Value: string | number }[]): Promise<AxiosResponse<ProcessExecuteResult>> {
+      const url = `/api/v1/Processes('${processName}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
+      const body = { Parameters: parameters };
+      const result = await this.http.POST(url, body);
+      return result;
+    }
+
+    async compileProcess (process: Process): Promise<AxiosResponse<ProcessSyntaxError[]>> {
+      const body = { Process: process.body };
+      const response = await this.http.POST('/api/v1/CompileProcess', body)
+      return response['value'];
+    }
+
+    async getErrorLogFileContent(filename: string) {
+      return await this.http.GET(
+        `/api/v1/ErrorLogFiles('${filename}')/Content`,
+        { responseType: 'text' }
+      );
     }
 
     async exists(processName: string): Promise<boolean> {

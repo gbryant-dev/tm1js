@@ -3,6 +3,7 @@ import Process from './models/process';
 import Subset from './models/subset';
 import { NativeView } from './models/view';
 import TM1Service from './services/tm1-service';
+import { ProcessExecuteStatusCode } from './models/misc';
 
 
 (async function () {
@@ -11,23 +12,9 @@ import TM1Service from './services/tm1-service';
   const tm1 = await TM1Service.connect(config);
 
   try {
-    // let process  = new Process('Test', true);
-    // process = await tm1.processes.create(process); 
-    let process = await tm1.processes.get('Test');
-    console.log(process);
-    process.removeVariable('measur');
-
-
-    
-    // process.addParameter('pDebug', '', 0);
-    // process.addVariable('Measure', "Numeric");
-    process = await tm1.processes.update(process);
-    console.log(process);
-
-
     
   } catch (e) {
-    console.log(e);
+    console.log(e.data);
   }
 
 })()
