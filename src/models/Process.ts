@@ -48,7 +48,7 @@ class Process {
   ) {
     this.name = name;
     this.hasSecurityAccess = hasSecurityAccess,
-      this.prologProcedure = Process.addGeneratedStatement(prologProcedure);
+    this.prologProcedure = Process.addGeneratedStatement(prologProcedure);
     this.metadataProcedure = Process.addGeneratedStatement(metadataProcedure);
     this.dataProcedure = Process.addGeneratedStatement(dataProcedure);
     this.epilogProcedure = Process.addGeneratedStatement(epilogProcedure);
@@ -151,6 +151,9 @@ class Process {
     // Create DataSource body based on type
     switch (this.dataSource.Type) {
       case DataSourceType.None:
+        body['DataSource'] = {
+          Type: DataSourceType.None
+        }
         break;
       case DataSourceType.ASCII:
         body['DataSource'] = {
@@ -196,6 +199,7 @@ class Process {
           view: this.dataSource.view
         }
         break;
+
       default:
         break;
     }

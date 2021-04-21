@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios";
 import { ProcessExecuteResult, ProcessSyntaxError } from "../models/misc";
 import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
-import { randomBytes } from 'crypto';
+import { v4 as uuid } from 'uuid';
 
 class ProcessService {
 
@@ -83,7 +83,7 @@ class ProcessService {
 
     async executeTICode (prolog: string, epilog: string = '') {
 
-      const name = '}TM1ts_' + randomBytes(8).toString('hex');
+      const name = '}TM1ts_' + uuid();
       let process = new Process(name);
       process.prologProcedure = Process.addGeneratedStatement(prolog);
       process.epilogProcedure = Process.addGeneratedStatement(epilog);
