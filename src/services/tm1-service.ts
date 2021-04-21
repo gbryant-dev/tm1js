@@ -3,6 +3,7 @@ import CubeService from "./cube-service";
 import DimensionService from "./dimension-service";
 import ProcessService from "./process-service";
 import ViewService from "./view-service";
+import { SecurityService } from "./security-service";
 
 class TM1Service {
 
@@ -11,6 +12,7 @@ class TM1Service {
     public dimensions: DimensionService;
     public processes: ProcessService;
     public views: ViewService;
+    public security: SecurityService;
     constructor(rest: RestService) {
         // this._rest = new RestService(rest.address, rest.port, rest.user, rest.password, rest.ssl, rest.namespace); 
         this._rest = rest;
@@ -18,6 +20,7 @@ class TM1Service {
         this.dimensions = new DimensionService(this._rest);
         this.processes = new ProcessService(this._rest);
         this.views = new ViewService(this._rest);
+        this.security = new SecurityService(this._rest);
     }
 
     static async connect(config: any) {
