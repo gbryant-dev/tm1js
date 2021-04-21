@@ -12,12 +12,6 @@ interface FedCellDescriptor {
   Fed: boolean;
 }
 
-enum ProcessProcedure {
-  Prolog,
-
-  Metadata
-}
-
 interface ProcessSyntaxError {
   Procedure: string;
   LineNumber: number;

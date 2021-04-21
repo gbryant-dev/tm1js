@@ -3,6 +3,13 @@ import { Agent } from 'https';
 import { CookieJar } from 'tough-cookie';
 import axiosCookieJarSupport from 'axios-cookiejar-support';
 
+const HEADERS = {
+  'Content-Type': 'application/json; charset=utf-8',
+  'Accept': 'application/json; odata.metadata=none, text/plain',
+  'Tm1-SessionContext': 'TM1ts'
+}
+
+
 class RestService {
 
     public address: string;
@@ -32,11 +39,7 @@ class RestService {
         this.namespace = namespace;
         this.baseUrl = `http${ssl ? 's' : ''}://${address ? address : 'localhost'}:${port}`;
         this.http = axios.create({
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-                'Accept': 'application/json; odata.metadata=none, text/plain',
-                'Tm1-SessionContext': 'TM1ts'
-            },
+            headers: HEADERS,
             withCredentials: true,
             httpsAgent: new Agent({rejectUnauthorized: false})
         });

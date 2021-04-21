@@ -1,3 +1,5 @@
+import { extractComponentsFromUniqueName } from '../utils/helpers';
+
 class HierarchyElement {
     
     public name: string;
@@ -15,12 +17,12 @@ class HierarchyElement {
         uniqueName?: string,
         level?: number,
         index?: number,
-        attributes?: {[id: string]: string | number}
+        attributes?: {[key: string]: string | number}
     ) {
         this.name = name;
-        this.dimensionName = uniqueName.substring(1, uniqueName.indexOf('].['));
-        // *TODO* - Make this hierarchy aware
-        this.hierarchyName = uniqueName.substring(1, uniqueName.indexOf('].['));
+        const { dimension, hierarchy } = extractComponentsFromUniqueName(uniqueName);
+        this.dimensionName = dimension;
+        this.hierarchyName = hierarchy;
         this.type = type;
         this.uniqueName = uniqueName;
         this.level = level;

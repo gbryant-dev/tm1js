@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios";
 import { ProcessExecuteResult, ProcessSyntaxError } from "../models/misc";
 import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
-
+import { randomBytes } from 'crypto';
 
 class ProcessService {
 
@@ -81,7 +81,26 @@ class ProcessService {
       return await this.http.POST(url, body);
     }
 
-    async executeWithReturn (processName: string, parameters: { Name: string, Value: string | number }[]): Promise<AxiosResponse<ProcessExecuteResult>> {
+    async executeTICode (prolog: string, epilog: string = '') {
+
+      const name = '}TM1ts_' + randomBytes(8).toString('hex');
+      let process = new Process(name);
+      process.prologProcedure = Process.addGeneratedStatement(prolog);
+      process.epilogProcedure = Process.addGeneratedStatement(epilog);
+
+      
+      try { 
+        await this.create(process);
+        return await this.executeWithReturn(process.name);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        await this.delete(process.name);
+      }
+
+    }
+
+    async executeWithReturn (processName: string, parameters?: { Name: string, Value: string | number }[]): Promise<AxiosResponse<ProcessExecuteResult>> {
       const url = `/api/v1/Processes('${processName}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
       const body = { Parameters: parameters };
       const result = await this.http.POST(url, body);
