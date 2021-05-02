@@ -1,7 +1,6 @@
 import RestService from './rest-service';
 import Cube from '../models/cube';
 import ViewService from './view-service';
-import { View } from '../models/view';
 import { MinimalVersion } from '../utils/decorators';
 import { HierarchyElement } from '../models/element';
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc';

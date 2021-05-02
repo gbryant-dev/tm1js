@@ -54,12 +54,12 @@ class ElementService {
     async getElementsFilteredByAttribute(dimensionName: string, hierarchyName: string, attrName: string, attrValue: string | number): Promise<string[]> {
         const attr = attrName.replace(/\s/g, '');
 
-        let url = '';
+        let url = `/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/Elements?$select=Name`;
 
         if (typeof attrValue === 'string') {
-            url = `/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/Elements?$select=Name&$filter=Attributes/${attr} eq '${attrValue}'`;
+            url += `&$filter=Attributes/${attr} eq '${attrValue}'`;
         } else {
-            url = `/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/Elements?$select=Name&$filter=Attributes/${attr} eq ${attrValue}`;
+            url += `$filter=Attributes/${attr} eq ${attrValue}`;
         }
         const response = await this.http.GET(url);
         return response['value'].map((element: any) => element['Name'])

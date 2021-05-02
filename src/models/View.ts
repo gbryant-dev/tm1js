@@ -148,52 +148,20 @@ class NativeView extends View {
     
     body['Columns'] = [];
     for (const column of this.columns) {
-      let subset: any;
-      if (column.subset.name) {
-        subset = {
-          'Subset@odata.bind': 
-          `Dimensions('${column.subset.dimensionName}')/Hierarchies('${column.subset.hierarchyName}')/Subsets('${column.subset.name}')`
-        }
-      } else {
-        subset = {Subset: column.subset.body};
-      }
 
-      body['Columns'].push(subset);
+      body['Columns'].push(column.body);
     }
 
     body['Rows'] = [];
-    for (const row of this.rows) {
-      let subset: any;
-      if (row.subset.name) {
-        subset = {
-          'Subset@odata.bind': 
-          `Dimensions('${row.subset.dimensionName}')/Hierarchies('${row.subset.hierarchyName}')/Subsets('${row.subset.name}')`
-        }
-      } else {
-        subset = {Subset: row.subset.body};
-      }
 
-      body['Rows'].push(subset);
+    for (const row of this.rows) {
+      body['Rows'].push(row.body);
     }
 
     body['Titles'] = [];
 
     for (const title of this.titles) {
-      let subset: any;
-      if (title.subset.name) {
-        subset = {
-          'Subset@odata.bind': 
-          `Dimensions('${title.subset.dimensionName}')/Hierarchies('${title.subset.hierarchyName}')/Subsets('${title.subset.name}')`
-        }
-      } else {
-        subset = {Subset: title.subset.body};
-      }
-
-      body['Titles'].push({
-        ...subset,
-        'Selected@odata.bind':
-        `Dimensions('${title.subset.dimensionName}')/Hierarchies('${title.subset.hierarchyName}')/Elements('${title.selected.name}')`
-      });
+      body['Titles'].push(title.body)
     }
 
     return body;

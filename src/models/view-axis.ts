@@ -17,9 +17,16 @@ class ViewAxisSelection {
   }
 
   constructBody() {
-    const body = {};
+    const body = { Subset: null };
 
-    body['Subset'] = this.subset.body;
+      if (this.subset.name) {
+        body['Subset'] = {
+          'Subset@odata.bind': 
+          `Dimensions('${this.subset.dimensionName}')/Hierarchies('${this.subset.hierarchyName}')/Subsets('${this.subset.name}')`
+        }
+      } else {
+        body['Subset'] = this.subset.body;
+      }
     
     return body;
   }
@@ -45,11 +52,20 @@ class ViewAxisTitle {
   }
 
   constructBody() {
-    const body = {};
-    
-    body['Subset'] = this.subset.body;
-    body['Selected'] = this.selected.name;
+    const body = { Subset: null, 'Selected@odata.bind': null };
 
+      if (this.subset.name) {
+        body['Subset'] = {
+          'Subset@odata.bind': 
+          `Dimensions('${this.subset.dimensionName}')/Hierarchies('${this.subset.hierarchyName}')/Subsets('${this.subset.name}')`
+        }
+      } else {
+        body['Subset'] = this.subset.body;
+      }
+
+      body['Selected@odata.bind'] = 
+      `Dimensions('${this.subset.dimensionName}')/Hierarchies('${this.subset.hierarchyName}')/Elements('${this.selected.name}')`
+    
     return body;
   }
 }
