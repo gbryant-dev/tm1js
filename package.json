@@ -1,7 +1,7 @@
 {
   "name": "tm1ts",
-  "version": "1.0.0",
-  "description": "A TypeScript library that wraps the TM1 REST API",
+  "version": "0.1.0",
+  "description": "A JavaScript library that wraps the TM1 REST API written in TypeScript",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [

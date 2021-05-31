@@ -1,4 +1,4 @@
-## A TypeScript library that wraps the TM1 REST API
+## A JavaScript library that wraps the TM1 REST API written in TypeScript
 
 ### Connect 
 ``` javascript
