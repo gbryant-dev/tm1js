@@ -45,6 +45,10 @@ class HierarchyService {
     return this.http.DELETE(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')`);
   }
 
+  async getDefaultMember (dimensionName: string, hierarchyName: string) {
+    return this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/DefaultMember`);
+  }
+
 }
 
 export default HierarchyService;

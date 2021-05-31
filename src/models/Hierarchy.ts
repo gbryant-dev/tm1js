@@ -4,6 +4,7 @@ import Subset from "./subset";
 import { HierarchyElement, ElementType } from "./element";
 import ElementAttribute from "./element-attribute";
 import TupleMap from '../utils/tuple-map';
+import CaseAndSpaceInsensitiveMap from "../utils/case-and-space-insensitive-map";
 
 
 class Hierarchy {
@@ -27,7 +28,7 @@ class Hierarchy {
     this.name = name;
     this.dimensionName = dimensionName;
 
-    this._elements = new Map();
+    this._elements = new CaseAndSpaceInsensitiveMap();
     if (elements) {
       for (const element of elements) {
         const el = HierarchyElement.fromJson(element)
