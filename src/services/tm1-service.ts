@@ -25,7 +25,7 @@ class TM1Service {
 
     static async connect(config: any) {
         const _rest = new RestService(config.address, config.port, config.user, config.password, config.ssl, config.namespace); 
-        await _rest.startSession();
+        await _rest.startSession(config.user, config.password, config.namespace, config.impersonate);
         return new TM1Service(_rest);
     }
 
