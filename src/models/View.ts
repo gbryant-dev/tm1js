@@ -9,6 +9,11 @@ enum ViewType {
   MDX = 'ibm.tm1.api.v1.MDXView'
 }
 
+enum ViewContext {
+  PUBLIC = 'Views',
+  PRIVATE = 'PrivateViews'
+}
+
 abstract class View {
   abstract name: string;
 }
@@ -168,4 +173,4 @@ class NativeView extends View {
   }
 }
 
-export { View, NativeView, MDXView, ViewType }
+export { View, NativeView, MDXView, ViewType, ViewContext }

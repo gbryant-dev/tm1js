@@ -1,5 +1,5 @@
 import RestService from './rest-service';
-import { View, NativeView, MDXView, ViewType } from '../models/view';
+import { NativeView, MDXView, ViewType, ViewContext } from '../models/view';
 
 class ViewService {
 
@@ -9,9 +9,8 @@ class ViewService {
   }
 
   async get(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<MDXView | NativeView> {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
     const response = await this.http.GET(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')?$expand=*`);
-    // return View.fromJson(response);
     if (response['@odata.type'] === `#${ViewType.MDX}`) {
       return MDXView.fromJson(response);
     } else {
@@ -20,17 +19,16 @@ class ViewService {
   }
 
   async getNativeView(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<NativeView> {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
-    const url = `/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name)`;
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
+    const url = `/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name,UniqueName)`;
     const response = await this.http.GET(url);
     return NativeView.fromJson(response);
   }
 
   async getAll(cubeName: string, isPrivate: boolean = false): Promise<(NativeView | MDXView)[]> {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
-    const url = `/api/v1/Cubes('${cubeName}')/${viewType}?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name)`;
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
+    const url = `/api/v1/Cubes('${cubeName}')/${viewType}?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name,UniqueName)`;
     const response = await this.http.GET(url);
-    console.log(response);
     return response['value'].map((view: any) => {
       return view['@odata.type'] === `#${ViewType.MDX}` ?
         MDXView.fromJson(view) :
@@ -39,17 +37,17 @@ class ViewService {
   }
 
   async create(cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
     return this.http.POST(`/api/v1/Cubes('${cubeName}')/${viewType}`, view.body);
   }
 
   async update(cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
     return this.http.PATCH(`/api/v1/Cubes('${cubeName}')/${viewType}('${view.name}')`, view.body);
   }
 
   async delete(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
-    const viewType = isPrivate ? 'PrivateViews' : 'Views';
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
     return this.http.DELETE(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')`);
   }
 
