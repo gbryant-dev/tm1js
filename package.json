@@ -11,7 +11,8 @@
     "start": "tsc && node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "clean": "del-cli ./dist/*",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "test": "ts-node-dev --respawn --transpile-only src/test.ts"
   },
   "keywords": [
     "TM1",
