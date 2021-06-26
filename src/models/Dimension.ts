@@ -1,3 +1,4 @@
+import { caseAndSpaceInsensitiveEquals } from "../utils/helpers";
 import Hierarchy from "./hierarchy";
 
 class Dimension {
@@ -25,7 +26,7 @@ class Dimension {
     hasHierarchy(hierarchyName: string) {
         
         for (const hierarchy of this.hierarchies) {
-            if (hierarchy.name === hierarchyName) {
+            if (caseAndSpaceInsensitiveEquals(hierarchy.name, hierarchyName)) {
                 return true;
             }
         }
@@ -73,7 +74,7 @@ class Dimension {
         if (this.hierarchies) {
             body['Hierarchies'] = [];
             for (const hierarchy of this.hierarchies) {
-                if (hierarchy.name !== 'Leaves') {
+                if (hierarchy.name.toLowerCase() !== 'leaves') {
                     body['Hierarchies'].push(hierarchy.body);
                 }
             }

@@ -23,6 +23,16 @@ const extractComponentsFromUniqueName = (uniqueName: string): { dimension: strin
   }
 }
 
+const removeSpacesAndLower = (str: string): string => {
+  return str.replace(/\s/g, '').toLowerCase()
+}
+
+const caseAndSpaceInsensitiveEquals = (str1: string, str2: string): boolean => {
+  return removeSpacesAndLower(str1) === removeSpacesAndLower(str2)
+}
+
 export { 
-  extractComponentsFromUniqueName
+  extractComponentsFromUniqueName,
+  removeSpacesAndLower,
+  caseAndSpaceInsensitiveEquals
 }
