@@ -29,6 +29,10 @@ class TM1Service {
         return new TM1Service(_rest);
     }
 
+    async logout() {
+      return await this._rest.logout()
+    }
+
     get version() {
       return this._rest.version;
     }

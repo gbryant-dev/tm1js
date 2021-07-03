@@ -120,6 +120,10 @@ class RestService {
     return this._version;
   }
 
+  async logout() {
+    return await this.POST(`/api/v1/ActiveSession/tm1.Close`, null, { headers: { 'Connection': 'close' }});
+  }
+
   async GET(url: string, config: AxiosRequestConfig = {}) {
     return this.http.get(url, config);
   }
