@@ -27,3 +27,5 @@ class Member {
     return body;
   }
 }
+
+export { Member as default }

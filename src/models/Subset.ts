@@ -1,3 +1,5 @@
+import { extractComponentsFromUniqueName } from "../utils/helpers";
+
 class Subset {
 
     public name: string;
@@ -17,6 +19,7 @@ class Subset {
         elements?: string[],
         uniqueName?: string,
     ) {
+
         this.name = name;
         this.dimensionName = dimensionName;
         this.hierarchyName = hierarchyName || dimensionName;
@@ -27,16 +30,15 @@ class Subset {
     }
 
     static fromJson(data: any) {
-        return new Subset(
-            data.Name,
-            // data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
-            data.Hierarchy.Dimension.Name,
-            data.Hierarchy.Name,
-            data.Alias,
-            data.Expression,
-            data.Elements.map((e: any) => e['Name']),
-            data.UniqueName
-        )
+      return new Subset(
+        data.Name,
+        data.Hierarchy.Dimension.Name, 
+        data.Hierarchy.Name,
+        data.Alias,
+        data.Expression,
+        data.Elements?.map((e: any) => e['Name']) ?? [],
+        data.UniqueName
+      )
     }
 
     addElement(name: string) {

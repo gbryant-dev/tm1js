@@ -86,7 +86,6 @@ class RestService {
 
   public async startSession(user: string, password: string, namespace: string, impersonate: string) {
     // Build auth header
-    console.log('Starting session...');
 
     const url = '/api/v1/Configuration/ProductVersion/$value';
 

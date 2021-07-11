@@ -11,8 +11,7 @@ class Group {
 
     if (users) {
       this.users = [];
-      for (const u of users) {
-        const user = User.fromJson(u);
+      for (const user of users) {
         this.users.push(user);
       }
     }
@@ -22,7 +21,7 @@ class Group {
   static fromJson(data: any) {
     return new Group(
       data.Name,
-      data.Users
+      data.Users.map(user => User.fromJson(user))
     );
   }
 

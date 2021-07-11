@@ -64,3 +64,5 @@ class Server {
     return body;
   }
 }
+
+export { Server as default }

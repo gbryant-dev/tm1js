@@ -10,11 +10,10 @@ import CaseAndSpaceInsensitiveMap from "../utils/case-and-space-insensitive-map"
 class Hierarchy {
   public name: string;
   public dimensionName: string;
-  // public edges?: Edge[] = [];
   public elementAttributes?: ElementAttribute[] = [];
   public subsets?: Subset[] = [];
 
-  private _elements: Map<string, HierarchyElement>;
+  private _elements: CaseAndSpaceInsensitiveMap<string, HierarchyElement>;
   private _edges: TupleMap;
 
   constructor(
@@ -31,8 +30,7 @@ class Hierarchy {
     this._elements = new CaseAndSpaceInsensitiveMap();
     if (elements) {
       for (const element of elements) {
-        const el = HierarchyElement.fromJson(element)
-        this._elements.set(el.name, el);
+        this._elements.set(element.name, element);
       }
     }
 
@@ -40,9 +38,7 @@ class Hierarchy {
     if (edges) {
 
       for (const edge of edges) {
-        // this.edges.push(Edge.fromJson(edge))
-        const e = Edge.fromJson(edge);
-        this._edges.set([e.parentName, e.componentName], e.weight);
+        this._edges.set([edge.parentName, edge.componentName], edge.weight);
       }
     }
 
@@ -72,10 +68,10 @@ class Hierarchy {
     return new Hierarchy(
       data.Name,
       data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
-      data.Elements,
-      data.Edges,
-      data.ElementAttributes,
-      data.Subsets
+      data.Elements.map(element => HierarchyElement.fromJson(element)),
+      data.Edges.map(edge => Edge.fromJson(edge)),
+      data.ElementAttributes.map(ea => ElementAttribute.fromJson(ea)),
+      data.Subsets.map(subset => Subset.fromJson(subset))
     )
   }
 

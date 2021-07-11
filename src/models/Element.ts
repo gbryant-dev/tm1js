@@ -20,9 +20,9 @@ class HierarchyElement {
         attributes?: {[key: string]: string | number}
     ) {
         this.name = name;
-        const { dimension, hierarchy } = extractComponentsFromUniqueName(uniqueName);
-        this.dimensionName = dimension;
-        this.hierarchyName = hierarchy;
+        // const { dimension, hierarchy } = extractComponentsFromUniqueName(uniqueName);
+        // this.dimensionName = dimension;
+        // this.hierarchyName = hierarchy;
         this.type = type;
         this.uniqueName = uniqueName;
         this.level = level;

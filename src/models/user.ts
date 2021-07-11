@@ -31,18 +31,16 @@ class User {
     this.password = password;
 
     if (groups) {
+      this.groups = [];
       for (const g of groups) {
-        this.groups = [];
-        const group = Group.fromJson(g);
-        this.groups.push(group);
+        this.groups.push(g);
       }
     }
 
     if (sessions) {
+      this.sessions = [];
       for (const s of sessions) {
-        this.sessions = [];
-        const session = Session.fromJson(s);
-        this.sessions.push(session);
+        this.sessions.push(s);
       }
     }
   }
@@ -56,8 +54,8 @@ class User {
       data.isActive,
       data.Enabled,
       data.Password,
-      data.Groups,
-      data.Sessions
+      data.Groups.map(group => Group.fromJson(group)),
+      data.Sessions.map(session => Session.fromJson(session))
     );
   }
 

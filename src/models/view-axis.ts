@@ -5,11 +5,11 @@ class ViewAxisSelection {
 
   public subset: Subset;
   constructor(subset: Subset) {
-    this.subset = Subset.fromJson(subset);
+    this.subset = subset;
   }
 
   static fromJson (data: any) {
-    return new ViewAxisSelection(data.Subset);
+    return new ViewAxisSelection(Subset.fromJson(data.Subset));
   }
 
   get body() {
@@ -39,12 +39,12 @@ class ViewAxisTitle {
   public selected: HierarchyElement;
 
   constructor (subset: Subset, selected: HierarchyElement) {
-    this.subset = Subset.fromJson(subset);
-    this.selected = HierarchyElement.fromJson(selected);
+    this.subset = subset;
+    this.selected = selected;
   }
 
   static fromJson (data: any) {
-    return new ViewAxisTitle(data.Subset, data.Selected);
+    return new ViewAxisTitle(Subset.fromJson(data.Subset), HierarchyElement.fromJson(data.Selected));
   }
 
   get body() {

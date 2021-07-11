@@ -15,29 +15,33 @@ class HierarchyService {
     this.subsets = new SubsetService(this.http);
   }
 
+  
+  async get(dimensionName: string, hierarchyName: string) {
+    const url = `/api/v1/Dimensions('${encodeURIComponent(dimensionName)}')/Hierarchies('${encodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
+    const response = await this.http.GET(url);
+    return Hierarchy.fromJson(response);
+  }
+
+  async getAll (dimensionName: string) {
+    const url = `/api/v1/Dimensions('${encodeURIComponent(dimensionName)}')/Hierarchies?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
+    const response = await this.http.GET(url)
+    return response['value'].map((hierarchy: any) => Hierarchy.fromJson(hierarchy));
+  }
+  
+  async getAllNames(dimensionName: string): Promise<string[]> {
+    const response = await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies?$select=Name`);
+    return response['value'].map((hierarchy: any) => hierarchy['Name']);
+  }
+  
   async create(hierarchy: Hierarchy) {
     const response = await this.http.POST(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies`, hierarchy.body);
     return response;
   }
 
-  async get(dimensionName: string, hierarchyName: string) {
-    const url = `/api/v1/Dimensions('${encodeURIComponent(dimensionName)}')/Hierarchies('${encodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
-    console.log(url);
-    const response = await this.http.GET(url);
-    console.log(response);
-    return Hierarchy.fromJson(response);
-  }
-
-  async getAllNames(dimensionName: string): Promise<string[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies?$select=Name`);
-    return response['value'].map((hierarchy: any) => hierarchy['Name']);
-  }
-
   async update(hierarchy: Hierarchy) {
     const body = hierarchy.body;
     // del body['Edges'];
-    const response = await this.http.PATCH(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies('${hierarchy.name}')`, body);
-
+    const response = await this.http.PATCH(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies('${hierarchy.name}')`, body);  
     return response;
   }
 

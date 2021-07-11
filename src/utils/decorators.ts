@@ -6,7 +6,6 @@ function MinimalVersion(version: number) {
     const original = descriptor.value;
 
     descriptor.value = function(...args: any[]) {
-      console.log(this.http.version, version < Number(this.http.version.slice(0, 4)));
       if (version <= Number(this.http.version.slice(0, 4))) {
         const result = original.apply(this, args);
         return result;

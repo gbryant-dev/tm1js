@@ -17,9 +17,24 @@ class DimensionService {
         return Dimension.fromJson(response);
     }
 
+    async getAll(): Promise<Dimension[]> {
+      const response = await this.http.GET('/api/v1/Dimensions?$expand=Hierarchies($expand=*)');
+      return response['value'].map((dimension: any) => Dimension.fromJson(dimension));
+    }
+
     async getAllNames(): Promise<string[]> {
-        const response = await this.http.GET('/api/v1/Dimensions?$select=Name');
-        return response['value'].map((dimension: any) => dimension['Name']);
+      const response = await this.http.GET('/api/v1/Dimensions?$select=Name');
+      return response['value'].map((dimension: any) => dimension['Name']);
+    }
+
+    async getModelDimensions(): Promise<Dimension[]> {
+      const response = await this.http.GET('/api/v1/ModelDimensions()?$expand=Hierarchies($expand=*)');
+      return response['value'].map((dimension: any) => Dimension.fromJson(dimension));
+    }
+
+    async getControlDimensions(): Promise<Dimension[]> {
+      const response = await this.http.GET('/api/v1/ControlDimensions()?$expand=Hierarchies($expand=*)');
+      return response['value'].map((dimension: any) => Dimension.fromJson(dimension));
     }
 
     async create(dimension: Dimension): Promise<any> {
@@ -33,6 +48,18 @@ class DimensionService {
     async delete(dimensionName: string): Promise<any> {
         return this.http.DELETE(`/api/v1/Dimensions('${dimensionName}')`);
     }
+
+    async exists(dimensionName: string): Promise<boolean> {
+      try {
+          await this.http.GET(`/api/v1/Dimensions('${dimensionName}')?$select=Name`);
+          return true;
+      } catch (e) {
+          if (e.status === 404) {
+              return false;
+          }
+          return e;
+      }
+  }
 
 }
 

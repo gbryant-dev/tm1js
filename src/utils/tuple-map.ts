@@ -2,7 +2,7 @@ import CaseAndSpaceInsensitiveMap from "./case-and-space-insensitive-map";
 
 class TupleMap {
 
-  private _map = new CaseAndSpaceInsensitiveMap<string, string | number>();
+  private _map: CaseAndSpaceInsensitiveMap<string, string | number>;
 
   constructor() {
     this._map = new CaseAndSpaceInsensitiveMap();
@@ -35,7 +35,7 @@ class TupleMap {
     });
   }
 
-  // Must be a better way of doing this. Should try an iterator 
+  // Probably a better way of doing this
   values() {
     const entries = Array.from(this._map.entries());
     let step = 0;

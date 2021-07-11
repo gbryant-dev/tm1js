@@ -7,18 +7,18 @@ class Dimension {
     public hierarchies?: Hierarchy[] = []
     public defaultHierarchy?: Hierarchy;
 
-    constructor(name: string, uniqueName?: string, hierarchies?: Hierarchy[], defaultHierarchy?: Hierarchy) {
+    constructor(name: string, hierarchies?: Hierarchy[], uniqueName?: string, defaultHierarchy?: Hierarchy) {
         this.name = name;
         this.uniqueName = uniqueName;
 
         if (hierarchies) {
             for (const hierarchy of hierarchies) {
-                this.hierarchies.push(Hierarchy.fromJson(hierarchy))
+                this.hierarchies.push(hierarchy)
             }
         }
 
         if (defaultHierarchy) {
-            this.defaultHierarchy = Hierarchy.fromJson(defaultHierarchy)
+            this.defaultHierarchy = defaultHierarchy
         }
     }
 
@@ -57,8 +57,8 @@ class Dimension {
     static fromJson(data: any): Dimension {
        return new Dimension(
            data.Name, 
+           data.Hierarchies.map(hierarchy => Hierarchy.fromJson(hierarchy)),
            data.UniqueName, 
-           data.Hierarchies,
            data.DefaultHierarchy
         );
     }

@@ -67,18 +67,15 @@ class NativeView extends View {
     this.name = name;
 
     for (const c of columns) {
-      const column = ViewAxisSelection.fromJson(c);
-      this.columns.push(column);
+      this.columns.push(c);
     }
 
     for (const r of rows) {
-      const row = ViewAxisSelection.fromJson(r);
-      this.rows.push(row);
+      this.rows.push(r);
     }
 
     for (const t of titles) {
-      const title = ViewAxisTitle.fromJson(t);
-      this.titles.push(title);
+      this.titles.push(t);
     }
 
     this.suppressEmptyColumns = suppressEmptyColumns;
@@ -132,9 +129,9 @@ class NativeView extends View {
   static fromJson(data: any): NativeView {
     return new NativeView(
       data.Name,
-      data.Columns,
-      data.Rows,
-      data.Titles,
+      data.Columns.map(column => ViewAxisSelection.fromJson(column)),
+      data.Rows.map(row => ViewAxisSelection.fromJson(row)),
+      data.Titles.map(title => ViewAxisTitle.fromJson(title)),
       data.SuppressEmptyColumns,
       data.SuppressEmptyRows
     )

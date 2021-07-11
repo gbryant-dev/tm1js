@@ -25,6 +25,21 @@ class CubeService {
         return response['value'].map((cube: any) => Cube.fromJson(cube));
     }
 
+    async getAllNames(): Promise<string[]> {
+      const response = await this.http.GET('/api/v1/Cubes?$select=Name');
+      return response['value'].map((cube: { Name: string }) => cube.Name);
+    }
+
+    async getModelCubes(): Promise<Cube[]> {
+      const response = await this.http.GET('/api/v1/ModelCubes()?$expand=Dimensions($select=Name)');
+      return response['value'].map((cube: any) => Cube.fromJson(cube));
+    }
+
+    async getControlCubes(): Promise<Cube[]> {
+      const response = await this.http.GET('/api/v1/ControlCubes()?$expand=Dimensions($select=Name)');
+      return response['value'].map((cube: any) => Cube.fromJson(cube));
+    }
+
     async create(cube: Cube) {
         return this.http.POST('/api/v1/Cubes', cube.body);
     }
@@ -52,10 +67,21 @@ class CubeService {
         const path = `Dimensions('${element.dimensionName}')/Hierarchies('${element.hierarchyName}')/Elements('${element.name}')`;
         body['Tuple@odata.bind'].push(path);
       });
-      console.log(body);
       const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckFeeders`, body);
       return response['value'];
     }
+
+    async exists(cubeName: string): Promise<boolean> {
+      try {
+          await this.http.GET(`/api/v1/Cubes('${cubeName}')?$select=Name`);
+          return true;
+      } catch (e) {
+          if (e.status === 404) {
+              return false;
+          }
+          return e;
+      }
+  }
 
 }
 

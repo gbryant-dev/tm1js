@@ -20,7 +20,11 @@ class Cube {
     this.name = name;
     this.rules = rules;
 
-    this.dimensions = dimensions;
+    // this.dimensions = dimensions;
+
+    for (const d of dimensions) {
+      this.dimensions.push(d)
+    }
   }
 
   constructBody() {
@@ -50,7 +54,7 @@ class Cube {
   static fromJson(data: any) {
     return new Cube(
       data.Name,
-      data.Dimensions,
+      data.Dimensions.map((dim: { Name: string }) => dim.Name),
       data.Rules
     );
   }
