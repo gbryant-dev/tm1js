@@ -60,14 +60,47 @@ describe('CubeService', () => {
 
   it('should fetch a single cube', async () => {
     const cube = await global.tm1.cubes.get(cubeName)
+
     expect(cube).toBeInstanceOf(Cube)
     expect(cube.name).toEqual(cubeName)
     expect(cube.dimensions.length).toEqual(3)
   })
 
-  it.todo('should fetch a list of cubes')
-  it.todo('should fetch a list of cube names');
-  it.todo('should create a new cube');
-  it.todo('should update an exisiting cube');
-  it.todo('should delete a cube');
+  it('should fetch a list of cubes', async () => {
+    const allCubesRequest = global.tm1.cubes.getAll
+    const modelCubesRequest = global.tm1.cubes.getModelCubes
+    const controlCubesRequest = global.tm1.cubes.getControlCubes
+
+    const [allCubes, modelCubes, controlCubes] = await Promise.all([allCubesRequest, modelCubesRequest, controlCubesRequest])
+
+    expect(allCubes.length).toEqual(modelCubes.length + controlCubes.length);
+
+  })
+
+  it('should create a new cube and delete it', async () => {
+    const newCubeName = prefix + 'new';
+    const newCube = new Cube(newCubeName, dimensionNames);
+    await global.tm1.cubes.create(newCube);
+    const cube = await global.tm1.cubes.get(newCubeName);
+    
+    expect(cube).toBeInstanceOf(Cube);
+    expect(cube.name).toEqual(newCubeName);
+    expect(cube.dimensions.length).toEqual(3)
+    expect(cube.rules).toBeNull()
+
+    await global.tm1.cubes.delete(newCubeName)
+    const exists = await global.tm1.cubes.exists(newCubeName)
+    expect(exists).toBeFalsy()
+  });
+
+  it('should update a cube', async () => {
+    const rule = 'SKIPCHECK;\n\nFEEDERS;';
+    const cube = await global.tm1.cubes.get(cubeName);
+    cube.rules = rule;
+    await global.tm1.cubes.update(cube);
+    const updatedCube = await global.tm1.cubes.get(cubeName);
+    expect (updatedCube.rules).toEqual(rule)
+  });
+
+  
 })
