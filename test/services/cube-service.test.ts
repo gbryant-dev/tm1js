@@ -49,12 +49,10 @@ describe('CubeService', () => {
   }
 
   beforeAll(async () => {
-    console.log('Setting up tests for [cube-service]');
     await setup()
   })
   
   afterAll(async () => {
-    console.log('Cleaning up tests for [cube-service]');
     await cleanUp()
   })
 

@@ -1,9 +1,5 @@
 import TM1Service from '../src/services/tm1-service';
 
-
-console.log('Running test setup!');
-
-
 declare global {
   namespace NodeJS {
     interface Global {
@@ -14,7 +10,6 @@ declare global {
 
 
 beforeAll (async () => {
-  console.log('Connecting to TM1...');
   await getSession()
 
 });
@@ -28,7 +23,6 @@ const getSession = async (): Promise<void> => {
 afterAll(async() => {
  // Logout
   if (global.tm1) {
-    console.log('Logging out...')
     await global.tm1.logout()
   }
 });
