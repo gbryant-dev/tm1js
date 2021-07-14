@@ -12,12 +12,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "clean": "del-cli ./dist/*",
     "build": "npm run clean && tsc",
-    "manual-test": "ts-node-dev --respawn --transpile-only src/test.ts",
+    "manual-test": "ts-node-dev --respawn --transpile-only src/manual.ts",
     "test": "jest --watchAll --no-cache",
     "docs": "typedoc --out docs src/index.ts"
   },
-
-
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
@@ -25,7 +23,6 @@
       "./test/setup.ts"
     ]
   },
-
   "keywords": [
     "TM1",
     "OData",
@@ -41,7 +38,7 @@
     "axios-cookiejar-support": "^1.0.0",
     "https": "^1.0.0",
     "tough-cookie": "^4.0.0",
-    "ts-node-dev": "^1.0.0-pre.62",
+    "ts-node-dev": "^1.1.8",
     "tsc": "^1.20150623.0"
   },
   "devDependencies": {
