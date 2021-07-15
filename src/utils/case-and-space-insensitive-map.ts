@@ -30,7 +30,15 @@ class CaseAndSpaceInsensitiveMap<T, U> {
   forEach (callbackfn: (value: U, key: T, map: CaseAndSpaceInsensitiveMap<T, U>) => void, thisArg?: any): void {
     return Map.prototype.forEach.call(this, callbackfn)
   }
-  
+
+  entries(): IterableIterator<[T, U]> {
+    return Map.prototype.entries.call(this)
+  }
+
+  values() {
+    return Map.prototype.values.call(this)
+  }
+
 }
 
 export default CaseAndSpaceInsensitiveMap;

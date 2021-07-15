@@ -35,28 +35,9 @@ class TupleMap {
     });
   }
 
-  // Probably a better way of doing this
   values() {
-    const entries = Array.from(this._map.entries());
-    let step = 0;
-    const iterable = {
-      *[Symbol.iterator]() {
-
-        while (step < entries.length) {
-          const [key, value] = entries[step];
-          yield { [key]: value },
-            step++
-        }
-
-        return;
-      }
-    }
-
-    const result = Array.from(iterable);
-
-    return result;
+    return this._map.values()
   }
-
 
   size() {
     return this._map.size;
