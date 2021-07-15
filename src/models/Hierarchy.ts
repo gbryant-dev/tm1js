@@ -29,6 +29,7 @@ class Hierarchy {
 
     this._elements = new CaseAndSpaceInsensitiveMap();
     if (elements) {
+
       for (const element of elements) {
         this._elements.set(element.name, element);
       }
@@ -57,7 +58,7 @@ class Hierarchy {
   }
 
   get edges() {
-    return this._edges.values();
+    return Array.from(this._edges.values());
   }
 
   get elements() {
