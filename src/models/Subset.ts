@@ -30,10 +30,11 @@ class Subset {
     }
 
     static fromJson(data: any) {
+      const { dimension, hierarchy } = extractComponentsFromUniqueName(data.UniqueName);
       return new Subset(
         data.Name,
-        data.Hierarchy.Dimension.Name, 
-        data.Hierarchy.Name,
+        data.Hierarchy?.Dimension?.Name ?? dimension,
+        data.Hierarchy?.Name ?? hierarchy,
         data.Alias,
         data.Expression,
         data.Elements?.map((e: any) => e['Name']) ?? [],

@@ -45,7 +45,7 @@ class Hierarchy {
 
     if (subsets) {
       for (const subset of subsets) {
-        this.subsets.push(Subset.fromJson(subset))
+        this.subsets.push(subset)
       }
     }
 

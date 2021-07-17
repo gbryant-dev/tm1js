@@ -65,12 +65,11 @@ describe('CubeService', () => {
   })
 
   it('should fetch a list of cubes', async () => {
-    const allCubesRequest = global.tm1.cubes.getAll
-    const modelCubesRequest = global.tm1.cubes.getModelCubes
-    const controlCubesRequest = global.tm1.cubes.getControlCubes
+    const allCubesRequest = global.tm1.cubes.getAll()
+    const modelCubesRequest = global.tm1.cubes.getModelCubes()
+    const controlCubesRequest = global.tm1.cubes.getControlCubes()
 
     const [allCubes, modelCubes, controlCubes] = await Promise.all([allCubesRequest, modelCubesRequest, controlCubesRequest])
-
     expect(allCubes.length).toEqual(modelCubes.length + controlCubes.length);
 
   })

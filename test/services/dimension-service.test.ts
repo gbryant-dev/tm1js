@@ -64,4 +64,17 @@ describe('DimensionService', () => {
 
   })
 
+  it('should fetch a list of dimensions', async () => {
+    const allDimsRequest = global.tm1.dimensions.getAll()
+    const allModelDimsRequest = global.tm1.dimensions.getModelDimensions()
+    const allControlDimsRequest = global.tm1.dimensions.getControlDimensions()
+
+    const [allDims, modelDims, controlDims] = await Promise.all([allDimsRequest, allModelDimsRequest, allControlDimsRequest])
+    expect(allDims.length).toEqual(modelDims.length + controlDims.length);
+
+  })
+
+  it.todo('should create a new dimension and delete it');
+  it.todo('should update a dimension');
+
 })
