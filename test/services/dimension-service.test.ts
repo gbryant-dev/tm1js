@@ -57,9 +57,7 @@ describe('DimensionService', () => {
     const hier = dim.hierarchies[0]
     expect(hier).toBeInstanceOf(Hierarchy)
     expect(hier.name).toEqual(dimensionName)
-
     expect(hier.elements.length).toEqual(251)
-    
     expect(hier.edges.length).toEqual(250)
 
   })
@@ -74,7 +72,30 @@ describe('DimensionService', () => {
 
   })
 
-  it.todo('should create a new dimension and delete it');
+  it('should create a new dimension and delete it', async () => {
+    const newDimName = prefix + 'new';
+    const hierarchy = new Hierarchy(newDimName, newDimName)
+    const dimension = new Dimension(newDimName, [hierarchy])
+
+    await global.tm1.dimensions.create(dimension)
+
+    const createdDim = await global.tm1.dimensions.get(newDimName)
+    expect (createdDim).toBeInstanceOf(Dimension)
+    expect (createdDim.name).toEqual(newDimName)
+    expect (createdDim.hierarchies.length).toEqual(1)
+    const hier = createdDim.hierarchies[0]
+    expect (hier).toBeInstanceOf(Hierarchy)
+    expect (hier.elements.length).toEqual(0)
+
+    let exists = await global.tm1.dimensions.exists(newDimName)
+    expect(exists).toBeTruthy()
+
+    await global.tm1.dimensions.delete(newDimName)
+    exists = await global.tm1.dimensions.exists(newDimName)
+    expect(exists).toBeFalsy()
+
+  });
+  
   it.todo('should update a dimension');
 
 })
