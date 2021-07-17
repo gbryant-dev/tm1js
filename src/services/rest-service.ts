@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import { Agent } from 'https';
 import { CookieJar } from 'tough-cookie';
 import axiosCookieJarSupport from 'axios-cookiejar-support';
+import { RestError } from '../errors/rest-error';
 
 const HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -29,9 +30,7 @@ class RestService {
     user: string,
     password: string,
     ssl: boolean,
-    namespace?: string,
-    impersonate?: string
-
+    namespace?: string
   ) {
     this.address = address;
     this.port = port;
@@ -62,10 +61,9 @@ class RestService {
 
     this.http.interceptors.response.use(
       res => {
-        // console.log(res.config.jar);
         return res.data
       }, (err: AxiosError) => {
-        let error: any;
+        let error: any
         if (err.response) {
           const { status, statusText, headers, data, request } = err.response;
 
@@ -75,31 +73,39 @@ class RestService {
             headers,
             data: data.error || data
           }
+           
         } else {
-          error = { status: 500, statusText: 'Unknown Error', data: null, headers: {} }
+          error = { status: 500, statusText: 'Unknown Error', data: null, headers: err.config.headers }
         }
-
-        return Promise.reject(error);
+        return Promise.reject(error)
       }
     )
   }
 
+  private buildAuthToken(user: string, password: string, namespace: string | null): string {
+    if (namespace) {
+      return this.buildAuthTokenCam(user, password, namespace)
+    } else {
+      return this.buildAuthTokenBasic(user, password)
+    }
+  }
+
+  private buildAuthTokenBasic(user: string, password: string): string {
+    return `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`
+  }
+
+  private buildAuthTokenCam(user: string, password: string, namespace: string): string {
+    return `CAMNamespace ${Buffer.from(`${user}:${password}:${namespace}`).toString('base64')}`;
+  }
+
   public async startSession(user: string, password: string, namespace: string, impersonate: string) {
-    // Build auth header
 
     const url = '/api/v1/Configuration/ProductVersion/$value';
 
     try {
-      let authHeader: string;
-
-      if (this.namespace) {
-        authHeader = 'CAMNamespace ' + Buffer.from(`${this.user}:${this.password}:${this.namespace}`).toString('base64');
-      } else {
-        authHeader = 'Basic ' + Buffer.from(`${this.user}:${this.password}`).toString('base64');
-      }
 
       const additionalHeaders = {
-        Authorization: authHeader
+        Authorization: this.buildAuthToken(user, password, namespace)
       }
 
       if (impersonate) {
@@ -110,7 +116,7 @@ class RestService {
       this._version = version as unknown as string;
 
     } catch (error) {
-      throw error;
+      throw error
     }
 
   }
