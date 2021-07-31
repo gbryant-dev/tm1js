@@ -63,7 +63,7 @@ class Hierarchy {
   }
 
   get elements() {
-    return Array.from(this._elements.values()) as HierarchyElement[];
+    return <HierarchyElement[]>Array.from(this._elements.values());
   }
 
   static fromJson(data: any) {

@@ -72,26 +72,35 @@ class DimensionService {
     }
 
     async update(dimension: Dimension): Promise<void> {
-      
-      // Delete hierarchies that have been removed from the dimension
+
+      // Determine hierarchies that should be removed from the dimension
       const hierarchyNames = await this.hierarchies.getAllNames(dimension.name);
-
-      for (const hierarchy of dimension.hierarchies) {
-        if (!hierarchyNames.includes(hierarchy.name)) {
-          if (!hierarchy.isLeavesHierarchy()) {
-            await this.hierarchies.delete(dimension.name, hierarchy.name)
-          }
+      
+      // dimension.hierarchies is the master.
+      // Remove hierarchyNames where they don't exist in dimension.hierarchies
+      // Update or create hierarchies from dimension.hierarchies
+      const hierarchiesToRemove = [...hierarchyNames]
+      
+      dimension.hierarchies.forEach((hierarchy, index) => {
+        if (hierarchiesToRemove.includes(hierarchy.name)) {
+          hierarchiesToRemove.splice(index)
         }
-      }
+      })
 
-      // Create or update existing hierarchies
       for (const hierarchy of dimension.hierarchies) {
-        if (!hierarchy.isLeavesHierarchy()) {
-          if (await this.hierarchies.exists(hierarchy.dimensionName, hierarchy.name)) {
+        if (!caseAndSpaceInsensitiveEquals(hierarchy.name, 'Leaves')) {
+          if (await this.hierarchies.exists(dimension.name, hierarchy.name)) {
             await this.hierarchies.update(hierarchy)
           } else {
             await this.hierarchies.create(hierarchy)
           }
+        }
+      }
+      
+      // Delete redundant hierarchies
+      for (const hierarchyName of hierarchiesToRemove) {
+        if (!caseAndSpaceInsensitiveEquals(hierarchyName, 'Leaves')) {
+          await this.hierarchies.delete(dimension.name, hierarchyName);
         }
       }
 

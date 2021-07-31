@@ -145,7 +145,23 @@ describe('DimensionService', () => {
     
   });
 
-  it.todo('should add a hierarchy');
+  it('should add a hierarchy', async () => {
+    const dimension = await global.tm1.dimensions.get(dimensionName);
+    const elements = [
+      new HierarchyElement('e1', ElementType.Numeric),
+      new HierarchyElement('e2', ElementType.String)
+    ]
+    const someHierarchy = new Hierarchy('Some Hierarchy', dimensionName, elements);
+    dimension.addHierarchy(someHierarchy);
+    
+    await global.tm1.dimensions.update(dimension);
+    const updatedDim = await global.tm1.dimensions.get(dimensionName);
+    expect(updatedDim).toBeInstanceOf(Dimension);
+    expect(updatedDim.hierarchies).toHaveLength(3);
+
+
+  });
+
   it.todo('should remove a hierarchy');
   it.todo('should not update the Leaves hierarchy');
 
