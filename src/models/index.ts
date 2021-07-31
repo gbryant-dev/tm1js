@@ -15,4 +15,4 @@ export * from './session';
 export * from './subset';
 export * from './user';
 export * from './view-axis';
-export * from './View';
+export * from './view';
