@@ -51,6 +51,16 @@ class ElementService {
         return response['value'].map((ea: ElementAttribute) => ElementAttribute.fromJson(ea));
     }
 
+    async createElementAttribute(dimensionName: string, hierarchyName: string, elementAttribute: ElementAttribute) {
+      const url = `/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/ElementAttributes`;
+      return await this.http.POST(url, elementAttribute.body);
+    }
+
+    async deleteElementAttribute(dimensionName: string, hierarchyName: string, elementAttribute: string) {
+      const url = `/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/ElementAttributes('${elementAttribute}')`;
+      return await this.http.DELETE(url);
+    }
+
     async getElementsFilteredByAttribute(dimensionName: string, hierarchyName: string, attrName: string, attrValue: string | number): Promise<string[]> {
         const attr = attrName.replace(/\s/g, '');
 
