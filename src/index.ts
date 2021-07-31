@@ -1,2 +1,3 @@
-export * as Models from './models/index';
-export * as Services from './services/tm1-service';
+export * as Models from './models';
+export * as Services from './services';
+export * as Errors from './errors';
