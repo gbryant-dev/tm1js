@@ -1,6 +1,11 @@
 import RestService from './rest-service';
 import Dimension from '../models/dimension';
 import HierarchyService from './hierarchy-service';
+import { caseAndSpaceInsensitiveEquals } from '../utils/helpers';
+import { NotExistError } from '../errors/not-exist-error';
+import { AxiosResponse } from 'axios';
+import CaseAndSpaceInsensitiveMap from '../utils/case-and-space-insensitive-map';
+import Hierarchy from '../models/hierarchy';
 
 class DimensionService {
 
@@ -38,11 +43,58 @@ class DimensionService {
     }
 
     async create(dimension: Dimension): Promise<any> {
-        return this.http.POST('/api/v1/Dimensions', dimension.body);
+
+      if (await this.exists(dimension.name)) {
+        throw new NotExistError('Dimension', dimension.name)
+      }
+
+      let response: AxiosResponse<any>
+
+      try {
+        // Create dimension
+       response = await this.http.POST('/api/v1/Dimensions', dimension.body);
+        // Add element attributes
+        for (const hierarchy of dimension.hierarchies) {
+          if (!caseAndSpaceInsensitiveEquals(hierarchy.name, "leaves")) {
+            await this.hierarchies.updateElementAttributes(hierarchy);
+          }
+        }        
+      } catch (e) {
+        console.log('An error occurred when creating dimension')
+        if (await this.exists(dimension.name)) {
+          await this.delete(dimension.name)
+        }
+        throw e;
+      }
+
+      return response;
+
     }
 
-    async update(dimension: Dimension): Promise<any> {
-        return this.http.PATCH(`/api/v1/Dimensions('${dimension.name}')`, dimension.body);
+    async update(dimension: Dimension): Promise<void> {
+      
+      // Delete hierarchies that have been removed from the dimension
+      const hierarchyNames = await this.hierarchies.getAllNames(dimension.name);
+
+      for (const hierarchy of dimension.hierarchies) {
+        if (!hierarchyNames.includes(hierarchy.name)) {
+          if (!hierarchy.isLeavesHierarchy()) {
+            await this.hierarchies.delete(dimension.name, hierarchy.name)
+          }
+        }
+      }
+
+      // Create or update existing hierarchies
+      for (const hierarchy of dimension.hierarchies) {
+        if (!hierarchy.isLeavesHierarchy()) {
+          if (await this.hierarchies.exists(hierarchy.dimensionName, hierarchy.name)) {
+            await this.hierarchies.update(hierarchy)
+          } else {
+            await this.hierarchies.create(hierarchy)
+          }
+        }
+      }
+
     }
 
     async delete(dimensionName: string): Promise<any> {

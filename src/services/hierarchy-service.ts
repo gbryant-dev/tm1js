@@ -39,18 +39,55 @@ class HierarchyService {
   }
 
   async update(hierarchy: Hierarchy) {
-    const body = hierarchy.body;
-    // del body['Edges'];
-    const response = await this.http.PATCH(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies('${hierarchy.name}')`, body);  
-    return response;
+    const responses = [];
+    const hierarchyUpdate = await this.http.PATCH(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies('${hierarchy.name}')`, hierarchy.body);
+    responses.push(hierarchyUpdate);
+    const attributeUpdate = await this.updateElementAttributes(hierarchy);
+    responses.push(attributeUpdate);
+    return responses;
   }
 
   async delete(dimensionName: string, hierarchyName: string) {
     return this.http.DELETE(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')`);
   }
 
+  async updateElementAttributes(hierarchy: Hierarchy) {
+    // Get element attributes
+    const elementAttributes = await this.elements.getElementAttributes(hierarchy.dimensionName, hierarchy.name);
+    const elementAttributeNames = elementAttributes.map(ea => ea.name);
+
+    // Create element attributes that don't exist
+    for (const ea of hierarchy.elementAttributes) {
+      if (!elementAttributeNames.includes(ea.name)) {
+        await this.elements.createElementAttribute(hierarchy.dimensionName, hierarchy.name, ea)
+      }
+    }
+
+    const names = hierarchy.elementAttributes.map(ea => ea.name);
+
+    // Determine element attributes that should be removed
+    for (const eaName of elementAttributeNames) {
+      if (!names.includes(eaName)) {
+        await this.elements.deleteElementAttribute(hierarchy.dimensionName, hierarchy.name, eaName)
+      }
+    }
+
+  }
+
   async getDefaultMember (dimensionName: string, hierarchyName: string) {
     return this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/DefaultMember`);
+  }
+
+  async exists (dimensionName: string, hierarchyName: string): Promise<boolean> {
+    try {
+      await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')?$select=Name`);
+      return true;
+    } catch (e) {
+      if (e.status === 404) {
+        return false;
+      }
+      throw e;
+    }
   }
 
 }

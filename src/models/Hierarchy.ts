@@ -5,8 +5,9 @@ import { HierarchyElement, ElementType } from "./element";
 import ElementAttribute from "./element-attribute";
 import TupleMap from '../utils/tuple-map';
 import CaseAndSpaceInsensitiveMap from "../utils/case-and-space-insensitive-map";
+import { caseAndSpaceInsensitiveEquals } from "../utils/helpers";
 
-
+const LEAVES_HIERARCHY = 'Leaves';
 class Hierarchy {
   public name: string;
   public dimensionName: string;
@@ -51,7 +52,7 @@ class Hierarchy {
 
     if (elementAttributes) {
       for (const ea of elementAttributes) {
-        this.elementAttributes.push(ElementAttribute.fromJson(ea))
+        this.elementAttributes.push(ea)
       }
     }
 
@@ -62,7 +63,7 @@ class Hierarchy {
   }
 
   get elements() {
-    return Array.from(this._elements.values());
+    return Array.from(this._elements.values()) as HierarchyElement[];
   }
 
   static fromJson(data: any) {
@@ -108,6 +109,10 @@ class Hierarchy {
     if (this._edges.has([parent, component])) {
       this._edges.delete([parent, component]);
     }
+  }
+
+  isLeavesHierarchy(): boolean {
+    return caseAndSpaceInsensitiveEquals(this.name, LEAVES_HIERARCHY)
   }
 
   constructBody() {

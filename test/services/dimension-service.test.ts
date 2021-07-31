@@ -1,6 +1,7 @@
 import { ElementType, HierarchyElement } from "../../src/models"
 import Dimension from "../../src/models/dimension"
 import Edge from "../../src/models/edge"
+import ElementAttribute from "../../src/models/element-attribute"
 import Hierarchy from "../../src/models/hierarchy"
 
 
@@ -10,6 +11,7 @@ describe('DimensionService', () => {
   const prefix = 'TM1ts_test_'
   const dimensionName = prefix + 'some_dimension'
 
+  
   const setup = async () => {
 
     if (await global.tm1.dimensions.exists(dimensionName)) {
@@ -19,6 +21,10 @@ describe('DimensionService', () => {
     const topElement = new HierarchyElement('Top', ElementType.Consolidated);
     const elements = [topElement]
     const edges: Edge[] = []
+    const elementAttributes: ElementAttribute[] = [
+      new ElementAttribute("Attribute 1", "Numeric"),
+      new ElementAttribute("Attribute 2", "String")
+    ]
 
     Array.from({ length: 250 }).forEach((_, i) => {
       const element = new HierarchyElement(`Element ${i}`, ElementType.Numeric);
@@ -27,7 +33,7 @@ describe('DimensionService', () => {
       edges.push(edge)
     });
 
-    const hierarchy = new Hierarchy(dimensionName, dimensionName, elements, edges)
+    const hierarchy = new Hierarchy(dimensionName, dimensionName, elements, edges, elementAttributes)
     const dimension = new Dimension(dimensionName, [hierarchy])
 
     await global.tm1.dimensions.create(dimension)
@@ -59,6 +65,7 @@ describe('DimensionService', () => {
     expect(hier.name).toEqual(dimensionName)
     expect(hier.elements.length).toEqual(251)
     expect(hier.edges.length).toEqual(250)
+    expect(hier.elementAttributes.length).toEqual(2)
 
   })
 
@@ -96,6 +103,50 @@ describe('DimensionService', () => {
 
   });
   
-  it.todo('should update a dimension');
+  it('should update a dimension', async () => {
+    
+    const dimToUpdate = prefix + 'update';
+    
+    // Create dimension with a single element to begin with    
+    const topElement = new HierarchyElement('Top', ElementType.Consolidated)
+    const hierarchy = new Hierarchy(dimToUpdate, dimToUpdate, [topElement]);
+    const dimension = new Dimension(dimToUpdate, [hierarchy]);
+    await global.tm1.dimensions.create(dimension);
+
+    const createdDim = await global.tm1.dimensions.get(dimToUpdate);
+    expect(createdDim).toBeInstanceOf(Dimension);
+    expect(createdDim.name).toEqual(dimToUpdate);
+    expect(createdDim.hierarchies[0].elements).toHaveLength(1);
+
+
+    // Add elements, edges
+    Array.from({ length: 100 }).forEach((_, i) => {
+      createdDim.hierarchies[0].addElement(`Element ${i}`, "Numeric");
+      createdDim.hierarchies[0].addEdge('Top', `Element ${i}`, 1);      
+    });
+
+    // Add attributes
+    const elementAttributes: ElementAttribute[] = [
+      new ElementAttribute('Attribute 1', "String"),
+      new ElementAttribute('Attribute 2', "Numeric")
+    ];
+
+    createdDim.hierarchies[0].elementAttributes.push(...elementAttributes);
+
+    await global.tm1.dimensions.hierarchies.update(createdDim.hierarchies[0]);
+
+    const updatedDim = await global.tm1.dimensions.get(dimToUpdate);
+    expect(updatedDim).toBeInstanceOf(Dimension);
+    expect(updatedDim.hierarchies[0].elements).toHaveLength(101);
+    expect(updatedDim.hierarchies[0].edges).toHaveLength(100);
+    expect(updatedDim.hierarchies[0].elementAttributes).toHaveLength(2);
+    
+    await global.tm1.dimensions.delete(dimToUpdate);
+    
+  });
+
+  it.todo('should add a hierarchy');
+  it.todo('should remove a hierarchy');
+  it.todo('should not update the Leaves hierarchy');
 
 })
