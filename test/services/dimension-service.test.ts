@@ -3,6 +3,7 @@ import Dimension from "../../src/models/dimension"
 import Edge from "../../src/models/edge"
 import ElementAttribute from "../../src/models/element-attribute"
 import Hierarchy from "../../src/models/hierarchy"
+import { caseAndSpaceInsensitiveEquals } from "../../src/utils/helpers"
 
 
 describe('DimensionService', () => {
@@ -151,18 +152,50 @@ describe('DimensionService', () => {
       new HierarchyElement('e1', ElementType.Numeric),
       new HierarchyElement('e2', ElementType.String)
     ]
-    const someHierarchy = new Hierarchy('Some Hierarchy', dimensionName, elements);
-    dimension.addHierarchy(someHierarchy);
+    
+    const newHierarchyName = 'Some Hierarchy';
+    const hierObj = new Hierarchy(newHierarchyName, dimensionName, elements);
+    dimension.addHierarchy(hierObj);
     
     await global.tm1.dimensions.update(dimension);
     const updatedDim = await global.tm1.dimensions.get(dimensionName);
     expect(updatedDim).toBeInstanceOf(Dimension);
     expect(updatedDim.hierarchies).toHaveLength(3);
 
+    const newHierarchy = updatedDim.hierarchies.find(hier => hier.name === newHierarchyName);
+    expect(newHierarchy).not.toBeUndefined();
+    expect(newHierarchy.elements).toHaveLength(2);
+
 
   });
 
-  it.todo('should remove a hierarchy');
-  it.todo('should not update the Leaves hierarchy');
+  it('should remove a hierarchy', async () => {
+    const dimension = await global.tm1.dimensions.get(dimensionName);
+    dimension.deleteHierarchy(dimensionName);
+    await global.tm1.dimensions.update(dimension);
+
+    const updatedDim = await global.tm1.dimensions.get(dimensionName);
+    expect(updatedDim).toBeInstanceOf(Dimension);
+    const hierSought = updatedDim.hierarchies.find(hier => hier.name === dimensionName);
+    expect(hierSought).toBeUndefined()
+
+  });
+
+  it('should not update the Leaves hierarchy', async () => {
+    const dimension = await global.tm1.dimensions.get(dimensionName);
+
+    const leavesHier = dimension.hierarchies.find(hier => caseAndSpaceInsensitiveEquals(hier.name, 'Leaves'));
+    expect (leavesHier).not.toBeUndefined();
+
+    const lastElementCount = leavesHier.elements.length;
+    leavesHier.addElement('new', 'Numeric');
+    
+    await global.tm1.dimensions.update(dimension);
+
+    const updatedDim = await global.tm1.dimensions.get(dimensionName);
+    const updatedHier = updatedDim.hierarchies.find(hier => caseAndSpaceInsensitiveEquals(hier.name, 'Leaves'));
+    expect(updatedHier.elements).toHaveLength(lastElementCount);
+    
+  })
 
 })

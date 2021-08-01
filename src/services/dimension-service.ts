@@ -4,8 +4,6 @@ import HierarchyService from './hierarchy-service';
 import { caseAndSpaceInsensitiveEquals } from '../utils/helpers';
 import { NotExistError } from '../errors/not-exist-error';
 import { AxiosResponse } from 'axios';
-import CaseAndSpaceInsensitiveMap from '../utils/case-and-space-insensitive-map';
-import Hierarchy from '../models/hierarchy';
 
 class DimensionService {
 
@@ -73,20 +71,18 @@ class DimensionService {
 
     async update(dimension: Dimension): Promise<void> {
 
-      // Determine hierarchies that should be removed from the dimension
-      const hierarchyNames = await this.hierarchies.getAllNames(dimension.name);
-      
-      // dimension.hierarchies is the master.
-      // Remove hierarchyNames where they don't exist in dimension.hierarchies
-      // Update or create hierarchies from dimension.hierarchies
-      const hierarchiesToRemove = [...hierarchyNames]
-      
-      dimension.hierarchies.forEach((hierarchy, index) => {
-        if (hierarchiesToRemove.includes(hierarchy.name)) {
-          hierarchiesToRemove.splice(index)
-        }
-      })
+      const currentHierNames = await this.hierarchies.getAllNames(dimension.name);
+  
+      // Determine what hierarchies should be removed from the dimension
+      const existingHierNames = {}
 
+      for (const hierarchy of dimension.hierarchies) {
+        existingHierNames[hierarchy.name] = hierarchy;
+      }
+
+      const hierarchiesToRemove = currentHierNames.filter(hierName => !existingHierNames[hierName]);
+
+      // Create or update existing hierarchies 
       for (const hierarchy of dimension.hierarchies) {
         if (!caseAndSpaceInsensitiveEquals(hierarchy.name, 'Leaves')) {
           if (await this.hierarchies.exists(dimension.name, hierarchy.name)) {
@@ -96,7 +92,7 @@ class DimensionService {
           }
         }
       }
-      
+    
       // Delete redundant hierarchies
       for (const hierarchyName of hierarchiesToRemove) {
         if (!caseAndSpaceInsensitiveEquals(hierarchyName, 'Leaves')) {
