@@ -181,21 +181,4 @@ describe('DimensionService', () => {
 
   });
 
-  it('should not update the Leaves hierarchy', async () => {
-    const dimension = await global.tm1.dimensions.get(dimensionName);
-
-    const leavesHier = dimension.hierarchies.find(hier => caseAndSpaceInsensitiveEquals(hier.name, 'Leaves'));
-    expect (leavesHier).not.toBeUndefined();
-
-    const lastElementCount = leavesHier.elements.length;
-    leavesHier.addElement('new', 'Numeric');
-    
-    await global.tm1.dimensions.update(dimension);
-
-    const updatedDim = await global.tm1.dimensions.get(dimensionName);
-    const updatedHier = updatedDim.hierarchies.find(hier => caseAndSpaceInsensitiveEquals(hier.name, 'Leaves'));
-    expect(updatedHier.elements).toHaveLength(lastElementCount);
-    
-  })
-
 })

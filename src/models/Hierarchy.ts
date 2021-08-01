@@ -59,7 +59,7 @@ class Hierarchy {
   }
 
   get edges() {
-    return Array.from(this._edges.values());
+    return <Edge[]>Array.from(this._edges.values());
   }
 
   get elements() {
