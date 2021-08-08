@@ -15,7 +15,7 @@ class Hierarchy {
   public subsets?: Subset[] = [];
 
   private _elements: CaseAndSpaceInsensitiveMap<string, HierarchyElement>;
-  private _edges: TupleMap;
+  public readonly _edges: TupleMap;
 
   constructor(
     name: string,
@@ -59,11 +59,11 @@ class Hierarchy {
   }
 
   get edges() {
-    return <Edge[]>Array.from(this._edges.values());
+    return this._edges.entries();
   }
 
-  get elements() {
-    return <HierarchyElement[]>Array.from(this._elements.values());
+  get elements(): HierarchyElement[] {
+    return Array.from(this._elements.values());
   }
 
   static fromJson(data: any) {
