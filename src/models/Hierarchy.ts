@@ -2,7 +2,7 @@ import Dimension from "./dimension";
 import Edge from "./edge";
 import Subset from "./subset";
 import { HierarchyElement, ElementType } from "./element";
-import ElementAttribute from "./element-attribute";
+import ElementAttribute, { AttributeType } from "./element-attribute";
 import TupleMap from '../utils/tuple-map';
 import CaseAndSpaceInsensitiveMap from "../utils/case-and-space-insensitive-map";
 import { caseAndSpaceInsensitiveEquals } from "../utils/helpers";
@@ -11,10 +11,10 @@ const LEAVES_HIERARCHY = 'Leaves';
 class Hierarchy {
   public name: string;
   public dimensionName: string;
-  public elementAttributes?: ElementAttribute[] = [];
   public subsets?: Subset[] = [];
 
   private _elements: CaseAndSpaceInsensitiveMap<string, HierarchyElement>;
+  private _elementAttributes?: CaseAndSpaceInsensitiveMap<string, ElementAttribute>;
   public readonly _edges: TupleMap;
 
   constructor(
@@ -50,9 +50,10 @@ class Hierarchy {
       }
     }
 
+    this._elementAttributes = new CaseAndSpaceInsensitiveMap();
     if (elementAttributes) {
       for (const ea of elementAttributes) {
-        this.elementAttributes.push(ea)
+        this._elementAttributes.set(ea.name, ea);
       }
     }
 
@@ -64,6 +65,10 @@ class Hierarchy {
 
   get elements(): HierarchyElement[] {
     return Array.from(this._elements.values());
+  }
+
+  get elementAttributes(): ElementAttribute[] {
+    return Array.from(this._elementAttributes.values());
   }
 
   static fromJson(data: any) {
@@ -109,6 +114,19 @@ class Hierarchy {
     if (this._edges.has([parent, component])) {
       this._edges.delete([parent, component]);
     }
+  }
+
+  addElementAttribute(name: string, type: string) {
+    if (!(type in AttributeType)) {
+      throw 'Type must be either String, Numeric or Alias!'
+    }
+    this._elementAttributes.set(name, new ElementAttribute(name, AttributeType[type]));
+  }
+
+  deleteElementAttribute(name: string) {
+    // if (this._elementAttributes.has(name)) {
+      return this._elementAttributes.delete(name)
+    // }
   }
 
   isLeavesHierarchy(): boolean {
