@@ -4,6 +4,7 @@ import HierarchyService from './hierarchy-service';
 import { caseAndSpaceInsensitiveEquals } from '../utils/helpers';
 import { NotExistError } from '../errors/not-exist-error';
 import { AxiosResponse } from 'axios';
+import { ExistError } from '../errors/exist-error';
 
 class DimensionService {
 
@@ -43,7 +44,7 @@ class DimensionService {
     async create(dimension: Dimension): Promise<any> {
 
       if (await this.exists(dimension.name)) {
-        throw new NotExistError('Dimension', dimension.name)
+        throw new ExistError('Dimension', dimension.name)
       }
 
       let response: AxiosResponse<any>
@@ -58,7 +59,6 @@ class DimensionService {
           }
         }        
       } catch (e) {
-        console.log('An error occurred when creating dimension')
         if (await this.exists(dimension.name)) {
           await this.delete(dimension.name)
         }
