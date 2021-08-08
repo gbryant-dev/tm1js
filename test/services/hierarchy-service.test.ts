@@ -7,13 +7,14 @@ import Hierarchy from "../../src/models/hierarchy"
 describe('HierarchyService', () => {
 
   const prefix = 'TM1ts_test_'
-  const hierarchyName = prefix + 'some_hierarchy'
+  const dimensionName = prefix + 'some_hierarchy';
+  const hierarchyName = dimensionName;
 
 
   const setup = async () => {
 
-    if (await global.tm1.dimensions.exists(hierarchyName)) {
-      await global.tm1.dimensions.delete(hierarchyName);
+    if (await global.tm1.dimensions.exists(dimensionName)) {
+      await global.tm1.dimensions.delete(dimensionName);
     }
     
     const elements: HierarchyElement[] = [
@@ -31,15 +32,17 @@ describe('HierarchyService', () => {
       new ElementAttribute('Attribute 1', 'Numeric'),
       new ElementAttribute('Attribute 2', 'Alias')
     ]
-    const hierarchy = new Hierarchy(hierarchyName, hierarchyName, elements, edges, elementAttributes);
-    const dimension = new Dimension(hierarchyName, [hierarchy]);
+    const hierarchy = new Hierarchy(hierarchyName, dimensionName, elements, edges, elementAttributes);
+    const dimension = new Dimension(dimensionName, [hierarchy]);
 
     await global.tm1.dimensions.create(dimension);
 
 
   }
   const cleanup = async () => {
-    await global.tm1.dimensions.delete(hierarchyName);
+    if (await global.tm1.dimensions.exists(dimensionName)) {
+      await global.tm1.dimensions.delete(dimensionName);
+    }
   }
 
   beforeAll(async () => {
@@ -47,24 +50,64 @@ describe('HierarchyService', () => {
   })
 
   afterAll(async () => {
-    await cleanup()
+    // await cleanup()
   })
 
   it('Should fetch a single hierarchy', async () => {
-    const hierarchy = await global.tm1.dimensions.hierarchies.get(hierarchyName, hierarchyName);
+    const hierarchy = await global.tm1.dimensions.hierarchies.get(dimensionName, hierarchyName);
     expect(hierarchy).toBeInstanceOf(Hierarchy);
-    expect(hierarchy.dimensionName).toEqual(hierarchyName);
+    expect(hierarchy.name).toEqual(hierarchyName);
+    expect(hierarchy.dimensionName).toEqual(dimensionName);
     expect(hierarchy.elements).toHaveLength(4);
     expect(hierarchy.elements[0]).toBeInstanceOf(HierarchyElement);
-    expect(hierarchy.edges).toHaveLength(1);
     expect(hierarchy.elementAttributes).toHaveLength(2);
     expect(hierarchy.elementAttributes[0]).toBeInstanceOf(ElementAttribute);
   });
 
-  it.todo('Should fetch a list of hierarchies');
-  it.todo('Should create a hierarchy');
-  it.todo('Should update a hierarchy');
-  it.todo('Should delete a hierarchy');
+  it('Should fetch a list of hierarchies', async () => {
+    const hierarchies = await global.tm1.dimensions.hierarchies.getAll(dimensionName);
+    expect(hierarchies[0]).toBeInstanceOf(Hierarchy);
+  });
+  
+  it('Should create a hierarchy', async () => {
+    const newHierarchyName = prefix + 'new';
+    const elements = [
+      new HierarchyElement('El 1', ElementType.Numeric),
+      new HierarchyElement('El 2', ElementType.Numeric)
+    ];
+    
+    const newHierarchy = new Hierarchy(newHierarchyName, dimensionName, elements);
+    await global.tm1.dimensions.hierarchies.create(newHierarchy);
+    const hierarchy = await global.tm1.dimensions.hierarchies.get(dimensionName, newHierarchyName);
+    expect (hierarchy).toBeInstanceOf(Hierarchy);
+    expect(hierarchy.name).toEqual(newHierarchyName);
+    expect(hierarchy.dimensionName).toEqual(dimensionName);
+    expect(hierarchy.elements).toHaveLength(2);
+
+  });
+
+  it('Should update a hierarchy', async () => {
+    
+    const hierarchy = await global.tm1.dimensions.hierarchies.get(dimensionName, hierarchyName);
+    hierarchy.addElement('Parent 1', 'Consolidated');
+    hierarchy.addEdge('Parent 1', 'Element 1', 1);
+    
+    await global.tm1.dimensions.hierarchies.update(hierarchy);
+    const updatedHier = await global.tm1.dimensions.hierarchies.get(dimensionName, hierarchyName);
+    expect(updatedHier.elements).toHaveLength(5);
+    expect(updatedHier._edges.size).toEqual(2);
+    
+
+  });
+
+  it('Should delete a hierarchy', async () => {
+    const result = await global.tm1.dimensions.hierarchies.delete(dimensionName, hierarchyName);
+    console.log(result)
+    const exists = await global.tm1.dimensions.hierarchies.exists(dimensionName, hierarchyName);
+    console.log(exists)
+    expect(exists).toEqual(false)
+  });
+
   it.todo('Should update element attributes in a hierarchy');
 
 
