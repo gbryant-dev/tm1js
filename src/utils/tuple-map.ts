@@ -39,8 +39,13 @@ class TupleMap {
     return this._map.values()
   }
 
-  size() {
-    return this._map.size;
+  entries() {
+    return Array.from(this._map.entries(), ([key, value]) => [JSON.parse(key), value]);
+  }
+
+  // Need to come back to this
+  get size() {
+    return Array.from(this._map.values()).length
   }
 
 }
