@@ -50,7 +50,7 @@ describe('HierarchyService', () => {
   })
 
   afterAll(async () => {
-    // await cleanup()
+    await cleanup()
   })
 
   it('Should fetch a single hierarchy', async () => {
@@ -100,16 +100,26 @@ describe('HierarchyService', () => {
 
   });
 
-  it('Should delete a hierarchy', async () => {
-    const result = await global.tm1.dimensions.hierarchies.delete(dimensionName, hierarchyName);
-    console.log(result)
-    const exists = await global.tm1.dimensions.hierarchies.exists(dimensionName, hierarchyName);
-    console.log(exists)
-    expect(exists).toEqual(false)
+  it('Should create and delete a hierarchy', async () => {
+    const hierName = prefix + 'new_delete'
+    const hierarchy = new Hierarchy(hierName, dimensionName);
+    await global.tm1.dimensions.hierarchies.create(hierarchy);
+    let exists = await global.tm1.dimensions.hierarchies.exists(dimensionName, hierName);
+    expect(exists).toBeTruthy();
+    await global.tm1.dimensions.hierarchies.delete(dimensionName, hierName);
+    exists = await global.tm1.dimensions.hierarchies.exists(dimensionName, hierName);
+    expect(exists).toBeFalsy();
   });
 
-  it.todo('Should update element attributes in a hierarchy');
-
-
+  it('Should update element attributes in a hierarchy', async () => {
+    let hierarchy = await global.tm1.dimensions.hierarchies.get(dimensionName, hierarchyName);
+    expect(hierarchy.elementAttributes).toHaveLength(2);
+    hierarchy.deleteElementAttribute('Attribute 2');
+    hierarchy.addElementAttribute('Attribute 3', 'Alias');
+    hierarchy.addElementAttribute('Attribute 4', 'String');
+    await global.tm1.dimensions.hierarchies.update(hierarchy);
+    hierarchy = await global.tm1.dimensions.hierarchies.get(dimensionName, hierarchyName);
+    expect(hierarchy.elementAttributes).toHaveLength(3);
+  });
 
 })
