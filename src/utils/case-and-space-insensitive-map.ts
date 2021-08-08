@@ -23,8 +23,14 @@ class CaseAndSpaceInsensitiveMap<T, U> {
     if (typeof key === 'string') {
       key = key.toLowerCase().replace(/\s/g, '') as any as T
     }
-
     return Map.prototype.has.call(this, key) as boolean;
+  }
+
+  delete(key: T): boolean {
+    if (typeof key === 'string') {
+      key = key.toLowerCase().replace(/\s/g, '') as any as T
+    }
+    return Map.prototype.delete.call(this, key) as boolean;
   }
 
   forEach (callbackfn: (value: U, key: T, map: CaseAndSpaceInsensitiveMap<T, U>) => void, thisArg?: any): void {
