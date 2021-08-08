@@ -3,7 +3,6 @@ import Dimension from "../../src/models/dimension"
 import Edge from "../../src/models/edge"
 import ElementAttribute from "../../src/models/element-attribute"
 import Hierarchy from "../../src/models/hierarchy"
-import { caseAndSpaceInsensitiveEquals } from "../../src/utils/helpers"
 
 
 describe('DimensionService', () => {
@@ -59,14 +58,14 @@ describe('DimensionService', () => {
     const dim = await global.tm1.dimensions.get(dimensionName)
     expect(dim).toBeInstanceOf(Dimension)
     expect(dim.name).toEqual(dimensionName)
-    expect(dim.hierarchies.length).toEqual(1)
+    expect(dim.hierarchies).toHaveLength(1)
 
     const hier = dim.hierarchies[0]
     expect(hier).toBeInstanceOf(Hierarchy)
     expect(hier.name).toEqual(dimensionName)
-    expect(hier.elements.length).toEqual(251)
-    expect(hier.edges.length).toEqual(250)
-    expect(hier.elementAttributes.length).toEqual(2)
+    expect(hier.elements).toHaveLength(251)
+    expect(hier._edges.size).toEqual(250)
+    expect(hier.elementAttributes).toHaveLength(2)
 
   })
 
@@ -90,10 +89,10 @@ describe('DimensionService', () => {
     const createdDim = await global.tm1.dimensions.get(newDimName)
     expect (createdDim).toBeInstanceOf(Dimension)
     expect (createdDim.name).toEqual(newDimName)
-    expect (createdDim.hierarchies.length).toEqual(1)
+    expect (createdDim.hierarchies).toHaveLength(1)
     const hier = createdDim.hierarchies[0]
     expect (hier).toBeInstanceOf(Hierarchy)
-    expect (hier.elements.length).toEqual(0)
+    expect (hier.elements).toHaveLength(0)
 
     let exists = await global.tm1.dimensions.exists(newDimName)
     expect(exists).toBeTruthy()
@@ -139,7 +138,7 @@ describe('DimensionService', () => {
     const updatedDim = await global.tm1.dimensions.get(dimToUpdate);
     expect(updatedDim).toBeInstanceOf(Dimension);
     expect(updatedDim.hierarchies[0].elements).toHaveLength(101);
-    expect(updatedDim.hierarchies[0].edges).toHaveLength(100);
+    expect(updatedDim.hierarchies[0]._edges.size).toEqual(100);
     expect(updatedDim.hierarchies[0].elementAttributes).toHaveLength(2);
     
     await global.tm1.dimensions.delete(dimToUpdate);
