@@ -106,6 +106,10 @@ describe('DimensionService', () => {
   it('should update a dimension', async () => {
     
     const dimToUpdate = prefix + 'update';
+
+    if (await global.tm1.dimensions.exists(dimToUpdate)) {
+      await global.tm1.dimensions.delete(dimToUpdate);
+    }
     
     // Create dimension with a single element to begin with    
     const topElement = new HierarchyElement('Top', ElementType.Consolidated)
@@ -125,13 +129,8 @@ describe('DimensionService', () => {
       createdDim.hierarchies[0].addEdge('Top', `Element ${i}`, 1);      
     });
 
-    // Add attributes
-    const elementAttributes: ElementAttribute[] = [
-      new ElementAttribute('Attribute 1', "String"),
-      new ElementAttribute('Attribute 2', "Numeric")
-    ];
-
-    createdDim.hierarchies[0].elementAttributes.push(...elementAttributes);
+    createdDim.hierarchies[0].addElementAttribute('Attribute 1', 'String');
+    createdDim.hierarchies[0].addElementAttribute('Attribute 2', 'Numeric');
 
     await global.tm1.dimensions.hierarchies.update(createdDim.hierarchies[0]);
 
