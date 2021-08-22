@@ -1,22 +1,30 @@
 class ElementAttribute {
 
     public name: string;
-    public type: AttributeType;
+    private _type: AttributeTypeString;
 
-    constructor(name: string, type: AttributeType) {
-        this.name = name;
-        this.type = type;
+    constructor(name: string, type: AttributeTypeString) {
+      this.name = name;
+      this._type = type;
+    }
+
+
+    get type() {
+      return AttributeType[this._type.toString()]
+    }
+
+    set type(value: AttributeTypeString) {
+      this._type = value;
     }
 
     static fromJson(data: any): ElementAttribute {
-        return new ElementAttribute(data.Name, data.Type);
+      return new ElementAttribute(data.Name, data.Type);
     }
 
     constructBody() {
         const body = {};
         body['Name'] = this.name;
-        body['Type'] = AttributeType[this.type];
-
+        body['Type'] = this.type;
         return body;
     }
 
@@ -27,8 +35,13 @@ class ElementAttribute {
 
 export default ElementAttribute;
 
-enum AttributeType {
-    Numeric = 0,
-    String = 1,
-    Alias = 2
+export enum AttributeType {
+    Numeric,
+    String,
+    Alias
 }
+
+export type AttributeTypeString = keyof typeof AttributeType
+
+
+

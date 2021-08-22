@@ -1,13 +1,14 @@
 import Dimension from "./dimension";
 import Edge from "./edge";
 import Subset from "./subset";
-import { HierarchyElement, ElementType } from "./element";
-import ElementAttribute, { AttributeType } from "./element-attribute";
+import { HierarchyElement, ElementTypeString } from "./element";
+import ElementAttribute, { AttributeTypeString } from "./element-attribute";
 import TupleMap from '../utils/tuple-map';
 import CaseAndSpaceInsensitiveMap from "../utils/case-and-space-insensitive-map";
 import { caseAndSpaceInsensitiveEquals } from "../utils/helpers";
 
 const LEAVES_HIERARCHY = 'Leaves';
+
 class Hierarchy {
   public name: string;
   public dimensionName: string;
@@ -82,16 +83,15 @@ class Hierarchy {
     )
   }
 
-  addElement(elementName: string, elementType: string) {
-    this._elements.set(elementName, new HierarchyElement(elementName, ElementType[elementType]))
+  addElement(elementName: string, elementType: ElementTypeString) {
+    this._elements.set(elementName, new HierarchyElement(elementName, elementType))
   }
 
-  updateElement(elementName: string, elementType: string) {
-
+  updateElement(elementName: string, elementType: ElementTypeString) {
     if (!this._elements.has(elementName)) {
-      this._elements.set(elementName, new HierarchyElement(elementName, ElementType[elementType]))
+      this._elements.set(elementName, new HierarchyElement(elementName, elementType))
     } else {
-      this._elements.get(elementName).type = ElementType[elementType];
+      this._elements.get(elementName).type = elementType
     }
 
   }
@@ -116,11 +116,8 @@ class Hierarchy {
     }
   }
 
-  addElementAttribute(name: string, type: string) {
-    if (!(type in AttributeType)) {
-      throw 'Type must be either String, Numeric or Alias!'
-    }
-    this._elementAttributes.set(name, new ElementAttribute(name, AttributeType[type]));
+  addElementAttribute(name: string, type: AttributeTypeString) {
+    this._elementAttributes.set(name, new ElementAttribute(name, type));
   }
 
   deleteElementAttribute(name: string) {
@@ -139,7 +136,7 @@ class Hierarchy {
     body['Elements'] = [];
 
     this._elements.forEach(
-      (elem, name) => {
+      (elem) => {
         body['Elements'].push(elem.body)
       }
     );

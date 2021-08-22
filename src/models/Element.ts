@@ -5,15 +5,15 @@ class HierarchyElement {
     public name: string;
     public hierarchyName: string;
     public dimensionName: string;
-    public type?: ElementType;
     public uniqueName?: string;
     public level?: number;
     public index?: number;
     public attributes?: {[key: string]: string | number};
+    private _type: ElementTypeString;
 
     constructor(
         name: string,
-        type?: ElementType,
+        type?: ElementTypeString,
         uniqueName?: string,
         level?: number,
         index?: number,
@@ -23,49 +23,60 @@ class HierarchyElement {
         // const { dimension, hierarchy } = extractComponentsFromUniqueName(uniqueName);
         // this.dimensionName = dimension;
         // this.hierarchyName = hierarchy;
-        this.type = type;
+        this._type = type
         this.uniqueName = uniqueName;
         this.level = level;
         this.index = index;
         
         if (attributes) {
-            this.attributes = {}
-            for (const [key, value] of Object.entries(attributes)) {
-                this.attributes[key] = value
-            }
+          this.attributes = {}
+          for (const [key, value] of Object.entries(attributes)) {
+            this.attributes[key] = value
+          }
         }
     }
 
+    get type() {
+      return ElementType[this._type.toString()]
+    }
+    
+    set type(value: ElementTypeString) {
+      this._type = value;
+    }
+
+
     static fromJson(data: any) {
-        return new HierarchyElement(
-            data.Name,
-            data.Type,
-            data.UniqueName,
-            data.Level,
-            data.Index,
-            data.Attributes
-        )
+      return new HierarchyElement(
+        data.Name,
+        data.Type,
+        data.UniqueName,
+        data.Level,
+        data.Index,
+        data.Attributes
+      )
     }
 
     constructBody() {
-        const body = {}
-        body['Name'] = this.name;
-        body['Type'] = this.type;
-        
-        return body;
+      const body = {}
+      body['Name'] = this.name;
+      body['Type'] = this.type;
+      
+      return body;
     }
 
 
     get body() {
-        return this.constructBody()
+      return this.constructBody()
     }
 }
 
 
 enum ElementType {
-    Numeric = 1,
-    String = 2,
-    Consolidated = 3
+  Numeric = 1,
+  String = 2,
+  Consolidated = 3
 }
 
-export { HierarchyElement, ElementType }
+type ElementTypeString = keyof typeof ElementType
+
+export { HierarchyElement, ElementType, ElementTypeString }
