@@ -24,7 +24,7 @@ describe('CubeService', () => {
 
       const elements: HierarchyElement[] = []
       Array.from({ length: 250 }).forEach((_, i) => {
-        const element = new HierarchyElement(`Element ${i}`, ElementType.Numeric)
+        const element = new HierarchyElement(`Element ${i}`, 'Numeric')
         elements.push(element)
       })
       const hierarchy = new Hierarchy(dimensionName, dimensionName, elements)

@@ -18,10 +18,10 @@ describe('HierarchyService', () => {
     }
     
     const elements: HierarchyElement[] = [
-      new HierarchyElement('Top', ElementType.Consolidated),
-      new HierarchyElement('Element 1', ElementType.Numeric),
-      new HierarchyElement('Element 2', ElementType.Numeric),
-      new HierarchyElement('Element 3', ElementType.Numeric)
+      new HierarchyElement('Top', 'Consolidated'),
+      new HierarchyElement('Element 1', 'Numeric'),
+      new HierarchyElement('Element 2', 'Numeric'),
+      new HierarchyElement('Element 3', 'Numeric')
     ]
 
     const edges: Edge[] = [
@@ -72,8 +72,8 @@ describe('HierarchyService', () => {
   it('Should create a hierarchy', async () => {
     const newHierarchyName = prefix + 'new';
     const elements = [
-      new HierarchyElement('El 1', ElementType.Numeric),
-      new HierarchyElement('El 2', ElementType.Numeric)
+      new HierarchyElement('El 1', 'Numeric'),
+      new HierarchyElement('El 2', 'Numeric')
     ];
     
     const newHierarchy = new Hierarchy(newHierarchyName, dimensionName, elements);

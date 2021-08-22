@@ -18,7 +18,7 @@ describe('DimensionService', () => {
       await global.tm1.dimensions.delete(dimensionName)
     }
 
-    const topElement = new HierarchyElement('Top', ElementType.Consolidated);
+    const topElement = new HierarchyElement('Top', "Consolidated");
     const elements = [topElement]
     const edges: Edge[] = []
     const elementAttributes: ElementAttribute[] = [
@@ -27,7 +27,7 @@ describe('DimensionService', () => {
     ]
 
     Array.from({ length: 250 }).forEach((_, i) => {
-      const element = new HierarchyElement(`Element ${i}`, ElementType.Numeric);
+      const element = new HierarchyElement(`Element ${i}`, "Numeric");
       elements.push(element)
       const edge = new Edge(topElement.name, element.name, 1)
       edges.push(edge)
@@ -112,7 +112,7 @@ describe('DimensionService', () => {
     }
     
     // Create dimension with a single element to begin with    
-    const topElement = new HierarchyElement('Top', ElementType.Consolidated)
+    const topElement = new HierarchyElement('Top', "Consolidated")
     const hierarchy = new Hierarchy(dimToUpdate, dimToUpdate, [topElement]);
     const dimension = new Dimension(dimToUpdate, [hierarchy]);
     await global.tm1.dimensions.create(dimension);
@@ -147,8 +147,8 @@ describe('DimensionService', () => {
   it('should add a hierarchy', async () => {
     const dimension = await global.tm1.dimensions.get(dimensionName);
     const elements = [
-      new HierarchyElement('e1', ElementType.Numeric),
-      new HierarchyElement('e2', ElementType.String)
+      new HierarchyElement('e1', "Numeric"),
+      new HierarchyElement('e2', "String")
     ]
     
     const newHierarchyName = 'Some Hierarchy';
