@@ -11,7 +11,7 @@ class Process {
   public dataProcedure: string = '';
   public epilogProcedure: string = '';
   public dataSource: ProcessDataSource = {
-    Type: DataSourceType.None,
+    type: 'None',
     dataSourceNameForClient: null,
     dataSourceNameForServer: null,
     asciiDecimalSeparator: ".",
@@ -69,6 +69,7 @@ class Process {
   }
 
   static fromJson(data: any) {
+    const { Type, ...dataSource } = data.DataSource
     return new Process(
       data.Name,
       data.HasSecurityAccess,
@@ -76,7 +77,7 @@ class Process {
       data.MetadataProcedure,
       data.DataProcedure,
       data.EpilogProcedure,
-      data.DataSource,
+      dataSource,
       data.Variables,
       data.Parameters,
       data.UIData,
@@ -146,18 +147,18 @@ class Process {
     body['VariablesUIData'] = this.variablesUIData;
     body['Parameters'] = this.parameters;
     body['DataSource'] = {};
-    body['DataSource']['Type'] = this.dataSource.Type;
+    body['DataSource']['Type'] = this.dataSource.type;
 
     // Create DataSource body based on type
-    switch (this.dataSource.Type) {
-      case DataSourceType.None:
+    switch (this.dataSource.type) {
+      case 'None':
         body['DataSource'] = {
-          Type: DataSourceType.None
+          Type: 'None'
         }
         break;
-      case DataSourceType.ASCII:
+      case 'ASCII':
         body['DataSource'] = {
-          Type: DataSourceType.ASCII,
+          Type: 'ASCII',
           dataSourceNameForClient: this.dataSource.dataSourceNameForClient,
           dataSourceNameForServer: this.dataSource.dataSourceNameForServer,
           asciiDecimalSeparator: this.dataSource.asciiDecimalSeparator,
@@ -172,9 +173,9 @@ class Process {
           delete body['DataSource']['asciiDelimiterChar'];
         }
         break;
-      case DataSourceType.ODBC:
+      case 'ODBC':
         body['DataSource'] = {
-          Type: DataSourceType.ODBC,
+          Type: 'ODBC',
           dataSourceNameForClient : this.dataSource.dataSourceNameForClient,
           dataSourceNameForServer : this.dataSource.dataSourceNameForServer,
           userName : this.dataSource.userName,
@@ -183,17 +184,17 @@ class Process {
           usesUnicode : this.dataSource.usesUnicode
         }
         break;
-      case DataSourceType.TM1DimensionSubset:
+      case 'TM1DimensionSubset':
         body['DataSource'] = {
-          Type: DataSourceType.TM1DimensionSubset,
+          Type: 'TM1DimensionSubset',
           dataSourceNameForClient: this.dataSource.dataSourceNameForClient,
           dataSourceNameForServer: this.dataSource.dataSourceNameForServer,
           subset: this.dataSource.subset
         }
         break;
-      case DataSourceType.TM1CubeView:
+      case 'TM1CubeView':
         body['DataSource'] = {
-          Type: DataSourceType.TM1CubeView,
+          Type: 'TM1CubeView',
           dataSourceNameForClient: this.dataSource.dataSourceNameForClient,
           dataSourceNameForServer: this.dataSource.dataSourceNameForServer,
           view: this.dataSource.view
@@ -222,16 +223,18 @@ interface ProcessVariable {
   EndByte?: number;
 }
 
-enum DataSourceType {
-  None = "None",
-  ASCII = "ASCII",
-  ODBC = "ODBC",
-  TM1DimensionSubset = "TM1DimensionSubset",
-  TM1CubeView = "TM1CubeView"
-}
+type DataSourceType = 'None' | 'ASCII' | 'ODBC' | 'TM1DimensionSubset' | 'TM1CubeView';
+
+// enum DataSourceType {
+//   None = "None",
+//   ASCII = "ASCII",
+//   ODBC = "ODBC",
+//   TM1DimensionSubset = "TM1DimensionSubset",
+//   TM1CubeView = "TM1CubeView"
+// }
 
 interface ProcessDataSource {
-  Type: DataSourceType;
+  type: DataSourceType;
   dataSourceNameForClient?: string;
   dataSourceNameForServer?: string;
   asciiDecimalSeparator?: string; // Default: .
@@ -256,4 +259,4 @@ interface ProcessParameter {
   Type: ProcessVariableType;
 }
 
-export { Process as default, ProcessParameter };
+export { Process as default, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType };
