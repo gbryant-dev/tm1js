@@ -36,22 +36,23 @@ class Process {
   constructor(
     name: string,
     hasSecurityAccess?: boolean,
-    prologProcedure?: string,
-    metadataProcedure?: string,
-    dataProcedure?: string,
-    epilogProcedure?: string,
+    procedure?: ProcessProcedure,
+    // prologProcedure?: string,
+    // metadataProcedure?: string,
+    // dataProcedure?: string,
+    // epilogProcedure?: string,
     dataSource?: ProcessDataSource,
-    variables?: ProcessVariable[],
     parameters?: ProcessParameter[],
+    variables?: ProcessVariable[],
     UIData?: string,
     variablesUIData?: string[]
   ) {
     this.name = name;
     this.hasSecurityAccess = hasSecurityAccess,
-    this.prologProcedure = Process.addGeneratedStatement(prologProcedure);
-    this.metadataProcedure = Process.addGeneratedStatement(metadataProcedure);
-    this.dataProcedure = Process.addGeneratedStatement(dataProcedure);
-    this.epilogProcedure = Process.addGeneratedStatement(epilogProcedure);
+    this.prologProcedure = Process.addGeneratedStatement(procedure?.prolog);
+    this.metadataProcedure = Process.addGeneratedStatement(procedure?.metadata);
+    this.dataProcedure = Process.addGeneratedStatement(procedure?.data);
+    this.epilogProcedure = Process.addGeneratedStatement(procedure?.epilog);
     this.dataSource = { ...this.dataSource, ...dataSource };
     this.variables = variables;
     this.parameters = parameters;
@@ -73,13 +74,18 @@ class Process {
     return new Process(
       data.Name,
       data.HasSecurityAccess,
-      data.PrologProcedure,
-      data.MetadataProcedure,
-      data.DataProcedure,
-      data.EpilogProcedure,
+      { prolog: data.PrologProcedure, 
+        metadata: data.MetadataProcedure, 
+        data: data.DataProcedure, 
+        epilog: data.EpilogProcedure 
+      },
+      // data.PrologProcedure,
+      // data.MetadataProcedure,
+      // data.DataProcedure,
+      // data.EpilogProcedure,
       dataSource,
-      data.Variables,
       data.Parameters,
+      data.Variables,
       data.UIData,
       data.VariablesUIData
     );
@@ -89,10 +95,10 @@ class Process {
     return this.constructBody();
   }
 
-  addVariable(name: string, type: "String" | "Numeric") {
+  addVariable(name: string, type: ProcessVariableType) {
     const variable: ProcessVariable = {
       Name: name,
-      Type: ProcessVariableType[type],
+      Type: type,
       Position: this.variables.length + 1,
       StartByte: 0,
       EndByte: 0
@@ -120,7 +126,7 @@ class Process {
     const paramType = type ? type : typeof value == 'string' ? 'String' : 'Numeric';
     const parameter: ProcessParameter = {
       Name: name,
-      Type: ProcessVariableType[paramType],
+      Type: paramType,
       Prompt: prompt,
       Value: value
     }
@@ -147,7 +153,6 @@ class Process {
     body['VariablesUIData'] = this.variablesUIData;
     body['Parameters'] = this.parameters;
     body['DataSource'] = {};
-    body['DataSource']['Type'] = this.dataSource.type;
 
     // Create DataSource body based on type
     switch (this.dataSource.type) {
@@ -209,11 +214,15 @@ class Process {
 
 }
 
-
-enum ProcessVariableType {
-  String = "String",
-  Numeric = "Numeric"
+interface ProcessProcedure {
+  prolog?: string;
+  metadata?: string;
+  data?: string;
+  epilog?: string;
 }
+
+
+type ProcessVariableType = 'String' | 'Numeric';
 
 interface ProcessVariable {
   Name: string;
