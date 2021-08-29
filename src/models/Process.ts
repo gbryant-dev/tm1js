@@ -120,7 +120,7 @@ class Process {
     this.variablesUIData.splice(index, 1);
   }
 
-  addParameter(name: string, prompt: string, value: string | number, type?: "String" | "Numeric") {
+  addParameter(name: string, value: string | number, prompt?: string, type?: "String" | "Numeric") {
     // Infer type if not provided
 
     const paramType = type ? type : typeof value == 'string' ? 'String' : 'Numeric';
@@ -268,4 +268,4 @@ interface ProcessParameter {
   Type: ProcessVariableType;
 }
 
-export { Process as default, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType };
+export { Process as default, ProcessProcedure, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType };
