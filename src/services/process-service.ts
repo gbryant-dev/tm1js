@@ -84,11 +84,7 @@ class ProcessService {
     async executeTICode (prolog: string, epilog: string = '') {
 
       const name = '}TM1ts_' + uuid();
-      let process = new Process(name);
-      process.prologProcedure = Process.addGeneratedStatement(prolog);
-      process.epilogProcedure = Process.addGeneratedStatement(epilog);
-
-      
+      let process = new Process(name, false, { prolog, epilog });
       try { 
         await this.create(process);
         return await this.executeWithReturn(process.name);
@@ -100,17 +96,24 @@ class ProcessService {
 
     }
 
-    async executeWithReturn (processName: string, parameters?: { Name: string, Value: string | number }[]): Promise<AxiosResponse<ProcessExecuteResult>> {
+    async executeWithReturn (processName: string, parameters?: { Name: string, Value: string | number }[]): Promise<ProcessExecuteResult> {
       const url = `/api/v1/Processes('${processName}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
       const body = { Parameters: parameters };
       const result = await this.http.POST(url, body);
-      return result;
+      return result as unknown as ProcessExecuteResult
+    }
+
+    async compile(processName: string) {
+      const url = `/api/v1/Processes('${processName}')/tm1.Compile`;
+      const res = await this.http.POST(url, null);
+      return res['value']
+      
     }
 
     async compileProcess (process: Process): Promise<AxiosResponse<ProcessSyntaxError[]>> {
       const body = { Process: process.body };
-      const response = await this.http.POST('/api/v1/CompileProcess', body)
-      return response['value'];
+      const res = await this.http.POST('/api/v1/CompileProcess', body)
+      return res['value']
     }
 
     async getErrorLogFileContent(filename: string) {
