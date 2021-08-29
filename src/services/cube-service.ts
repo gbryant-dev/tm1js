@@ -4,15 +4,18 @@ import ViewService from './view-service';
 import { MinimalVersion } from '../utils/decorators';
 import { HierarchyElement } from '../models/element';
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc';
+import CellService from './cell-service';
 
 
 class CubeService {
 
     private http: RestService;
     public views: ViewService;
+    public cells: CellService;
     constructor(http: RestService) {
         this.http = http;
         this.views = new ViewService(http);
+        this.cells = new CellService(http);
     }
 
     async get(cubeName: string): Promise<Cube> {
