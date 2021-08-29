@@ -1,4 +1,5 @@
-import Process, { DataSourceType, ProcessDataSource, ProcessParameter } from "../../src/models/process";
+import { ProcessExecuteStatusCode } from "../../src/models";
+import Process, { DataSourceType, ProcessDataSource, ProcessParameter, ProcessProcedure } from "../../src/models/process";
 
 describe('ProcessService', () => {
 
@@ -22,9 +23,6 @@ describe('ProcessService', () => {
   }
   const cleanup = async () => {
     await global.tm1.processes.delete(processName);
-    if (await global.tm1.processes.exists(prefix + 'new')) {
-      await global.tm1.processes.delete(prefix + 'new');
-    }
   }
 
   beforeAll(async () => {
@@ -51,7 +49,7 @@ describe('ProcessService', () => {
     expect(processNames.find(name => name === processName)).toBeTruthy();
   })
 
-  it('Should create a process', async () => {
+  it('Should create a process and delete it', async () => {
     const newProcessName = prefix + 'new';
     const parameters: ProcessParameter[] = [
       { Name: 'p1', Type: 'String' },
@@ -65,33 +63,123 @@ describe('ProcessService', () => {
     expect(createdProcess.hasSecurityAccess).toEqual(true);
     expect(createdProcess.dataSource.type).toEqual('None');
     expect(createdProcess.parameters).toHaveLength(2);
+
+    const processCount = await global.tm1.processes.getAllNames();
+    const exists = await global.tm1.processes.exists(newProcessName);
+    expect(exists).toBeTruthy();
+
+    // Delete process 
+    await global.tm1.processes.delete(newProcessName);
+    const stillExists = await global.tm1.processes.exists(newProcessName);
+    expect(stillExists).toBeFalsy();
+    
+    const newProcessCount = await global.tm1.processes.getAllNames()
+    expect(newProcessCount.length).toEqual(processCount.length - 1);
+
   })
 
-  it('Should update an existing process', async () => {
+  it('Should update a process', async () => {
     const process = await global.tm1.processes.get(processName);
     expect(process.name).toEqual(processName);
     expect(process.parameters).toHaveLength(0);
     expect(process.dataSource.type).toEqual('None');
 
-    // process.dataSource.type = 'TM1CubeView';
     process.hasSecurityAccess = true;
     process.prologProcedure = 'ProcessBreak;';
+    process.addParameter('p1', 5);
 
     await global.tm1.processes.update(process);
     const updated = await global.tm1.processes.get(processName);
 
-    // expect(updated.dataSource.type).toEqual('TM1CubeView');
     expect(updated.hasSecurityAccess).toEqual(true);
     expect(updated.prologProcedure).toContain('ProcessBreak;');
+    expect(updated.parameters).toHaveLength(1);
+
+    const [parameter] = updated.parameters;
+    expect(parameter.Name).toEqual('p1');
+    expect(parameter.Type).toEqual('Numeric');
+    expect(parameter.Value).toEqual(5);
 
   })
 
-  it.todo('Should delete a process')
-  it.todo('Should execute an existing process')
-  it.todo('Should execute an unbound process')
-  it.todo('Should execute a process and return the result')
-  it.todo('Should compile a process')
-  it.todo('Should get content from a process error log file')
+  it('Should execute an existing process', async () => {
 
+    // Create process that can be executed
+    const processToExecuteName = prefix + 'execute';
+    const procedures: ProcessProcedure = { prolog: 'Sleep(200);' }
+    const processObj = new Process(processToExecuteName, false, procedures);
+    await global.tm1.processes.create(processObj);
 
+    try {
+      const executeResult = await global.tm1.processes.execute(processToExecuteName);
+    } catch (e) {
+      throw e;
+    } finally {
+      await global.tm1.processes.delete(processToExecuteName);
+    }
+  })
+  
+  it('Should execute a process and return the result', async () => {
+    const processName2 = prefix + 'execute_return'; 
+    const processObj2 = new Process(processName2, false, { prolog: `Sleep(200);` });
+    await global.tm1.processes.create(processObj2);
+    
+    try {
+      const res = await global.tm1.processes.executeWithReturn(processName2);
+      expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      await global.tm1.processes.delete(processName2);
+    }
+     
+  });
+
+  it('Should execute an unbound process', async () => {
+    const res = await global.tm1.processes.executeTICode('Sleep(200);');
+    expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully);
+
+  })
+
+  it('Should compile an unbound process', async () => {
+    const processName3 = prefix + 'compile';
+    const processObj3 = new Process(processName3, true, { prolog: 'Sleep(200);' });
+    const errors = await global.tm1.processes.compileProcess(processObj3);
+    expect(errors).toHaveLength(0);
+
+    processObj3.epilogProcedure += `\r\nError`;
+    const errors2 = await global.tm1.processes.compileProcess(processObj3);
+    expect(errors2).toHaveLength(1);
+
+  })
+
+  it('Should compile a bound process', async () => {
+    const processName4 = prefix + 'compile_bound';
+    const processObj4 = new Process(processName4, true, { prolog: 'Sleep(200);' });
+    await global.tm1.processes.create(processObj4);
+    const errors = await global.tm1.processes.compile(processName4);
+    expect(errors).toHaveLength(0)
+    
+    await global.tm1.processes.delete(processName4);
+  })
+
+  it('Should get content from a process error log file', async () => {
+    const processName5 = prefix + 'execute_return'; 
+    const processObj5 = new Process(processName5, false, { prolog: `Sleep(200)` });
+    await global.tm1.processes.create(processObj5);
+    
+    try {
+      const res = await global.tm1.processes.executeWithReturn(processName5);
+      const errors = await global.tm1.processes.getErrorLogFileContent(res.ErrorLogFile.Filename);
+      expect(res.ProcessExecuteStatusCode).not.toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+      expect(errors).not.toBeUndefined();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      await global.tm1.processes.delete(processName5);
+    }
+  })
+  
 })
