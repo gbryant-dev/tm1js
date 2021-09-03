@@ -1,13 +1,12 @@
-import Process from "./process";
 
 class Chore {
 
   public name: string;
-  public startTime: Date;
+  public startTime: Date; // *TODO* 
   public DSTSensitive: boolean;
   public active: boolean;
-  public executionMode: ChoreExecutionMode;
-  public frequency: number;
+  public executionMode: ChoreExecutionMode | ChoreExecuteModeString;
+  public frequency: string;
   public tasks: ChoreTask[] = [];
 
   constructor(
@@ -15,8 +14,8 @@ class Chore {
     startTime: Date,
     DSTSensitive: boolean,
     active: boolean,
-    executionMode: ChoreExecutionMode,
-    frequency: number,
+    executionMode: ChoreExecutionMode | ChoreExecuteModeString,
+    frequency: string,
     tasks: ChoreTask[]
   ) {
     this.name = name;
@@ -28,12 +27,39 @@ class Chore {
     this.tasks = tasks;
   }
 
+
+  addTask(processName: string, parameters?: ChoreTaskParameter[]) {
+    const task = new ChoreTask(this.tasks.length - 1, processName, parameters);
+    this.tasks.push(task);
+  }
+
+  removeTask(step: number) {
+    const taskIndex = this.tasks.findIndex(task => task.step === step);
+    this.tasks.splice(taskIndex, 1);
+
+    // Update steps based on index in array
+    this.tasks.map((task: ChoreTask, index: number) => ({ ...task, step: index }));
+  }
+
   get body() {
     return this.constructBody()
   }
 
   constructBody() {
-    const body = {}
+    const body = {
+      Name: this.name,
+      StartTime: this.startTime.toISOString(),
+      DSTSensitive: this.DSTSensitive,
+      Active: this.active,
+      ExecutionMode: this.executionMode,
+      Frequency: this.frequency,
+      Tasks: []
+    }
+
+    // *TODO*
+    for (const task of this.tasks) {
+      body.Tasks.push(task.body)
+    }
 
     return body
   }
@@ -52,15 +78,16 @@ class Chore {
 
 }
 
-
 class ChoreTask {
 
   public step: number;
-  public process?: Process;
+  public processName?: string;
+  public parameters: ChoreTaskParameter[];
 
-  constructor(step: number, process?: Process) {
+  constructor(step: number, processName?: string, parameters?: ChoreTaskParameter[]) {
     this.step = step;
-    this.process = process;
+    this.processName = processName;
+    this.parameters = parameters;
   }
 
 
@@ -69,7 +96,12 @@ class ChoreTask {
   }
 
   constructBody() {
-    const body = {}
+
+    const body = {
+      Step: this.step,
+      'Process@odata.bind': `Processes('${this.processName}')`,
+      Parameters: this.parameters
+    }
 
     return body
   }
@@ -77,7 +109,8 @@ class ChoreTask {
   static fromJson(data: any) {
     return new ChoreTask(
       data.Step,
-      Process.fromJson(data.Process)
+      data.Process.Name,
+      data.Parameters
     )
   }
 
@@ -86,6 +119,13 @@ class ChoreTask {
 enum ChoreExecutionMode {
   SingleCommit = 0,
   MultipleCommit = 1
+}
+
+type ChoreExecuteModeString = keyof typeof ChoreExecutionMode;
+
+interface ChoreTaskParameter {
+  Name: string;
+  Value?: string | number;
 }
 
 export { Chore as default, ChoreTask, ChoreExecutionMode };
