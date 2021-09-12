@@ -1,4 +1,4 @@
-import Chore from "../models/chore";
+import Chore, { ChoreFrequency, ChoreTask } from "../models/chore";
 import RestService from "./rest-service";
 
 
@@ -29,26 +29,82 @@ class ChoreService {
 
   async create(chore: Chore): Promise<any> {
     const url = `/api/v1/Chores`;
-    return await this.http.POST(url, chore.body);
+    return this.http.POST(url, chore.body);
   }
 
-  async update(chore: Chore): Promise<any> {
-    const url =  `/api/v1/Chores('${chore.name}')`;
-    return await this.http.PATCH(url, chore.body);
+  async update(chore: Chore): Promise<void> {
+
+    const reactivate = chore.active;
+    if (reactivate) {
+      chore.active = false;
+      await this.deactivate(chore.name);
+    }
+
+    const url = `/api/v1/Chores('${chore.name}')`;
+
+    const choreWithoutTasks = Chore.fromJson({ ...chore.body, Tasks: [] })
+
+    await this.http.PATCH(url, choreWithoutTasks.body);
+
+    // Update tasks
+    const { tasks: existingTasks } = await this.get(chore.name);
+
+
+    for (const task of chore.tasks) {
+
+      if (task.step >= existingTasks.length) {
+        await this.addTask(chore.name, task)
+      } else {
+        // Check and Update task
+        const existingTask = existingTasks[task.step];
+        if (JSON.stringify(existingTask.body) !== JSON.stringify(task.body)) {
+          await this.updateTask(chore.name, task);
+        }
+      }
+    }
+
+    // Delete tasks that have been removed
+    const tasksToRemove = existingTasks.slice(chore.tasks.length);
+    console.log(chore.tasks, existingTasks, tasksToRemove)
+
+    for (const task of tasksToRemove) {
+      await this.deleteTask(chore.name, task.step);
+    }
+
+    if (reactivate) {
+      await this.activate(chore.name)
+    }
   }
 
   async delete(choreName: string): Promise<any> {
     const url = `/api/v1/Chores('${choreName}')`;
-    return await this.http.DELETE(url);
+    return this.http.DELETE(url);
   }
 
-  // *TODO
-  async execute(choreName: string): Promise<any> {}
-  async executeChore(choreName: string): Promise<any> {}
+  async addTask(choreName: string, task: ChoreTask) {
+    const url = `/api/v1/Chores('${choreName}')`;
+    const body = { Tasks: [task.body] };
+    return this.http.PATCH(url, body);
+  }
 
-  async activate(choreName: string): Promise<any> { 
+  async deleteTask(choreName: string, step: number) {
+    console.log(`Deleting task at step ${step}`);
+    const url = `/api/v1/Chores('${choreName}')/Tasks('${step}')`;
+    return this.http.DELETE(url);
+  }
+
+  async updateTask(choreName: string, task: ChoreTask) {
+    const url = `/api/v1/Chores('${choreName}')/Tasks('${task.step}')`;
+    return this.http.PATCH(url, task.body);
+  }
+
+  // **TODO**
+  async execute(choreName: string): Promise<any> { }
+  async executeChore(choreName: string): Promise<any> { }
+
+  async activate(choreName: string): Promise<any> {
     const url = `/api/v1/Chores('${choreName}')/tm1.Activate`;
-    return await this.http.POST(url, null);
+    return this.http.POST(url, null);
   }
 
   async deactivate(choreName: string): Promise<any> {

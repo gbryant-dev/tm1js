@@ -37,16 +37,15 @@ class Chore {
 
 
   addTask(processName: string, parameters?: ChoreTaskParameter[]) {
-    const task = new ChoreTask(this.tasks.length - 1, processName, parameters);
+    const task = new ChoreTask(this.tasks.length, processName, parameters);
     this.tasks.push(task);
   }
 
   removeTask(step: number) {
     const taskIndex = this.tasks.findIndex(task => task.step === step);
     this.tasks.splice(taskIndex, 1);
-
     // Update steps based on index in array
-    this.tasks.map((task: ChoreTask, index: number) => ({ ...task, step: index }));
+    // this.tasks.map((task: ChoreTask, index: number) => ({ ...task, step: index }));
   }
 
   get body() {
@@ -105,7 +104,7 @@ class ChoreTask {
   constructBody() {
 
     const body = {
-      Step: this.step,
+      // Step: this.step,
       'Process@odata.bind': `Processes('${this.processName}')`,
       Parameters: this.parameters
     }

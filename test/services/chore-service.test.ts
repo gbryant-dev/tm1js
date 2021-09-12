@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import Chore, { ChoreExecutionMode, ChoreFrequency, ChoreStartTime, ChoreTask } from "../../src/models/chore";
 import Process from "../../src/models/process";
 
@@ -6,6 +7,16 @@ describe('ChoreService', () => {
 
   const prefix = 'TM1ts_test_';
   const choreName = prefix + 'chore';
+
+  const createProcesses = async (count: number = 1) => {
+    // const processNames = [prefix + 'chore_process_1', prefix + 'chore_process_2'];
+    const processNames = Array.from({ length: count }).map((_, i) => (`${prefix}chore_process_${randomBytes(4).toString('hex')}`));
+    for (const processName of processNames) {
+      const processObj = new Process(processName);
+      await global.tm1.processes.create(processObj);
+    }
+    return processNames
+  }
 
   const setup = async () => {
     const startTime = new Date()
@@ -68,21 +79,14 @@ describe('ChoreService', () => {
     const newChoreName = prefix + 'chore_new';
 
     // Create a couple of processes to use in the Chore
-    const processNames = [prefix + 'chore_process_1', prefix + 'chore_process_2'];
-    for (const processName of processNames) {
-      const processObj = new Process(processName);
-      await global.tm1.processes.create(processObj);
-    }
+    const processNames = await createProcesses(2);
 
     // Create tasks and Chore
-    const tasks: ChoreTask[] = [
-      new ChoreTask(0, processNames[0]),
-      new ChoreTask(1, processNames[1])
-    ]
+    const tasks: ChoreTask[] = processNames.map((name, i) => new ChoreTask(i, name));
+
     const newChoreObj = new Chore(newChoreName, ChoreStartTime.fromDate(new Date()), false, false, 'MultipleCommit', new ChoreFrequency(1), tasks);
     await global.tm1.chores.create(newChoreObj);
     const newChore = await global.tm1.chores.get(newChoreName);
-    console.log(newChore);
 
     expect(newChore.name).toEqual(newChoreName);
     expect(newChore.active).toEqual(false);
@@ -104,7 +108,31 @@ describe('ChoreService', () => {
 
   })
 
-  it.todo('Should update a chore')
+  it('Should update a chore', async () => {
+    const chore = await global.tm1.chores.get(choreName);
+
+    // Create process and add new task to Chore
+    const [processName] = await createProcesses(1);
+    chore.addTask(processName, []);
+    await global.tm1.chores.update(chore);
+
+    const updatedChore = await global.tm1.chores.get(choreName);
+    const tasks = updatedChore.tasks;
+    expect(tasks.length).toEqual(chore.tasks.length)
+    expect(tasks[tasks.length - 1].processName).toEqual(processName);
+
+    // Remove task
+    updatedChore.removeTask(1);
+    await global.tm1.chores.update(updatedChore)
+
+    const updatedChore2 = await global.tm1.chores.get(choreName);
+    expect(updatedChore2.tasks.length).toEqual(updatedChore.tasks.length);
+
+    // Cleanup
+    await global.tm1.processes.delete(processName);
+
+  });
+
   it.todo('Should delete a chore')
   it.todo('Should execute a chore')
 
