@@ -112,28 +112,38 @@ describe('ChoreService', () => {
     const chore = await global.tm1.chores.get(choreName);
 
     // Create process and add new task to Chore
-    const [processName] = await createProcesses(1);
-    chore.addTask(processName, []);
+    const [p1, p2, p3] = await createProcesses(3);
+    chore.addTask(p1, []);
     await global.tm1.chores.update(chore);
 
     const updatedChore = await global.tm1.chores.get(choreName);
     const tasks = updatedChore.tasks;
     expect(tasks.length).toEqual(chore.tasks.length)
-    expect(tasks[tasks.length - 1].processName).toEqual(processName);
+    expect(tasks[tasks.length - 1].processName).toEqual(p1);
 
-    // Remove task
-    updatedChore.removeTask(1);
+    updatedChore.tasks = [];
+    updatedChore.addTask(p2, []);
+    updatedChore.addTask(p3, []);
+
     await global.tm1.chores.update(updatedChore)
 
     const updatedChore2 = await global.tm1.chores.get(choreName);
-    expect(updatedChore2.tasks.length).toEqual(updatedChore.tasks.length);
+    const updatedChoreTasks = updatedChore2.tasks;
+    expect(updatedChoreTasks).toHaveLength(2);
+    expect(updatedChoreTasks[0].processName).toEqual(p2);
+    expect(updatedChoreTasks[1].processName).toEqual(p3);
+
+    // Remove tasks and clean up
+    updatedChore2.tasks = [];
+    await global.tm1.chores.update(updatedChore2);
 
     // Cleanup
-    await global.tm1.processes.delete(processName);
+    for (const processName of [p1, p2, p3]) {
+      await global.tm1.processes.delete(processName);
+    }
 
-  });
+  })
 
-  it.todo('Should delete a chore')
   it.todo('Should execute a chore')
 
 

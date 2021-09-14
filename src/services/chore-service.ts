@@ -34,6 +34,7 @@ class ChoreService {
 
   async update(chore: Chore): Promise<void> {
 
+    // Disable chore if active before updates
     const reactivate = chore.active;
     if (reactivate) {
       chore.active = false;
@@ -64,13 +65,13 @@ class ChoreService {
     }
 
     // Delete tasks that have been removed
-    const tasksToRemove = existingTasks.slice(chore.tasks.length);
-    console.log(chore.tasks, existingTasks, tasksToRemove)
+    const tasksToRemove = existingTasks.slice(chore.tasks.length).reverse();
 
     for (const task of tasksToRemove) {
       await this.deleteTask(chore.name, task.step);
     }
 
+    // Reactivate chore if required
     if (reactivate) {
       await this.activate(chore.name)
     }
@@ -88,7 +89,6 @@ class ChoreService {
   }
 
   async deleteTask(choreName: string, step: number) {
-    console.log(`Deleting task at step ${step}`);
     const url = `/api/v1/Chores('${choreName}')/Tasks('${step}')`;
     return this.http.DELETE(url);
   }

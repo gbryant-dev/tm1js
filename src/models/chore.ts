@@ -41,13 +41,6 @@ class Chore {
     this.tasks.push(task);
   }
 
-  removeTask(step: number) {
-    const taskIndex = this.tasks.findIndex(task => task.step === step);
-    this.tasks.splice(taskIndex, 1);
-    // Update steps based on index in array
-    // this.tasks.map((task: ChoreTask, index: number) => ({ ...task, step: index }));
-  }
-
   get body() {
     return this.constructBody()
   }
