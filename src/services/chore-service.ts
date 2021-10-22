@@ -98,9 +98,18 @@ class ChoreService {
     return this.http.PATCH(url, task.body);
   }
 
-  // **TODO**
-  async execute(choreName: string): Promise<any> { }
-  async executeChore(choreName: string): Promise<any> { }
+  async execute(choreName: string): Promise<any> {
+    const url = `/api/v1/Chores('${choreName}')/tm1.Execute`;
+    return this.http.POST(url, null);
+  }
+
+  async executeChore(choreName: string): Promise<any> {
+    const url = `/api/v1/tm1.ExecuteChore`;
+    const body = {
+      'Chore@odata.bind': `Chores('${choreName}')`
+    }
+    return this.http.POST(url, body);
+  }
 
   async activate(choreName: string): Promise<any> {
     const url = `/api/v1/Chores('${choreName}')/tm1.Activate`;
