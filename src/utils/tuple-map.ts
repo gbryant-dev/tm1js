@@ -8,11 +8,11 @@ class TupleMap {
     this._map = new CaseAndSpaceInsensitiveMap();
   }
 
-  get(key: [string, string]): string | number {
+  get(key: [...string[]]): string | number {
     return this._map.get(JSON.stringify(key));
   }
 
-  set(key: [string, string], value: string | number): this {
+  set(key: [...string[]], value: string | number): this {
     this._map.set(JSON.stringify(key), value);
     return this;
   }
@@ -21,15 +21,15 @@ class TupleMap {
     this._map.clear();
   }
 
-  delete(key: [string, string]): boolean {
+  delete(key: [...string[]]): boolean {
     return this._map.delete(JSON.stringify(key));
   }
 
-  has(key: [string, string]): boolean {
+  has(key: [...string[]]): boolean {
     return this._map.has(JSON.stringify(key))
   }
 
-  forEach(callback: (value: string | number, key: [string, string], map: Map<[string, string], string | number>) => void, thisArg?: any): void {
+  forEach(callback: (value: string | number, key: [...string[]], map: Map<[...string[]], string | number>) => void, thisArg?: any): void {
     this._map.forEach((value, key) => {
       callback.call(thisArg, value, JSON.parse(key), this);
     });

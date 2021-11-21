@@ -41,6 +41,10 @@ class CaseAndSpaceInsensitiveMap<T, U> {
     return Map.prototype.entries.call(this)
   }
 
+  keys(): IterableIterator<T> {
+    return Map.prototype.keys.call(this)
+  }
+
   values() {
     return Map.prototype.values.call(this)
   }

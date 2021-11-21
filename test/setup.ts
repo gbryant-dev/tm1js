@@ -9,19 +9,19 @@ declare global {
 }
 
 
-beforeAll (async () => {
+beforeAll(async () => {
   await getSession()
 
 });
 
 
 const getSession = async (): Promise<void> => {
-  const config = { address: 'localhost', port: 5000, user: 'admin', password: '', ssl: true };
+  const config = { address: 'localhost', port: 5000, user: 'admin', password: 'admin', ssl: false };
   global.tm1 = await TM1Service.connect(config);
 }
 
-afterAll(async() => {
- // Logout
+afterAll(async () => {
+  // Logout
   if (global.tm1) {
     await global.tm1.logout()
   }

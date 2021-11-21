@@ -51,6 +51,18 @@ class ViewService {
     return this.http.DELETE(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')`);
   }
 
+  async exists(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
+    const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
+    try {
+      await this.http.GET(`/api/v1/Cubes('${cubeName}')/${viewType}('${viewName}')`);
+      return true;
+    } catch (e) {
+      if (e.status === 404) {
+        return false
+      }
+      throw e;
+    }
+  }
 }
 
 export default ViewService;

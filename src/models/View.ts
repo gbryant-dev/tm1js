@@ -28,7 +28,7 @@ class MDXView extends View {
     this.mdx = mdx;
   }
 
-  static fromJson (data: any): MDXView {
+  static fromJson(data: any): MDXView {
     return new MDXView(data.Name, data.MDX);
   }
 
@@ -57,25 +57,31 @@ class NativeView extends View {
 
   constructor(
     name: string,
-    columns: ViewAxisSelection[],
-    rows: ViewAxisSelection[],
-    titles: ViewAxisTitle[],
+    columns?: ViewAxisSelection[],
+    rows?: ViewAxisSelection[],
+    titles?: ViewAxisTitle[],
     suppressEmptyColumns?: boolean,
     suppressEmptyRows?: boolean
   ) {
     super();
     this.name = name;
 
-    for (const c of columns) {
-      this.columns.push(c);
+    if (columns) {
+      for (const c of columns) {
+        this.columns.push(c);
+      }
     }
 
-    for (const r of rows) {
-      this.rows.push(r);
+    if (rows) {
+      for (const r of rows) {
+        this.rows.push(r);
+      }
     }
 
-    for (const t of titles) {
-      this.titles.push(t);
+    if (titles) {
+      for (const t of titles) {
+        this.titles.push(t);
+      }
     }
 
     this.suppressEmptyColumns = suppressEmptyColumns;
@@ -147,7 +153,7 @@ class NativeView extends View {
     body['Name'] = this.name;
     body['SuppressEmptyColumns'] = this.suppressEmptyColumns;
     body['SuppressEmptyRows'] = this.suppressEmptyRows;
-    
+
     body['Columns'] = [];
     for (const column of this.columns) {
 

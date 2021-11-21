@@ -1,6 +1,8 @@
 
 class Cellset {
- 
+  public ID: string;
+  public Axes: CellsetAxis[] = [];
+  public Cells: CellsetCell[] = [];
 
   constructor() {
 
@@ -10,6 +12,19 @@ class Cellset {
   static fromJson() {
 
   }
+
+}
+
+
+interface CellsetAxis {
+
+}
+
+interface CellsetAxisTuple {
+  
+}
+
+interface CellsetCell {
 
 }
 

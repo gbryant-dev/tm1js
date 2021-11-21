@@ -13,7 +13,7 @@ class HierarchyElement {
 
     constructor(
         name: string,
-        type?: ElementTypeString,
+        type: ElementTypeString,
         uniqueName?: string,
         level?: number,
         index?: number,

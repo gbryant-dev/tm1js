@@ -144,9 +144,9 @@ describe('ChoreService', () => {
 
   })
 
-  it('Should execute a chore', async () => {
-    expect(await global.tm1.chores.execute(choreName)).not.toThrowError()
-    expect(await global.tm1.chores.executeChore(choreName)).not.toThrowError()
+  it('Should execute a chore', async () => {    
+    await expect(global.tm1.chores.executeChore(choreName)).resolves.toMatch('')
+    await expect(global.tm1.chores.execute(choreName)).resolves.toMatch('')
   })
 
 

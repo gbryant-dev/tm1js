@@ -104,7 +104,7 @@ class ChoreService {
   }
 
   async executeChore(choreName: string): Promise<any> {
-    const url = `/api/v1/tm1.ExecuteChore`;
+    const url = `/api/v1/ExecuteChore`;
     const body = {
       'Chore@odata.bind': `Chores('${choreName}')`
     }
