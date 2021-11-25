@@ -236,6 +236,29 @@ describe('CellService', () => {
 
   })
 
-  it.todo('Should write values through a cellset')
+  it('Should write values through a cellset', async () => {
+
+    // Create a cellset to write to
+    const mdx = `
+      SELECT {[${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1]} ON COLUMNS,
+      {
+        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 1],
+        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 3],
+        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 5]
+      } ON ROWS
+      FROM [${cubeName}]
+      WHERE ([${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 1])
+    `;
+
+    // Update cellset
+    const values = [100, 300, 800];
+    await global.tm1.cells.writeValuesThroughCellset(mdx, values)
+
+    // Verify updates
+    const { Cells } = await global.tm1.cells.executeMDX(mdx) as any;
+    const cellValues = Cells.map(cell => cell.Value);
+    expect(cellValues).toEqual(values)
+    
+  })
 
 })
