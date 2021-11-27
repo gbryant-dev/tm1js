@@ -7,6 +7,14 @@ describe('ChoreService', () => {
 
   const prefix = 'TM1ts_test_';
   const choreName = prefix + 'chore';
+  const processName  = prefix + 'chore_process';
+
+  const createInitialProcess = async () => {
+    const process = new Process(processName);
+    process.addParameter('pSleep', 0);
+    
+    await global.tm1.processes.create(process);
+  }
 
   const createProcesses = async (count: number = 1) => {
     // const processNames = [prefix + 'chore_process_1', prefix + 'chore_process_2'];
@@ -19,6 +27,9 @@ describe('ChoreService', () => {
   }
 
   const setup = async () => {
+    
+    await createInitialProcess();
+
     const startTime = new Date()
     const chore = new Chore(
       choreName,
@@ -28,7 +39,7 @@ describe('ChoreService', () => {
       'SingleCommit',
       new ChoreFrequency(1, 2, 30, 15),
       [
-        new ChoreTask(0, 'Test', [{ Name: 'pSleep', Value: 0 }])
+        new ChoreTask(0, processName, [{ Name: 'pSleep', Value: 3 }])
       ]
     )
 
@@ -38,6 +49,10 @@ describe('ChoreService', () => {
   const cleanup = async () => {
     if (await global.tm1.chores.exists(choreName)) {
       await global.tm1.chores.delete(choreName)
+    }
+
+    if (await global.tm1.processes.exists(processName)) {
+      await global.tm1.processes.delete(processName)
     }
   }
 

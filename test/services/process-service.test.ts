@@ -72,9 +72,6 @@ describe('ProcessService', () => {
     await global.tm1.processes.delete(newProcessName);
     const stillExists = await global.tm1.processes.exists(newProcessName);
     expect(stillExists).toBeFalsy();
-    
-    const newProcessCount = await global.tm1.processes.getAllNames()
-    expect(newProcessCount.length).toEqual(processCount.length - 1);
 
   })
 
