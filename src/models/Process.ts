@@ -37,10 +37,6 @@ class Process {
     name: string,
     hasSecurityAccess?: boolean,
     procedure?: ProcessProcedure,
-    // prologProcedure?: string,
-    // metadataProcedure?: string,
-    // dataProcedure?: string,
-    // epilogProcedure?: string,
     dataSource?: ProcessDataSource,
     parameters?: ProcessParameter[],
     variables?: ProcessVariable[],
@@ -54,10 +50,10 @@ class Process {
     this.dataProcedure = Process.addGeneratedStatement(procedure?.data);
     this.epilogProcedure = Process.addGeneratedStatement(procedure?.epilog);
     this.dataSource = { ...this.dataSource, ...dataSource };
-    this.variables = variables;
-    this.parameters = parameters;
+    this.variables = variables ?? [];
+    this.parameters = parameters ?? [];
     this.UIData = UIData;
-    this.variablesUIData = variablesUIData;
+    this.variablesUIData = variablesUIData ?? [];
   }
 
   static addGeneratedStatement(code: string = ''): string {
@@ -79,10 +75,6 @@ class Process {
         data: data.DataProcedure, 
         epilog: data.EpilogProcedure 
       },
-      // data.PrologProcedure,
-      // data.MetadataProcedure,
-      // data.DataProcedure,
-      // data.EpilogProcedure,
       dataSource,
       data.Parameters,
       data.Variables,
@@ -233,14 +225,6 @@ interface ProcessVariable {
 }
 
 type DataSourceType = 'None' | 'ASCII' | 'ODBC' | 'TM1DimensionSubset' | 'TM1CubeView';
-
-// enum DataSourceType {
-//   None = "None",
-//   ASCII = "ASCII",
-//   ODBC = "ODBC",
-//   TM1DimensionSubset = "TM1DimensionSubset",
-//   TM1CubeView = "TM1CubeView"
-// }
 
 interface ProcessDataSource {
   type: DataSourceType;
