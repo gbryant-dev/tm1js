@@ -15,7 +15,7 @@ describe('CellService', () => {
 
   const setupDimension = (dimName: string, elementCount: number) => {
     const elements = Array.from({ length: elementCount }).map((_, i) => {
-      return new HierarchyElement(`${dimName} Element ${i + 1}`, "Numeric");
+      return new HierarchyElement(`Element ${i + 1}`, 'Numeric');
     })
     const hierarchy = new Hierarchy(dimName, dimName, elements);
     const dimension = new Dimension(dimName, [hierarchy]);
@@ -166,10 +166,10 @@ describe('CellService', () => {
   it('Should update the value for a single cell through a cube', async () => {
     const mdx = `
     SELECT
-      { [${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1] } * 
-      { [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 1] }
+      { [${dimNames[0]}].[${dimNames[0]}].[Element 1] } * 
+      { [${dimNames[1]}].[${dimNames[1]}].[Element 1] }
       ON COLUMNS,
-      { [${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 1] }
+      { [${dimNames[2]}].[${dimNames[2]}].[Element 1] }
     ON ROWS
     FROM [${cubeName}]
   `;
@@ -178,7 +178,7 @@ describe('CellService', () => {
     const currentValue = result1.Cells[0].Value
     expect(currentValue).toEqual(null)
 
-    const elements = dimNames.map(dimName => `${dimName} Element 1`);
+    const elements = ['Element 1', 'Element 3', 'Element 4']
 
     await global.tm1.cells.writeValue(100, cubeName, elements);
     
@@ -199,9 +199,9 @@ describe('CellService', () => {
     // Create map for holding coords and values to update
     const cellsetMap = new Map()
 
-    cellsetMap.set([`${dimNames[0]} Element 1`, `${dimNames[1]} Element 1`, `${dimNames[2]} Element 1`], 100)
-    cellsetMap.set([`${dimNames[0]} Element 1`, `${dimNames[1]} Element 2`, `${dimNames[2]} Element 1`], 300)
-    cellsetMap.set([`${dimNames[0]} Element 1`, `${dimNames[1]} Element 2`, `${dimNames[2]} Element 2`], 800)
+    cellsetMap.set(['Element 1', 'Element 1', 'Element 1'], 100)
+    cellsetMap.set(['Element 1', 'Element 2', 'Element 1'], 300)
+    cellsetMap.set(['Element 1', 'Element 2', 'Element 2'], 800)
     
     // Write values 
     await global.tm1.cells.writeValues(cubeName, cellsetMap)
@@ -209,9 +209,9 @@ describe('CellService', () => {
     // Verify that the values have been updated correctly
     const mdx = `
       SELECT {
-        ([${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1], [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 1], [${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 1]), 
-        ([${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1], [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 2], [${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 1]), 
-        ([${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1], [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 2], [${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 2]) 
+        ([${dimNames[0]}].[${dimNames[0]}].[Element 1], [${dimNames[1]}].[${dimNames[1]}].[Element 1], [${dimNames[2]}].[${dimNames[2]}].[Element 1]), 
+        ([${dimNames[0]}].[${dimNames[0]}].[Element 1], [${dimNames[1]}].[${dimNames[1]}].[Element 2], [${dimNames[2]}].[${dimNames[2]}].[Element 1]), 
+        ([${dimNames[0]}].[${dimNames[0]}].[Element 1], [${dimNames[1]}].[${dimNames[1]}].[Element 2], [${dimNames[2]}].[${dimNames[2]}].[Element 2]) 
       } 
       ON COLUMNS
       FROM [${cubeName}]
@@ -227,8 +227,7 @@ describe('CellService', () => {
   });
 
   it('Should get a single value from a cube', async () => {
-    const elements = dimNames.map(dimName => `${dimName} Element 1`);
-    elements[0] = `${dimNames[0]}::${dimNames[0]} Element 1`
+    const elements = dimNames.map(dimName => 'Element 1');
 
     const { Cells: [cell] } = await global.tm1.cells.getValue(cubeName, elements) as any
     
@@ -240,14 +239,14 @@ describe('CellService', () => {
 
     // Create a cellset to write to
     const mdx = `
-      SELECT {[${dimNames[0]}].[${dimNames[0]}].[${dimNames[0]} Element 1]} ON COLUMNS,
+      SELECT {[${dimNames[0]}].[${dimNames[0]}].[Element 1]} ON COLUMNS,
       {
-        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 1],
-        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 3],
-        [${dimNames[1]}].[${dimNames[1]}].[${dimNames[1]} Element 5]
+        [${dimNames[1]}].[${dimNames[1]}].[Element 1],
+        [${dimNames[1]}].[${dimNames[1]}].[Element 3],
+        [${dimNames[1]}].[${dimNames[1]}].[Element 5]
       } ON ROWS
       FROM [${cubeName}]
-      WHERE ([${dimNames[2]}].[${dimNames[2]}].[${dimNames[2]} Element 1])
+      WHERE ([${dimNames[2]}].[${dimNames[2]}].[Element 1])
     `;
 
     // Update cellset
