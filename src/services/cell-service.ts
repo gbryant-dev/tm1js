@@ -1,4 +1,4 @@
-import { HierarchyElement, View, ViewContext } from "../models";
+import { ViewContext } from "../models";
 import CubeService from "./cube-service";
 import RestService from "./rest-service";
 
@@ -29,7 +29,7 @@ class CellService {
    * 
    * @param {string} cubeName Cube
    * @param {string[]} elements - List of elements that determines the intersection of the value to fetch. 
-   *  Specify hierarchy using hierarchy::element. Default hierarchy is used if one is not specified
+   *  Specify hierarchy using :: e.g hierarchy::element. Default hierarchy is used if one is not specified
    * @param {string[]} [dimensions] optional 
    * @returns 
    */
@@ -75,7 +75,6 @@ class CellService {
       }],
       Value: value
     }
-
     return this.http.POST(url, body)
   }
 
@@ -112,9 +111,59 @@ class CellService {
     return response['ID']
   }
 
-  async extractCellset(cellsetID: string) {
-    const url = `/api/v1/Cellsets('${cellsetID}')${DEFAULT_CELLSET_QUERY}`;
+  async extractCellset(
+    cellsetID: string, 
+    cellProperties: string[] = [],
+    memberProperties: string[] = [],
+    top: number = null, 
+    skip: number = null, 
+    deleteCellset: boolean = true,
+    skipContexts: boolean = false,
+    skipZeros: boolean = false, 
+    skipConsolidated: boolean = false, 
+    skipRuleDerived: boolean = false,
+    includeHierarchies: boolean = true
+  ) {
+
+    const baseUrl = `/api/v1/Cellsets('${cellsetID}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`;
+
+    const filterAxis  = skipContexts ? `$filter=Ordinal ne 2;` : '';
+    
+    const memberProps = `$select=${memberProperties === null || memberProperties.length === 0 ? ['UniqueName'] : memberProperties.join(',')}`
+    const expandHierarchies = includeHierarchies ? `,Hierarchies($select=Name;$expand=Dimension($select=Name))` : '';
+
+    // Cell properties
+    const selectCells = `$select=${cellProperties === null || cellProperties.length === 0 ? ['Value'] : cellProperties.join(',')}`;
+    const topCells =  top ? `$top=${top}` : '';
+    const skipCells = skip ? `$skip=${skip}` : ''; 
+    
+    const cellFilters = [];
+    if (skipZeros || skipConsolidated || skipRuleDerived) {
+      if (skipZeros) {
+        cellFilters.push(`Value ne 0 and Value ne null and Value ne ''`)
+      }
+      if (skipConsolidated) {
+        cellFilters.push('Consolidated eq false')
+      }
+      if (skipRuleDerived) {
+        cellFilters.push('RuleDerived eq false')
+      }
+    }
+
+    const filterCells = cellFilters.length > 0 ? `$filter=${cellFilters.join(' and ')}` : ''
+    const cellQuery = [selectCells, filterCells, topCells, skipCells].filter(f => f.length > 0).join(';')
+
+    const url = `${baseUrl},Axes(${filterAxis}$expand=Tuples($expand=Members(${memberProps}))${expandHierarchies}),Cells(${cellQuery})`
+
     return this.http.GET(url);
+  }
+
+  async extractCellsetCellProperties(cellsetID: string, cellProperties?: string[]) {
+
+    const cellProps = cellProperties ?? ['Value'];
+    const url = `/api/v1/Cellsets('${cellsetID}')?$expand=Cells($select=${cellProps.join(',')})`;
+    const response = await this.http.GET(url);
+    return response['Cells']
   }
 
   async writeValuesThroughCellset (mdx: string, values: Array<string | number>) {
@@ -130,8 +179,8 @@ class CellService {
 
   async getDimensionNamesForWriting(cubeName: string) {
     const cubeService = new CubeService(this.http)
-    const cube = await cubeService.get(cubeName)
-    return cube.dimensions
+    const dimensions = await cubeService.getDimensionNames(cubeName)
+    return dimensions
   }
 
 }

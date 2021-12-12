@@ -167,9 +167,9 @@ describe('CellService', () => {
     const mdx = `
     SELECT
       { [${dimNames[0]}].[${dimNames[0]}].[Element 1] } * 
-      { [${dimNames[1]}].[${dimNames[1]}].[Element 1] }
+      { [${dimNames[1]}].[${dimNames[1]}].[Element 3] }
       ON COLUMNS,
-      { [${dimNames[2]}].[${dimNames[2]}].[Element 1] }
+      { [${dimNames[2]}].[${dimNames[2]}].[Element 4] }
     ON ROWS
     FROM [${cubeName}]
   `;
