@@ -73,11 +73,11 @@ class RestService {
             headers,
             data: data.error || data
           }
-           
+
         } else {
           error = { status: 500, statusText: 'Unknown Error', data: null, headers: err.config.headers }
         }
-        return Promise.reject(error)
+        throw new RestError(error.status, error.data, error.headers)
       }
     )
   }
