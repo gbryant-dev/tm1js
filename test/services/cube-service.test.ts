@@ -1,8 +1,7 @@
-import { ElementType, HierarchyElement } from "../../src/models";
+import { HierarchyElement } from "../../src/models";
 import Cube from "../../src/models/Cube";
 import Dimension from "../../src/models/dimension";
 import Hierarchy from "../../src/models/hierarchy";
-import TM1Service from "../../src/services/tm1-service";
 
 describe('CubeService', () => {
   
@@ -93,11 +92,17 @@ describe('CubeService', () => {
   it('should update a cube', async () => {
     const rule = 'SKIPCHECK;\n\nFEEDERS;';
     const cube = await global.tm1.cubes.get(cubeName);
+    expect(cube.rules).toBe(null);
     cube.rules = rule;
     await global.tm1.cubes.update(cube);
     const updatedCube = await global.tm1.cubes.get(cubeName);
     expect (updatedCube.rules).toEqual(rule)
   });
+
+  it('Should fetch the dimensions for a cube', async () => {
+    const dimensions = await global.tm1.cubes.getDimensionNames(cubeName);
+    expect(dimensions).toEqual(dimensionNames)
+  })
 
   
 })

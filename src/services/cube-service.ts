@@ -55,6 +55,11 @@ class CubeService {
     return this.http.DELETE(`/api/v1/Cubes('${cubeName}')`);
   }
 
+  async getDimensionNames(cubeName: string) {
+    const response = await this.http.GET(`/api/v1/Cubes('${cubeName}')/Dimensions?$select=Name`);
+    return response['value'].map((dim: { Name: string }) => dim.Name);
+  }
+
   @MinimalVersion(11.1)
   async checkRules(cubeName: string): Promise<RuleSyntaxError[]> {
     const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckRules`, null);
