@@ -13,15 +13,35 @@ class CellService {
     this.http = http;
   }
 
-  async executeView(cubeName: string, viewName: string, isPrivate: boolean = false) {
+  async executeView(
+    cubeName: string, 
+    viewName: string, 
+    isPrivate: boolean = false, 
+    cellProperties?: string[], 
+    top?: number, 
+    skip?: number, 
+    skipContexts?: boolean, 
+    skipZeros?: boolean,
+    skipConsolidated?: boolean,
+    skipRuleDerived?: boolean,
+  ) {
     const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate);
-    return this.extractCellset(cellsetID);
+    return this.extractCellset(cellsetID, cellProperties, ['UniqueName'], top, skip, true, skipContexts, skipZeros, skipConsolidated, skipRuleDerived);
   }
 
   // executeMDX 
-  async executeMDX(mdx: string) {
-    const cellsetID = await this.createCellset(mdx);
-    return this.extractCellset(cellsetID);
+  async executeMDX(
+    mdx: string, 
+    cellProperties?: string[],
+    top?: number,
+    skip?: number,
+    skipContexts?: boolean,
+    skipZeros?: boolean,
+    skipConsolidated?: boolean,
+    skipRuleDerived?: boolean
+  ) {
+    const cellsetID = await this.createCellset(mdx); 
+    return this.extractCellset(cellsetID, cellProperties, ['UniqueName'], top, skip, true, skipContexts, skipZeros, skipConsolidated, skipRuleDerived);
   }
 
   // getValue
