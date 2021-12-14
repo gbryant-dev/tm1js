@@ -132,7 +132,7 @@ describe('CellService', () => {
   it('Should execute a view with top and return a cellset', async () => {
 
     // Execute view 
-    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName, false, [], 5);
+    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName, false, { top: 5 });
 
     // Verify components of returned Cellset
     const { ID, Cells, Axes } = cellset as any
@@ -203,7 +203,7 @@ describe('CellService', () => {
       FROM [${cubeName}]
     `;
 
-    const cellset = await global.tm1.cells.executeMDX(mdx, null, 5);
+    const cellset = await global.tm1.cells.executeMDX(mdx, { top: 5, });
     
     const { ID, Cells, Axes } = cellset as any
     expect(ID).toBeTruthy()
@@ -226,7 +226,42 @@ describe('CellService', () => {
 
   })
 
-  it.todo('Should execute MDX with skip context and return a cellset')
+  it('Should execute MDX with skip context and return a cellset', async () => {
+    const mdx = `
+    SELECT
+      { [${dimNames[0]}].[${dimNames[0]}].Members } ON COLUMNS,
+      { [${dimNames[1]}].[${dimNames[1]}].Members }
+    ON ROWS
+    FROM [${cubeName}]
+    WHERE ([${dimNames[2]}].[${dimNames[2]}].[Element 2])
+  `;
+  
+  const cellset = await global.tm1.cells.executeMDX(mdx) as any
+  expect(cellset.Axes.length).toEqual(3)
+  expect(cellset.Axes[2].Hierarchies[0].Name).toEqual(dimNames[2])
+
+  const cellsetWithoutContext = await global.tm1.cells.executeMDX(mdx, { skipContexts: true }) as any
+  expect(cellsetWithoutContext.Axes.length).toEqual(2)
+
+  })
+
+  it('Should execute MDX with custom cell properties and return a cellset', async () => {
+    const mdx = `
+      SELECT
+        { [${dimNames[0]}].[${dimNames[0]}].Members } ON COLUMNS,
+        { [${dimNames[1]}].[${dimNames[1]}].Members }
+      ON ROWS
+      FROM [${cubeName}]
+      WHERE ([${dimNames[2]}].[${dimNames[2]}].[Element 2])
+    `;
+
+    const cellProperties = ['Value', 'Updateable', 'RuleDerived'];
+    const { Cells } = await global.tm1.cells.executeMDX(mdx, { cellProperties }) as any
+    
+    const actualProperties = Object.keys(Cells[0])
+    expect(cellProperties).toEqual(actualProperties)
+
+  })
 
   it('Should update the value for a single cell through a cube', async () => {
     const mdx = `
