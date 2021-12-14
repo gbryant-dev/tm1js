@@ -1,8 +1,8 @@
 import { VersionError } from '../errors/version-error';
 
-
-function MinimalVersion(version: number) {
+function MinimumVersion(version: number) {
   return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+
     const original = descriptor.value;
 
     descriptor.value = function(...args: any[]) {
@@ -18,4 +18,31 @@ function MinimalVersion(version: number) {
   }
 }
 
-export { MinimalVersion }
+function RemoveCellset() {
+  return function(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+
+    const original = descriptor.value;
+
+    descriptor.value = async function(...args: any[]) {
+      try {
+        const result = await original.apply(this, args);
+        return result
+      } finally {
+        const [cellsetID, options] = args
+        const shouldDelete = options?.deleteCellset ?? true
+        if (shouldDelete) {
+          try {   
+            await this.deleteCellset(cellsetID)
+          } catch (e) {
+            if (e.status !== 404) {
+              throw e
+            }
+          }
+        }        
+      }
+    }
+    return descriptor;
+  }
+}
+
+export { MinimumVersion, RemoveCellset }
