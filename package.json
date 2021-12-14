@@ -19,6 +19,7 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "testRegex": "test/.*\\.test\\.ts$",
     "setupFilesAfterEnv": [
       "./test/setup.ts"
     ]
