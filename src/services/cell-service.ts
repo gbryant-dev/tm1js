@@ -1,9 +1,21 @@
 import { ViewContext } from "../models";
+import { RemoveCellset } from "../utils/decorators";
 import CubeService from "./cube-service";
 import RestService from "./rest-service";
 
-const DEFAULT_CELLSET_QUERY = `?$expand=Cube($select=Name;$expand=Dimensions($select=Name)),\
-Axes($expand=Tuples($expand=Members($select=Name)),Hierarchies($select=Name;$expand=Dimension($select=Name))),Cells($select=Ordinal,Value,Updateable,Consolidated,RuleDerived)`;
+export interface CellsetQueryOptions {
+  cellProperties?: string[],
+  memberProperties?: string[],
+  top?: number, 
+  skip?: number,
+  deleteCellset?: boolean,
+  skipContexts?: boolean,
+  skipZeros?: boolean,
+  skipConsolidated?: boolean,
+  skipRuleDerived?: boolean,
+  includeHierarchies?: boolean
+}
+
 
 class CellService {
 
@@ -16,43 +28,22 @@ class CellService {
   async executeView(
     cubeName: string, 
     viewName: string, 
-    isPrivate: boolean = false, 
-    cellProperties?: string[], 
-    top?: number, 
-    skip?: number, 
-    skipContexts?: boolean, 
-    skipZeros?: boolean,
-    skipConsolidated?: boolean,
-    skipRuleDerived?: boolean,
+    isPrivate: boolean = false,
+    options?: CellsetQueryOptions,
   ) {
     const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate);
-    return this.extractCellset(cellsetID, cellProperties, ['UniqueName'], top, skip, true, skipContexts, skipZeros, skipConsolidated, skipRuleDerived);
+    return this.extractCellset(cellsetID, options);
   }
 
-  // executeMDX 
   async executeMDX(
     mdx: string, 
-    cellProperties?: string[],
-    top?: number,
-    skip?: number,
-    skipContexts?: boolean,
-    skipZeros?: boolean,
-    skipConsolidated?: boolean,
-    skipRuleDerived?: boolean
+    options?: CellsetQueryOptions
   ) {
     const cellsetID = await this.createCellset(mdx); 
-    return this.extractCellset(cellsetID, cellProperties, ['UniqueName'], top, skip, true, skipContexts, skipZeros, skipConsolidated, skipRuleDerived);
+    return this.extractCellset(cellsetID, options);
   }
 
-  // getValue
-  /**
-   * 
-   * @param {string} cubeName Cube
-   * @param {string[]} elements - List of elements that determines the intersection of the value to fetch. 
-   *  Specify hierarchy using :: e.g hierarchy::element. Default hierarchy is used if one is not specified
-   * @param {string[]} [dimensions] optional 
-   * @returns 
-   */
+
   async getValue(cubeName: string, elements: string[], dimensions?: string[]) {
 
     const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName);
@@ -64,7 +55,7 @@ class CellService {
     elements.forEach((el, i) => {
       const dimension = _dimensions[i]
 
-      // Check for delimiter
+      // Check for hierarchy delimiter
       const isDefaultHierarchy = el.indexOf('::') == -1
 
       // Determine dimension, hierarchy, element arrangement
@@ -83,7 +74,6 @@ class CellService {
 
   }
 
-  // writeValue
   async writeValue(value: string | number, cubeName: string, elements: string[], dimensions?: string[]) {
 
     const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName);
@@ -131,29 +121,32 @@ class CellService {
     return response['ID']
   }
 
+
+  @RemoveCellset()
   async extractCellset(
     cellsetID: string, 
-    cellProperties: string[] = [],
-    memberProperties: string[] = [],
-    top: number = null, 
-    skip: number = null, 
-    deleteCellset: boolean = true,
-    skipContexts: boolean = false,
-    skipZeros: boolean = false, 
-    skipConsolidated: boolean = false, 
-    skipRuleDerived: boolean = false,
-    includeHierarchies: boolean = true
+     {
+      cellProperties = ['Value'],
+      memberProperties = ['UniqueName'],
+      top = null,
+      skip = null,
+      deleteCellset = true,
+      skipContexts = false,
+      skipZeros = false,
+      skipConsolidated = false,
+      skipRuleDerived = false,
+      includeHierarchies = true
+    }: CellsetQueryOptions = {}
   ) {
-
+    
     const baseUrl = `/api/v1/Cellsets('${cellsetID}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`;
 
     const filterAxis  = skipContexts ? `$filter=Ordinal ne 2;` : '';
     
-    const memberProps = `$select=${memberProperties === null || memberProperties.length === 0 ? ['UniqueName'] : memberProperties.join(',')}`
+    const memberProps = `$select=${memberProperties.join(',')}`
     const expandHierarchies = includeHierarchies ? `,Hierarchies($select=Name;$expand=Dimension($select=Name))` : '';
 
-    // Cell properties
-    const selectCells = `$select=${cellProperties === null || cellProperties.length === 0 ? ['Value'] : cellProperties.join(',')}`;
+    const selectCells = `$select=${cellProperties.join(',')}`;
     const topCells =  top ? `$top=${top}` : '';
     const skipCells = skip ? `$skip=${skip}` : ''; 
     
@@ -195,6 +188,11 @@ class CellService {
     const url = `/api/v1/Cellsets('${cellsetID}')/Cells`;
     const updates = values.map((value, ordinal) => ({ Ordinal: ordinal, Value: value }));
     return this.http.PATCH(url, updates);
+  }
+
+  async deleteCellset(cellsetID: string) {
+    const url = `/api/v1/Cellsets('${cellsetID}')`;
+    return this.http.DELETE(url);
   }
 
   async getDimensionNamesForWriting(cubeName: string) {

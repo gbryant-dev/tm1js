@@ -1,7 +1,7 @@
 import RestService from './rest-service';
 import Cube from '../models/cube';
 import ViewService from './view-service';
-import { MinimalVersion } from '../utils/decorators';
+import { MinimumVersion } from '../utils/decorators';
 import { HierarchyElement } from '../models/element';
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc';
 import CellService from './cell-service';
@@ -60,13 +60,13 @@ class CubeService {
     return response['value'].map((dim: { Name: string }) => dim.Name);
   }
 
-  @MinimalVersion(11.1)
+  @MinimumVersion(11.1)
   async checkRules(cubeName: string): Promise<RuleSyntaxError[]> {
     const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckRules`, null);
     return response['value'];
   }
 
-  @MinimalVersion(11.1)
+  @MinimumVersion(11.1)
   async checkFeeders(cubeName: string, elements: HierarchyElement[]): Promise<FedCellDescriptor[]> {
     // Construct body consisting of elements that define the cell
     const body = { 'Tuple@odata.bind': [] };

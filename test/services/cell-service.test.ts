@@ -103,7 +103,7 @@ describe('CellService', () => {
   it('Should execute a view and return a cellset', async () => {
 
     // Execute view 
-    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName);
+    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName, false);
 
     // Verify components of returned Cellset
     const { ID, Cells, Axes } = cellset as any
