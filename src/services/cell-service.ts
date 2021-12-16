@@ -35,6 +35,11 @@ class CellService {
     return this.extractCellset(cellsetID, options);
   }
 
+  async executeViewValues(cubeName: string, viewName: string, isPrivate: boolean = false, options?: CellsetQueryOptions) {
+    const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate);
+    return this.extractCellsetValues(cellsetID);
+  }
+
   async executeMDX(
     mdx: string, 
     options?: CellsetQueryOptions
@@ -43,6 +48,10 @@ class CellService {
     return this.extractCellset(cellsetID, options);
   }
 
+  async executeMDXValues(mdx: string) {
+    const cellsetID = await this.createCellset(mdx);
+    return this.extractCellsetValues(cellsetID);
+  }
 
   async getValue(cubeName: string, elements: string[], dimensions?: string[]) {
 
@@ -169,6 +178,14 @@ class CellService {
     const url = `${baseUrl},Axes(${filterAxis}$expand=Tuples($expand=Members(${memberProps}))${expandHierarchies}),Cells(${cellQuery})`
 
     return this.http.GET(url);
+  }
+
+  @RemoveCellset()
+  async extractCellsetValues(cellsetID: string, { deleteCellset = true }: { deleteCellset?: boolean } = {}) {
+
+    const url = `/api/v1/Cellsets('${cellsetID}')?$expand=Cells($select=Value)`;
+    const response = await this.http.GET(url);
+    return response['Cells'].map(cell => cell.Value);
   }
 
   async extractCellsetCellProperties(cellsetID: string, cellProperties?: string[]) {

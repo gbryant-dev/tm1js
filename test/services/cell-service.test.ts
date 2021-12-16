@@ -156,6 +156,15 @@ describe('CellService', () => {
 
   })
 
+  it('Should execute a view and return only the values', async () => {
+
+    const cells = await global.tm1.cells.executeViewValues(cubeName, nativeViewName)
+    // 3 dimensions, 5 elements in each, no suppression so 5**3
+    expect(cells.length).toEqual(5**3)
+    expect(cells).toBeInstanceOf(Array)
+
+  })
+
   it('Should execute MDX and return a cellset', async () => {
 
     const mdx = `
@@ -263,6 +272,23 @@ describe('CellService', () => {
 
   })
 
+  it('Should execute MDX and return only the values', async () => {
+  
+    const mdx = `
+    SELECT
+      { [${dimNames[0]}].[${dimNames[0]}].Members } ON COLUMNS,
+      { [${dimNames[1]}].[${dimNames[1]}].Members } * 
+      { [${dimNames[2]}].[${dimNames[2]}].Members }
+    ON ROWS
+    FROM [${cubeName}]
+  `;
+
+    const cells = await global.tm1.cells.executeMDXValues(mdx)
+    // 3 dimensions, 5 elements in each, no suppression so 5**3
+    expect(cells).toBeInstanceOf(Array)
+    expect(cells.length).toEqual(5**3)
+  })
+
   it('Should update the value for a single cell through a cube', async () => {
     const mdx = `
     SELECT
@@ -327,11 +353,11 @@ describe('CellService', () => {
   });
 
   it('Should get a single value from a cube', async () => {
-    const elements = dimNames.map(dimName => 'Element 1');
+    const elements = ['Element 1', 'Element 3', 'Element 5']
 
+    await global.tm1.cells.writeValue(500, cubeName, elements)
     const { Cells: [cell] } = await global.tm1.cells.getValue(cubeName, elements) as any
-    
-    expect(cell.Value).toEqual(100)
+    expect(cell.Value).toEqual(500)
 
   })
 
