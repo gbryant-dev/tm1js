@@ -108,8 +108,10 @@ class Process {
 
   removeVariable(name: string) {
     const index = this.variables.findIndex(v => v.Name === name);
-    this.variables.splice(index, 1);
-    this.variablesUIData.splice(index, 1);
+    if (index !== -1) {
+      this.variables.splice(index, 1);
+      this.variablesUIData.splice(index, 1);
+    }
   }
 
   addParameter(name: string, value: string | number, prompt?: string, type?: "String" | "Numeric") {
@@ -128,7 +130,9 @@ class Process {
 
   removeParameter(name: string) {
     const index = this.parameters.findIndex(p => p.Name === name);
-    this.parameters.splice(index, 1);
+    if (index !== 1) {
+      this.parameters.splice(index, 1);
+    }
   }
 
 

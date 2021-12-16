@@ -3,6 +3,7 @@ import { ProcessExecuteResult, ProcessSyntaxError } from "../models/misc";
 import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
 import { v4 as uuid } from 'uuid';
+import { MinimumVersion } from "../utils/decorators";
 
 class ProcessService {
 
@@ -100,6 +101,23 @@ class ProcessService {
       const url = `/api/v1/Processes('${processName}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
       const body = { Parameters: parameters };
       const result = await this.http.POST(url, body);
+      return result as unknown as ProcessExecuteResult
+    }
+
+    @MinimumVersion(11.3)
+    async executeProcessWithReturn (process: Process, parameters?: ProcessParameter[]): Promise<ProcessExecuteResult> {
+      const url = '/api/v1/ExecuteProcessWithReturn?$expand=ErrorLogFile';
+      const params = []
+      if (parameters) {
+        for (const { Name, Value } of parameters) {
+          process.removeParameter(Name)
+          process.addParameter(Name, Value)
+          params.push({ Name, Value })
+        }
+      }
+
+      const body = { Process: process.body, Parameters: params }
+      const result = this.http.POST(url, body)
       return result as unknown as ProcessExecuteResult
     }
 
