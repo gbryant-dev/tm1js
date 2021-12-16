@@ -133,10 +133,18 @@ describe('ProcessService', () => {
      
   });
 
-  it('Should execute an unbound process', async () => {
+  it('Should execute TI code', async () => {
     const res = await global.tm1.processes.executeTICode('Sleep(200);');
     expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully);
 
+  })
+
+  it('Should execute an unbound process', async () => {
+    const unboundProcessName = prefix + 'execute_unbound';
+    const unboundProcessObj = new Process(unboundProcessName, true, { prolog: 'Sleep(pSleep);' })
+    const parameters: ProcessParameter[] = [{ Name: 'pSleep', Value: 500, Type: 'Numeric' }]
+    const res = await global.tm1.processes.executeProcessWithReturn(unboundProcessObj, parameters);
+    expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
   })
 
   it('Should compile an unbound process', async () => {
