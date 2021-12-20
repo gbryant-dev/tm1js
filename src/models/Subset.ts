@@ -14,18 +14,18 @@ class Subset {
         name: string,
         dimensionName: string,
         hierarchyName: string = null,
+        elements?: string[],
         alias?: string,
         expression?: string,
-        elements?: string[],
         uniqueName?: string,
     ) {
 
         this.name = name;
         this.dimensionName = dimensionName;
         this.hierarchyName = hierarchyName || dimensionName;
+        this.elements = elements;
         this.alias = alias;
         this.expression = expression;
-        this.elements = elements;
         this.uniqueName = uniqueName;
     }
 
@@ -35,9 +35,9 @@ class Subset {
         data.Name,
         data.Hierarchy?.Dimension?.Name ?? dimension,
         data.Hierarchy?.Name ?? hierarchy,
+        data.Elements?.map((e: any) => e['Name']) ?? [],
         data.Alias,
         data.Expression,
-        data.Elements?.map((e: any) => e['Name']) ?? [],
         data.UniqueName
       )
     }
