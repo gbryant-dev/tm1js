@@ -5,9 +5,10 @@ import axiosCookieJarSupport from 'axios-cookiejar-support';
 import { RestError } from '../errors/rest-error';
 
 const HEADERS = {
-  'Content-Type': 'application/json; charset=utf-8',
+  'Content-Type': 'application/json; odata.streaming=true; charset=utf-8',
   'Accept': 'application/json; odata.metadata=none, text/plain',
-  'Tm1-SessionContext': 'TM1ts'
+  'TM1-SessionContext': 'TM1ts',
+  'User-Agent': 'TM1ts'
 }
 
 
@@ -75,7 +76,7 @@ class RestService {
           }
 
         } else {
-          error = { status: 500, statusText: 'Unknown Error', data: null, headers: err.config.headers }
+          error = { status: 500, statusText: null, data: err.message, headers: err.config.headers }
         }
         throw new RestError(error.status, error.data, error.headers)
       }
