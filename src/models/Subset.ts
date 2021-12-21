@@ -46,6 +46,10 @@ class Subset {
       this.elements.push(name);
     }
 
+    get isStatic(): boolean {
+        return !this.expression
+    }
+
     get body() {
         if (this.expression) {
             return this.constructBodyDynamic();
