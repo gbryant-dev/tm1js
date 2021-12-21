@@ -27,7 +27,7 @@ describe('SubsetService', () => {
 
   }
   const cleanUp = async () => {
-    
+
     if (await global.tm1.dimensions.hierarchies.subsets.exists(dimensionName, dimensionName, subsetName)) {
       await global.tm1.dimensions.hierarchies.subsets.delete(dimensionName, dimensionName, subsetName)    
     }
@@ -56,7 +56,46 @@ describe('SubsetService', () => {
     expect(subsetNames).toEqual([subsetName])
   })
   
-  it.todo('Should create and delete a subset')
-  it.todo('Should update a subset')
+  it('Should create and delete a subset', async () => {
+    const newSubsetName = prefix + 'subset_new'
+    const elements = ['Element 1', 'Element 4', 'Element 7']
+    const newSubsetObj = new Subset(newSubsetName, dimensionName, dimensionName, elements)
+    await global.tm1.dimensions.hierarchies.subsets.create(newSubsetObj)
+
+    const newSubset = await global.tm1.dimensions.hierarchies.subsets.get(dimensionName, dimensionName, newSubsetName)
+    expect (newSubset.name).toEqual(newSubsetName)
+    expect(newSubset.dimensionName).toEqual(dimensionName)
+    expect(newSubset.elements.length).toEqual(3)
+    expect(newSubset.elements).toEqual(elements)
+
+    await global.tm1.dimensions.hierarchies.subsets.delete(dimensionName, dimensionName, newSubsetName)
+    const exists = await global.tm1.dimensions.hierarchies.subsets.exists(dimensionName, dimensionName, newSubsetName)
+    expect(exists).toBeFalsy()
+  })
+
+  it('Should update a subset', async () => {
+    const originalSubset = await global.tm1.dimensions.hierarchies.subsets.get(dimensionName, dimensionName, subsetName)
+    originalSubset.elements = ['Element 3', 'Element 6', 'Element 9']
+    originalSubset.addElement('Element 12')
+    await global.tm1.dimensions.hierarchies.subsets.update(originalSubset)
+
+    const staticSubset = await global.tm1.dimensions.hierarchies.subsets.get(dimensionName, dimensionName, subsetName)
+    expect(staticSubset.expression).toBeFalsy()
+    expect(staticSubset.elements.length).toEqual(4)
+    
+    // Make subset dynamic
+    const elements = ['Element 5', 'Element 10', 'Element 15']
+    const uniqueNames = elements.map(element => `[${staticSubset.dimensionName}].[${staticSubset.hierarchyName}].[${element}]`)
+    const expression = `{ ${uniqueNames.join(',')} }`
+    staticSubset.expression = expression
+    
+    await global.tm1.dimensions.hierarchies.subsets.update(staticSubset)
+
+    const dynamicSubset = await global.tm1.dimensions.hierarchies.subsets.get(dimensionName, dimensionName, subsetName)
+    expect(dynamicSubset.name).toEqual(subsetName)
+    expect(dynamicSubset.expression).toEqual(expression)
+
+
+  })
 
 })
