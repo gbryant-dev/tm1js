@@ -5,7 +5,7 @@ import { MinimumVersion } from '../utils/decorators';
 import { HierarchyElement } from '../models/element';
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc';
 import CellService from './cell-service';
-
+import { fixedEncodeURIComponent } from '../utils/helpers';
 
 class CubeService {
 
@@ -19,7 +19,7 @@ class CubeService {
   }
 
   async get(cubeName: string): Promise<Cube> {
-    const response = await this.http.GET(`/api/v1/Cubes('${cubeName}')?$expand=Dimensions($select=Name)`);
+    const response = await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')?$expand=Dimensions($select=Name)`);
     return Cube.fromJson(response);
   }
 
@@ -48,21 +48,21 @@ class CubeService {
   }
 
   async update(cube: Cube) {
-    return this.http.PATCH(`/api/v1/Cubes('${cube.name}')`, cube.body);
+    return this.http.PATCH(`/api/v1/Cubes('${fixedEncodeURIComponent(cube.name)}')`, cube.body);
   }
 
   async delete(cubeName: string) {
-    return this.http.DELETE(`/api/v1/Cubes('${cubeName}')`);
+    return this.http.DELETE(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')`);
   }
 
   async getDimensionNames(cubeName: string) {
-    const response = await this.http.GET(`/api/v1/Cubes('${cubeName}')/Dimensions?$select=Name`);
+    const response = await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/Dimensions?$select=Name`);
     return response['value'].map((dim: { Name: string }) => dim.Name);
   }
 
   @MinimumVersion(11.1)
   async checkRules(cubeName: string): Promise<RuleSyntaxError[]> {
-    const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckRules`, null);
+    const response = this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckRules`, null);
     return response['value'];
   }
 
@@ -72,16 +72,16 @@ class CubeService {
     const body = { 'Tuple@odata.bind': [] };
 
     elements.map(element => {
-      const path = `Dimensions('${element.dimensionName}')/Hierarchies('${element.hierarchyName}')/Elements('${element.name}')`;
+      const path = `Dimensions('${fixedEncodeURIComponent(element.dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(element.hierarchyName)}')/Elements('${fixedEncodeURIComponent(element.name)}')`;
       body['Tuple@odata.bind'].push(path);
     });
-    const response = this.http.POST(`/api/v1/Cubes('${cubeName}')/tm1.CheckFeeders`, body);
+    const response = this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckFeeders`, body);
     return response['value'];
   }
 
   async exists(cubeName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Cubes('${cubeName}')?$select=Name`);
+      await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')?$select=Name`);
       return true;
     } catch (e) {
       if (e.status === 404) {

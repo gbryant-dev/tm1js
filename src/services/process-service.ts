@@ -4,6 +4,7 @@ import Process, { ProcessParameter } from "../models/process";
 import RestService from "./rest-service";
 import { v4 as uuid } from 'uuid';
 import { MinimumVersion } from "../utils/decorators";
+import { fixedEncodeURIComponent } from "../utils/helpers";
 
 class ProcessService {
 
@@ -14,7 +15,7 @@ class ProcessService {
     }
 
     async get(processName: string): Promise<Process> {
-        const url = `/api/v1/Processes('${processName}')?$select=*,\
+        const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')?$select=*,\
         UIData,\
         VariablesUIData,\
         DataSource/dataSourceNameForClient,\
@@ -69,15 +70,15 @@ class ProcessService {
     }
 
     async update(process: Process): Promise<any> {
-        return await this.http.PATCH(`/api/v1/Processes('${process.name}')`, process.body);
+        return await this.http.PATCH(`/api/v1/Processes('${fixedEncodeURIComponent(process.name)}')`, process.body);
     }
 
     async delete(processName: string): Promise<any> {
-        return await this.http.DELETE(`/api/v1/Processes('${processName}')`);
+        return await this.http.DELETE(`/api/v1/Processes('${fixedEncodeURIComponent(processName)}')`);
     }
 
     async execute(processName: string, parameters?: { Name: string, Value: string | number }[]) {
-      const url = `/api/v1/Processes('${processName}')/tm1.Execute`;
+      const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.Execute`;
       const body = { Parameters: parameters };
       return await this.http.POST(url, body);
     }
@@ -98,7 +99,7 @@ class ProcessService {
     }
 
     async executeWithReturn (processName: string, parameters?: { Name: string, Value: string | number }[]): Promise<ProcessExecuteResult> {
-      const url = `/api/v1/Processes('${processName}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
+      const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`;
       const body = { Parameters: parameters };
       const result = await this.http.POST(url, body);
       return result as unknown as ProcessExecuteResult
@@ -122,7 +123,7 @@ class ProcessService {
     }
 
     async compile(processName: string) {
-      const url = `/api/v1/Processes('${processName}')/tm1.Compile`;
+      const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.Compile`;
       const res = await this.http.POST(url, null);
       return res['value']
       
@@ -136,14 +137,14 @@ class ProcessService {
 
     async getErrorLogFileContent(filename: string) {
       return await this.http.GET(
-        `/api/v1/ErrorLogFiles('${filename}')/Content`,
+        `/api/v1/ErrorLogFiles('${fixedEncodeURIComponent(filename)}')/Content`,
         { responseType: 'text' }
       );
     }
 
     async exists(processName: string): Promise<boolean> {
         try {
-            await this.http.GET(`/api/v1/Processes('${processName}')?$select=Name`);
+            await this.http.GET(`/api/v1/Processes('${fixedEncodeURIComponent(processName)}')?$select=Name`);
             return true;
         } catch (e) {
             if (e.status === 404) {

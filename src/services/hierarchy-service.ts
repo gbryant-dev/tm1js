@@ -2,6 +2,7 @@ import Hierarchy from "../models/hierarchy";
 import ElementService from "./element-service";
 import RestService from "./rest-service";
 import SubsetService from "./subset-service";
+import { fixedEncodeURIComponent } from "../utils/helpers";
 
 class HierarchyService {
 
@@ -17,30 +18,30 @@ class HierarchyService {
 
   
   async get(dimensionName: string, hierarchyName: string) {
-    const url = `/api/v1/Dimensions('${encodeURIComponent(dimensionName)}')/Hierarchies('${encodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
+    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url);
     return Hierarchy.fromJson(response);
   }
 
   async getAll (dimensionName: string) {
-    const url = `/api/v1/Dimensions('${encodeURIComponent(dimensionName)}')/Hierarchies?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
+    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url)
     return response['value'].map((hierarchy: any) => Hierarchy.fromJson(hierarchy));
   }
   
   async getAllNames(dimensionName: string): Promise<string[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies?$select=Name`);
+    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies?$select=Name`);
     return response['value'].map((hierarchy: any) => hierarchy['Name']);
   }
   
   async create(hierarchy: Hierarchy) {
-    const response = await this.http.POST(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies`, hierarchy.body);
+    const response = await this.http.POST(`/api/v1/Dimensions('${fixedEncodeURIComponent(hierarchy.dimensionName)}')/Hierarchies`, hierarchy.body);
     return response;
   }
 
   async update(hierarchy: Hierarchy) {
     const responses = [];
-    const hierarchyUpdate = await this.http.PATCH(`/api/v1/Dimensions('${hierarchy.dimensionName}')/Hierarchies('${hierarchy.name}')`, hierarchy.body);
+    const hierarchyUpdate = await this.http.PATCH(`/api/v1/Dimensions('${fixedEncodeURIComponent(hierarchy.dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchy.name)}')`, hierarchy.body);
     responses.push(hierarchyUpdate);
     const attributeUpdate = await this.updateElementAttributes(hierarchy);
     responses.push(attributeUpdate);
@@ -48,7 +49,7 @@ class HierarchyService {
   }
 
   async delete(dimensionName: string, hierarchyName: string) {
-    return this.http.DELETE(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')`);
+    return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')`);
   }
 
   async updateElementAttributes(hierarchy: Hierarchy) {
@@ -75,12 +76,12 @@ class HierarchyService {
   }
 
   async getDefaultMember (dimensionName: string, hierarchyName: string) {
-    return this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')/DefaultMember`);
+    return this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/DefaultMember`);
   }
 
   async exists (dimensionName: string, hierarchyName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Dimensions('${dimensionName}')/Hierarchies('${hierarchyName}')?$select=Name`);
+      await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')?$select=Name`);
       return true;
     } catch (e) {
       if (e.status === 404) {
