@@ -1,6 +1,6 @@
 import Chore, { ChoreFrequency, ChoreTask } from "../models/chore";
 import RestService from "./rest-service";
-
+import { fixedEncodeURIComponent } from "../utils/helpers";
 
 class ChoreService {
 
@@ -10,7 +10,7 @@ class ChoreService {
   }
 
   async get(choreName: string): Promise<Chore> {
-    const url = `/api/v1/Chores('${choreName}')?$expand=Tasks($expand=Process($select=Name,Parameters))`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')?$expand=Tasks($expand=Process($select=Name,Parameters))`;
     const response = await this.http.GET(url);
     return Chore.fromJson(response);
   }
@@ -41,7 +41,7 @@ class ChoreService {
       await this.deactivate(chore.name);
     }
 
-    const url = `/api/v1/Chores('${chore.name}')`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(chore.name)}')`;
 
     const choreWithoutTasks = Chore.fromJson({ ...chore.body, Tasks: [] })
 
@@ -78,52 +78,52 @@ class ChoreService {
   }
 
   async delete(choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${choreName}')`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')`;
     return this.http.DELETE(url);
   }
 
   async addTask(choreName: string, task: ChoreTask) {
-    const url = `/api/v1/Chores('${choreName}')`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')`;
     const body = { Tasks: [task.body] };
     return this.http.PATCH(url, body);
   }
 
   async deleteTask(choreName: string, step: number) {
-    const url = `/api/v1/Chores('${choreName}')/Tasks('${step}')`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/Tasks('${step}')`;
     return this.http.DELETE(url);
   }
 
   async updateTask(choreName: string, task: ChoreTask) {
-    const url = `/api/v1/Chores('${choreName}')/Tasks('${task.step}')`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/Tasks('${task.step}')`;
     return this.http.PATCH(url, task.body);
   }
 
   async execute(choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${choreName}')/tm1.Execute`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Execute`;
     return this.http.POST(url, null);
   }
 
   async executeChore(choreName: string): Promise<any> {
     const url = `/api/v1/ExecuteChore`;
     const body = {
-      'Chore@odata.bind': `Chores('${choreName}')`
+      'Chore@odata.bind': `Chores('${fixedEncodeURIComponent(choreName)}')`
     }
     return this.http.POST(url, body);
   }
 
   async activate(choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${choreName}')/tm1.Activate`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Activate`;
     return this.http.POST(url, null);
   }
 
   async deactivate(choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${choreName}')/tm1.Deactivate`;
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Deactivate`;
     return await this.http.POST(url, null);
   }
 
   async exists(choreName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Chores('${choreName}')?$select=Name`);
+      await this.http.GET(`/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')?$select=Name`);
       return true;
     } catch (e) {
       if (e.status === 404) {

@@ -1,7 +1,7 @@
 import RestService from './rest-service';
 import Dimension from '../models/dimension';
 import HierarchyService from './hierarchy-service';
-import { caseAndSpaceInsensitiveEquals } from '../utils/helpers';
+import { caseAndSpaceInsensitiveEquals, fixedEncodeURIComponent } from '../utils/helpers';
 import { NotExistError } from '../errors/not-exist-error';
 import { AxiosResponse } from 'axios';
 import { ExistError } from '../errors/exist-error';
@@ -17,7 +17,7 @@ class DimensionService {
     }
 
     async get(dimensionName: string): Promise<Dimension> {
-        const response = await this.http.GET(`/api/v1/Dimensions('${dimensionName}')?$expand=Hierarchies($expand=*)`);
+        const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')?$expand=Hierarchies($expand=*)`);
         return Dimension.fromJson(response);
     }
 
@@ -103,12 +103,12 @@ class DimensionService {
     }
 
     async delete(dimensionName: string): Promise<any> {
-        return this.http.DELETE(`/api/v1/Dimensions('${dimensionName}')`);
+        return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')`);
     }
 
     async exists(dimensionName: string): Promise<boolean> {
       try {
-          await this.http.GET(`/api/v1/Dimensions('${dimensionName}')?$select=Name`);
+          await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')?$select=Name`);
           return true;
       } catch (e) {
           if (e.status === 404) {

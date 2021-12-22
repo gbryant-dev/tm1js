@@ -31,8 +31,15 @@ const caseAndSpaceInsensitiveEquals = (str1: string, str2: string): boolean => {
   return removeSpacesAndLower(str1) === removeSpacesAndLower(str2)
 }
 
+const fixedEncodeURIComponent = (str: string): string => {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  });
+}
+
 export { 
   extractComponentsFromUniqueName,
   removeSpacesAndLower,
-  caseAndSpaceInsensitiveEquals
+  caseAndSpaceInsensitiveEquals,
+  fixedEncodeURIComponent
 }
