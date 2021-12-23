@@ -1,5 +1,3 @@
-import { extractComponentsFromUniqueName } from "../utils/helpers";
-
 class Subset {
 
     public name: string;
@@ -30,11 +28,20 @@ class Subset {
     }
 
     static fromJson(data: any) {
-      const { dimension, hierarchy } = extractComponentsFromUniqueName(data.UniqueName);
+      let dimension: string, hierarchy: string
+      
+      if (data.Name) {
+        dimension = data.UniqueName.substring(1, data.UniqueName.indexOf('].['))
+        hierarchy = data.UniqueName.substring(data.UniqueName.indexOf('].[') + 3, data.UniqueName.lastIndexOf('].['))
+      } else {
+        dimension = data.Hierarchy?.Dimension?.Name
+        hierarchy = data?.Hierarchy?.Name
+      }
+      
       return new Subset(
         data.Name,
-        data.Hierarchy?.Dimension?.Name ?? dimension,
-        data.Hierarchy?.Name ?? hierarchy,
+        dimension,
+        hierarchy,
         data.Elements?.map((e: any) => e['Name']) ?? [],
         data.Alias,
         data.Expression,

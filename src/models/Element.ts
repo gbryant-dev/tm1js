@@ -1,10 +1,6 @@
-import { extractComponentsFromUniqueName } from '../utils/helpers';
-
 class HierarchyElement {
     
     public name: string;
-    public hierarchyName: string;
-    public dimensionName: string;
     public uniqueName?: string;
     public level?: number;
     public index?: number;
@@ -20,9 +16,6 @@ class HierarchyElement {
         attributes?: {[key: string]: string | number}
     ) {
         this.name = name;
-        // const { dimension, hierarchy } = extractComponentsFromUniqueName(uniqueName);
-        // this.dimensionName = dimension;
-        // this.hierarchyName = hierarchy;
         this._type = type
         this.uniqueName = uniqueName;
         this.level = level;

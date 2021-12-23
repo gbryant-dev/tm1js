@@ -67,12 +67,15 @@ class CubeService {
   }
 
   @MinimumVersion(11.1)
-  async checkFeeders(cubeName: string, elements: HierarchyElement[]): Promise<FedCellDescriptor[]> {
+  async checkFeeders(cubeName: string, elements: HierarchyElement[], dimensions?: string[]): Promise<FedCellDescriptor[]> {
+
+    const _dimensions = dimensions ?? await this.getDimensionNames(cubeName)
+
     // Construct body consisting of elements that define the cell
     const body = { 'Tuple@odata.bind': [] };
 
-    elements.map(element => {
-      const path = `Dimensions('${fixedEncodeURIComponent(element.dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(element.hierarchyName)}')/Elements('${fixedEncodeURIComponent(element.name)}')`;
+    elements.map((element, i) => {
+      const path = `Dimensions('${fixedEncodeURIComponent(_dimensions[i])}')/Hierarchies('${fixedEncodeURIComponent(_dimensions[i])}')/Elements('${fixedEncodeURIComponent(element.name)}')`;
       body['Tuple@odata.bind'].push(path);
     });
     const response = this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckFeeders`, body);
