@@ -8,12 +8,14 @@ describe('ChoreService', () => {
   const prefix = 'TM1ts_test_';
   const choreName = prefix + 'chore';
   const processName  = prefix + 'chore_process';
+  const allProcessNames = []
 
   const createInitialProcess = async () => {
     const process = new Process(processName);
     process.addParameter('pSleep', 0);
     
     await global.tm1.processes.create(process);
+    allProcessNames.push(processName);
   }
 
   const createProcesses = async (count: number = 1) => {
@@ -23,6 +25,7 @@ describe('ChoreService', () => {
       const processObj = new Process(processName);
       await global.tm1.processes.create(processObj);
     }
+    allProcessNames.push(...processNames)
     return processNames
   }
 
@@ -51,8 +54,11 @@ describe('ChoreService', () => {
       await global.tm1.chores.delete(choreName)
     }
 
-    if (await global.tm1.processes.exists(processName)) {
-      await global.tm1.processes.delete(processName)
+    // Delete random processes
+    for (const name of allProcessNames) {
+      if (await global.tm1.processes.exists(name)) {
+        await global.tm1.processes.delete(name)
+      }
     }
   }
 
