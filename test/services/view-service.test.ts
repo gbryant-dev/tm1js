@@ -11,6 +11,17 @@ describe('ViewService', () => {
   const dimensionNames = [prefix + 'dimension1', prefix + 'dimension2', prefix + 'dimension3']
   const nativeViewName = prefix + 'native_view'
   const mdxViewName = prefix + 'mdx_view'
+  const mdx = `
+  SELECT {[${dimensionNames[0]}].[${dimensionNames[0]}].Members} * 
+  {
+      [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 10],
+      [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 11],
+      [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 12]
+  
+  } ON COLUMNS, 
+  {[${dimensionNames[2]}].[${dimensionNames[2]}].Members} ON ROWS 
+  FROM [${cubeName}]
+`;
 
 
   const setupDimension = (dimName: string) => {
@@ -39,32 +50,16 @@ describe('ViewService', () => {
 
     const viewAxisColumns: ViewAxisSelection[] = [new ViewAxisSelection(columnSubset1), new ViewAxisSelection(columnSubset2)]
 
-    const titleSubset = new Subset('', dimensionNames[2], dimensionNames[2], ['Element 9', 'Element 13', 'Element 15'])
-    const selectedElement = new HierarchyElement('Element 20', 'Numeric')
+    const titleSubset = new Subset('', dimensionNames[2], dimensionNames[2], ['Element 10', 'Element 12', 'Element 14'])
+    const selectedElement = new HierarchyElement('Element 10', 'Numeric')
     const viewAxisTitle: ViewAxisTitle = new ViewAxisTitle(titleSubset, selectedElement)
 
     const nativeView = new NativeView(nativeViewName, viewAxisColumns, null, [viewAxisTitle])
-
     await global.tm1.cubes.views.create(cubeName, nativeView)
 
     // Create mdx view
-
-    const mdx = `
-            SELECT {[${dimensionNames[0]}].[${dimensionNames[0]}].Members} * 
-            {
-                [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 10],
-                [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 11],
-                [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 12]
-            
-            } ON COLUMNS, 
-            {[${dimensionNames[2]}].[${dimensionNames[2]}].Members} ON ROWS 
-            FROM [${cubeName}]
-        `;
-
     const mdxView = new MDXView(mdxViewName, mdx)
-
     await global.tm1.cubes.views.create(cubeName, mdxView)
-
 
   }
   const cleanup = async () => {
@@ -94,9 +89,74 @@ describe('ViewService', () => {
   afterAll(async () => await cleanup())
 
 
-  it.todo('Should fetch a native view')
-  it.todo('Should fetch a mdx view')
-  it.todo('Should fetch all views for a cube')
-  it.todo('Should create and delete a view')
-  it.todo('Should update a view')
+  it('Should fetch a native view', async () => {
+    const view = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
+
+    expect(view).toBeInstanceOf(NativeView)
+    expect(view.name).toEqual(nativeViewName)
+    expect(view.columns.length).toEqual(2)
+    expect(view.columns[0].subset.elements).toEqual(['Element 1', 'Element 3', 'Element 5'])
+    expect(view.columns[1].subset.elements).toEqual(['Element 7', 'Element 9', 'Element 11'])
+    expect(view.titles.length).toEqual(1)
+    expect(view.titles[0].subset.elements).toEqual(['Element 10', 'Element 12', 'Element 14'])
+    expect(view.titles[0].selected.name).toEqual('Element 10')
+
+
+  })
+  it('Should fetch a mdx view', async () => {
+    const view = await global.tm1.cubes.views.get(cubeName, mdxViewName) as MDXView
+
+    expect(view).toBeInstanceOf(MDXView)
+    expect(view.name).toEqual(mdxViewName)
+    expect(view.mdx).toEqual(mdx)
+  })
+
+  it('Should fetch all views for a cube', async () => {
+    const views = await global.tm1.cubes.views.getAll(cubeName)
+    expect(views.length).toEqual(2)
+    const [nativeView, mdxView] = views
+    expect(nativeView).toBeInstanceOf(NativeView)
+    expect(mdxView).toBeInstanceOf(MDXView)
+  })
+
+  it('Should create and delete a view', async () => {
+
+    // Create view
+    const newViewName = prefix + 'new_mdx_view';
+
+    const newMDX = `SELECT {
+      ([${dimensionNames[0]}].[${dimensionNames[0]}].[Element 10], 
+        [${dimensionNames[1]}].[${dimensionNames[1]}].[Element 15]) 
+      } ON COLUMNS
+      FROM [${cubeName}] 
+      WHERE ([${dimensionNames[2]}].[${dimensionNames[2]}].[Element 20])
+    `
+
+    const newViewObj = new MDXView(newViewName, newMDX)
+    await global.tm1.cubes.views.create(cubeName, newViewObj)
+    
+    const newViewExists = await global.tm1.cubes.views.exists(cubeName, newViewName)
+    expect(newViewExists).toEqual(true)
+
+    const newView = await global.tm1.cubes.views.get(cubeName, newViewName) as MDXView
+
+    expect(newView).toBeInstanceOf(MDXView)
+    expect(newView.name).toEqual(newViewName)
+    expect(newView.mdx).toEqual(newMDX)
+
+    // Delete view
+    await global.tm1.cubes.views.delete(cubeName, newViewName)
+
+    // Verify view has been deleted
+    const exists = await global.tm1.cubes.views.exists(cubeName, newViewName)
+    expect(exists).toEqual(false)
+    
+  })
+
+  // **TODO**
+  // it('Should update a view', async () => {
+  //   const viewToUpdate = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
+
+  // })
+
 })
