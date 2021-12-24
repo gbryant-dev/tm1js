@@ -88,7 +88,7 @@ class CellService {
 
     const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName);
 
-    const url = `/api/v1/Cubes('${encodeURIComponent(cubeName)}')/tm1.Update`
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.Update`
     const body = {
       Cells: [{
         'Tuple@odata.bind': elements.map((element, i) => `Dimensions('${_dimensions[i]}')/Hierarchies('${_dimensions[i]}')/Elements('${element}')`)
@@ -107,14 +107,14 @@ class CellService {
     cellsetAsMap.forEach((value, tuple) => {
       const update = {
         Cells: [{
-          'Tuple@odata.bind': tuple.map((element, i) => `Dimensions('${encodeURIComponent(_dimensions[i])}')/Hierarchies('${encodeURIComponent(_dimensions[i])}')/Elements('${encodeURIComponent(element)}')`)
+          'Tuple@odata.bind': tuple.map((element, i) => `Dimensions('${fixedEncodeURIComponent(_dimensions[i])}')/Hierarchies('${fixedEncodeURIComponent(_dimensions[i])}')/Elements('${fixedEncodeURIComponent(element)}')`)
         }],
         Value: value  
       }
       updates.push(update)
     })
     
-    const url = `/api/v1/Cubes('${encodeURIComponent(cubeName)}')/tm1.Update`
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.Update`
     return this.http.POST(url, updates)
   }
 
@@ -126,7 +126,7 @@ class CellService {
 
   async createCellsetFromView(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<string> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
-    const url = `/api/v1/Cubes('${encodeURIComponent(cubeName)}')/${encodeURIComponent(viewType)}('${encodeURIComponent(viewName)}')/tm1.Execute`;
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${fixedEncodeURIComponent(viewType)}('${fixedEncodeURIComponent(viewName)}')/tm1.Execute`;
     const response = await this.http.POST(url, null);
     return response['ID']
   }
@@ -149,7 +149,7 @@ class CellService {
     }: CellsetQueryOptions = {}
   ) {
     
-    const baseUrl = `/api/v1/Cellsets('${encodeURIComponent(cellsetID)}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`;
+    const baseUrl = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`;
 
     const filterAxis  = skipContexts ? `$filter=Ordinal ne 2;` : '';
     
@@ -184,7 +184,7 @@ class CellService {
   @RemoveCellset()
   async extractCellsetValues(cellsetID: string, { deleteCellset = true }: { deleteCellset?: boolean } = {}) {
 
-    const url = `/api/v1/Cellsets('${encodeURIComponent(cellsetID)}')?$expand=Cells($select=Value)`;
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cells($select=Value)`;
     const response = await this.http.GET(url);
     return response['Cells'].map(cell => cell.Value);
   }
@@ -192,7 +192,7 @@ class CellService {
   async extractCellsetCellProperties(cellsetID: string, cellProperties?: string[]) {
 
     const cellProps = cellProperties ?? ['Value'];
-    const url = `/api/v1/Cellsets('${encodeURIComponent(cellsetID)}')?$expand=Cells($select=${cellProps.join(',')})`;
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cells($select=${cellProps.join(',')})`;
     const response = await this.http.GET(url);
     return response['Cells']
   }
@@ -203,13 +203,13 @@ class CellService {
   }
 
   async updateCellset(cellsetID: string, values: Array<string | number>) {
-    const url = `/api/v1/Cellsets('${encodeURIComponent(cellsetID)}')/Cells`;
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')/Cells`;
     const updates = values.map((value, ordinal) => ({ Ordinal: ordinal, Value: value }));
     return this.http.PATCH(url, updates);
   }
 
   async deleteCellset(cellsetID: string) {
-    const url = `/api/v1/Cellsets('${encodeURIComponent(cellsetID)}')`;
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')`;
     return this.http.DELETE(url);
   }
 

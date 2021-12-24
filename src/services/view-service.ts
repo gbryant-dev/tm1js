@@ -44,7 +44,7 @@ class ViewService {
 
   async update(cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC;
-    return this.http.PATCH(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${view.name}')`, view.body);
+    return this.http.PATCH(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(view.name)}')`, view.body);
   }
 
   async delete(cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
