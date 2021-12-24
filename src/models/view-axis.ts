@@ -36,15 +36,15 @@ class ViewAxisSelection {
 class ViewAxisTitle {
 
   public subset: Subset;
-  public selected: HierarchyElement;
+  public selected: string;
 
-  constructor (subset: Subset, selected: HierarchyElement) {
+  constructor (subset: Subset, selected: string) {
     this.subset = subset;
     this.selected = selected;
   }
 
   static fromJson (data: any) {
-    return new ViewAxisTitle(Subset.fromJson(data.Subset), HierarchyElement.fromJson(data.Selected));
+    return new ViewAxisTitle(Subset.fromJson(data.Subset), data.Selected.Name ?? '');
   }
 
   get body() {
@@ -64,7 +64,7 @@ class ViewAxisTitle {
       }
 
       body['Selected@odata.bind'] = 
-      `Dimensions('${this.subset.dimensionName}')/Hierarchies('${this.subset.hierarchyName}')/Elements('${this.selected.name}')`
+      `Dimensions('${this.subset.dimensionName}')/Hierarchies('${this.subset.hierarchyName}')/Elements('${this.selected}')`
     
     return body;
   }

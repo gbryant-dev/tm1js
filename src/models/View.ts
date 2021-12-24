@@ -94,11 +94,13 @@ class NativeView extends View {
     this.columns.push(axis);
   }
 
-  removeColumn(column: ViewAxisSelection) {
+  removeColumn(dimensionName: string) {
     const index = this.columns.findIndex(col => {
-      return col.subset.hierarchyName === column.subset.hierarchyName
+      return col.subset.dimensionName === dimensionName
     });
-    this.columns.splice(index, 1);
+    if (index !== -1) {
+      this.columns.splice(index, 1);
+    }
   }
 
   addRow(subset: Subset) {
@@ -106,25 +108,27 @@ class NativeView extends View {
     this.rows.push(axis);
   }
 
-  removeRow(row: ViewAxisSelection) {
+  removeRow(dimensionName: string) {
     const index = this.rows.findIndex(r => {
-      return r.subset.hierarchyName === row.subset.hierarchyName
+      return r.subset.dimensionName === dimensionName
     });
-
-    this.rows.splice(index, 1);
+    if (index !== -1) {
+      this.rows.splice(index, 1);
+    }
   }
 
-  addTitle(subset: Subset, selection: HierarchyElement) {
+  addTitle(subset: Subset, selection: string) {
     const axis = new ViewAxisTitle(subset, selection);
     this.titles.push(axis);
   }
 
-  removeTitle(title: ViewAxisTitle) {
+  removeTitle(dimensionName: string) {
     const index = this.titles.findIndex(t => {
-      return t.subset.hierarchyName === title.subset.hierarchyName
+      return t.subset.dimensionName === dimensionName
     });
-
-    this.titles.splice(index, 1);
+    if (index !== -1) {
+      this.titles.splice(index, 1);
+    }
   }
 
   suppressEmptyCells() {

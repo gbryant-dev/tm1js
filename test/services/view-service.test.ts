@@ -51,8 +51,7 @@ describe('ViewService', () => {
     const viewAxisColumns: ViewAxisSelection[] = [new ViewAxisSelection(columnSubset1), new ViewAxisSelection(columnSubset2)]
 
     const titleSubset = new Subset('', dimensionNames[2], dimensionNames[2], ['Element 10', 'Element 12', 'Element 14'])
-    const selectedElement = new HierarchyElement('Element 10', 'Numeric')
-    const viewAxisTitle: ViewAxisTitle = new ViewAxisTitle(titleSubset, selectedElement)
+    const viewAxisTitle: ViewAxisTitle = new ViewAxisTitle(titleSubset, 'Element 10')
 
     const nativeView = new NativeView(nativeViewName, viewAxisColumns, null, [viewAxisTitle])
     await global.tm1.cubes.views.create(cubeName, nativeView)
@@ -99,7 +98,7 @@ describe('ViewService', () => {
     expect(view.columns[1].subset.elements).toEqual(['Element 7', 'Element 9', 'Element 11'])
     expect(view.titles.length).toEqual(1)
     expect(view.titles[0].subset.elements).toEqual(['Element 10', 'Element 12', 'Element 14'])
-    expect(view.titles[0].selected.name).toEqual('Element 10')
+    expect(view.titles[0].selected).toEqual('Element 10')
 
 
   })
@@ -153,10 +152,24 @@ describe('ViewService', () => {
     
   })
 
-  // **TODO**
-  // it('Should update a view', async () => {
-  //   const viewToUpdate = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
+  it('Should update a view', async () => {
+    const viewToUpdate = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
 
-  // })
+    // Move one column dimension to row
+    const subset = viewToUpdate.columns[1].subset
+    viewToUpdate.removeColumn(dimensionNames[1])
+    viewToUpdate.addRow(subset)
+    // Suppress columns
+    viewToUpdate.suppressEmptyColumns = true
+
+    await global.tm1.cubes.views.update(cubeName, viewToUpdate)
+
+    const updatedView = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
+    expect(updatedView.columns.length).toEqual(1)
+    expect(updatedView.rows.length).toEqual(1)
+    expect(updatedView.rows[0].subset).toEqual(subset)
+    expect(updatedView.suppressEmptyColumns).toEqual(true)
+
+  })
 
 })
