@@ -4,6 +4,9 @@ import RestService from "./rest-service";
 import SubsetService from "./subset-service";
 import { fixedEncodeURIComponent } from "../utils/helpers";
 
+/**
+ * Service to handle hierarchy operations in TM1
+ */
 class HierarchyService {
 
   private http: RestService;
@@ -16,28 +19,63 @@ class HierarchyService {
     this.subsets = new SubsetService(this.http);
   }
 
-  
+  /**
+   * Fetch a single hierarchy from TM1
+   * 
+   * @param {string} dimensionName The name of the dimension
+   * @param {string} hierarchyName The name of the hierarchy
+   * @returns {Hierarchy} An instance of the `Hierarchy` model
+   */
+
   async get(dimensionName: string, hierarchyName: string) {
     const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url);
     return Hierarchy.fromJson(response);
   }
 
-  async getAll (dimensionName: string) {
+  /**
+   * Fetch all hierarchies for a dimension from TM1
+   * 
+   * @param {string} dimensionName The name of the dimension
+   * @returns {Hierarchy[]} An array of instances of the `Hierarchy` model
+   */
+
+  async getAll(dimensionName: string) {
     const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url)
     return response['value'].map((hierarchy: any) => Hierarchy.fromJson(hierarchy));
   }
-  
+
+  /**
+   * Fetch all hierarchy names for a dimension from TM1
+   * 
+   * @param {string} dimensionName The name of the dimension
+   * @returns {string[]} An array of hierarchy names
+   */
+
   async getAllNames(dimensionName: string): Promise<string[]> {
     const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies?$select=Name`);
     return response['value'].map((hierarchy: any) => hierarchy['Name']);
   }
-  
+
+  /**
+   * Create a hierarchy for a dimension in TM1
+   * 
+   * @param {Hierarchy} hierarchy A hierarchy to create. An instance of the `Hierarchy` model
+   * @returns 
+   */
+
   async create(hierarchy: Hierarchy) {
     const response = await this.http.POST(`/api/v1/Dimensions('${fixedEncodeURIComponent(hierarchy.dimensionName)}')/Hierarchies`, hierarchy.body);
     return response;
   }
+
+  /**
+   * Update a hierarchy for a dimension in TM1 
+   * 
+   * @param {Hierarchy} hierarchy The hierarchy to update. An instance of the `Hierarchy` model
+   * @returns 
+   */
 
   async update(hierarchy: Hierarchy) {
     const responses = [];
@@ -48,9 +86,24 @@ class HierarchyService {
     return responses;
   }
 
+  /**
+   * Delete a hierarchy in a dimension in TM1
+   * 
+   * @param {stirng} dimensionName The name of the dimension
+   * @param {string} hierarchyName The name of the hierarchy
+   * @returns 
+   */
+
   async delete(dimensionName: string, hierarchyName: string) {
     return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')`);
   }
+
+  /**
+   * Update element attributes for a hierarchy
+   * 
+   * @param hierarchy The hierarchy to update. An instance of the `Hierarchy` model
+   * @returns
+   */
 
   async updateElementAttributes(hierarchy: Hierarchy) {
     // Get element attributes
@@ -75,11 +128,27 @@ class HierarchyService {
 
   }
 
-  async getDefaultMember (dimensionName: string, hierarchyName: string) {
+  /**
+   * Get the default member for a hierarchy. Will be the element at the first index if one is not set in the }HierarchyProperties cube
+   * 
+   * @param dimensionName The name of the dimension
+   * @param hierarchyName The name of the hierarchy
+   * @returns 
+   */
+
+  async getDefaultMember(dimensionName: string, hierarchyName: string) {
     return this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/DefaultMember`);
   }
 
-  async exists (dimensionName: string, hierarchyName: string): Promise<boolean> {
+  /**
+   * Check if a hierarchy exists
+   * 
+   * @param {string} dimensionName The name of the dimension
+   * @param {string} hierarchyName The name of the hierarchy
+   * @returns {boolean} If the hierarchy exists
+   */
+
+  async exists(dimensionName: string, hierarchyName: string): Promise<boolean> {
     try {
       await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')?$select=Name`);
       return true;
