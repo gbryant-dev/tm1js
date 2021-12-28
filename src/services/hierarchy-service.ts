@@ -27,7 +27,7 @@ class HierarchyService {
    * @returns {Hierarchy} An instance of the `Hierarchy` model
    */
 
-  async get(dimensionName: string, hierarchyName: string) {
+  async get(dimensionName: string, hierarchyName: string): Promise<Hierarchy> {
     const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url);
     return Hierarchy.fromJson(response);
@@ -40,7 +40,7 @@ class HierarchyService {
    * @returns {Hierarchy[]} An array of instances of the `Hierarchy` model
    */
 
-  async getAll(dimensionName: string) {
+  async getAll(dimensionName: string): Promise<Hierarchy[]> {
     const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies?$expand=Edges,Elements,ElementAttributes,Subsets,DefaultMember`;
     const response = await this.http.GET(url)
     return response['value'].map((hierarchy: any) => Hierarchy.fromJson(hierarchy));
@@ -101,7 +101,7 @@ class HierarchyService {
   /**
    * Update element attributes for a hierarchy
    * 
-   * @param hierarchy The hierarchy to update. An instance of the `Hierarchy` model
+   * @param {string} hierarchy The hierarchy to update. An instance of the `Hierarchy` model
    * @returns
    */
 
@@ -131,8 +131,8 @@ class HierarchyService {
   /**
    * Get the default member for a hierarchy. Will be the element at the first index if one is not set in the }HierarchyProperties cube
    * 
-   * @param dimensionName The name of the dimension
-   * @param hierarchyName The name of the hierarchy
+   * @param {string} dimensionName The name of the dimension
+   * @param {string} hierarchyName The name of the hierarchy
    * @returns 
    */
 
