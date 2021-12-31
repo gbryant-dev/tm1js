@@ -5,22 +5,22 @@ import { Session } from './session';
 class User { 
 
   public name: string;
-  public friendlyName: string;
-  public type: UserType;
-  public isActive: boolean;
-  public enabled: boolean;
   public password?: string;
-  public groups?: Group[];
+  public groups?: string[];
+  public friendlyName?: string;
+  public type?: UserType;
+  public isActive?: boolean;
+  public enabled?: boolean;
   public sessions?: Session[];
   
   constructor(
     name: string,
-    friendlyName: string,
-    type: UserType,
-    isActive: boolean,
-    enabled: boolean,
     password?: string,
-    groups?: Group[],
+    groups?: string[],
+    friendlyName?: string,
+    type?: UserType,
+    isActive?: boolean,
+    enabled?: boolean,
     sessions?: Session[]
   ) {
     this.name = name;
@@ -30,18 +30,31 @@ class User {
     this.enabled = enabled;
     this.password = password;
 
+    this.groups = [];
     if (groups) {
-      this.groups = [];
       for (const g of groups) {
         this.groups.push(g);
       }
     }
 
+    this.sessions = [];
     if (sessions) {
-      this.sessions = [];
       for (const s of sessions) {
         this.sessions.push(s);
       }
+    }
+  }
+
+  addGroup(groupName: string) {
+    if (!this.groups.includes(groupName)) {
+      this.groups.push(groupName)
+    }
+  }
+
+  removeGroup(groupName: string) {
+    const index = this.groups.findIndex(group => group === groupName)
+    if (index !== -1) {
+      this.groups.splice(index)
     }
   }
 
@@ -49,12 +62,12 @@ class User {
   static fromJson(data: any) {
     return new User(
       data.Name,
+      data.Password,
+      data.Groups.map(group => Group.fromJson(group.Name)),
       data.FriendlyName,
       data.Type,
       data.isActive,
       data.Enabled,
-      data.Password,
-      data.Groups.map(group => Group.fromJson(group)),
       data.Sessions.map(session => Session.fromJson(session))
     );
   }
@@ -78,7 +91,7 @@ class User {
     if (this.groups?.length > 0) {
       body['Groups@odata.bind'] = [];
       for (const group of this.groups) {
-        body['Groups@odata.bind'].push(`Groups('${group.name}')`);
+        body['Groups@odata.bind'].push(`Groups('${group}')`);
       }
     }
 
