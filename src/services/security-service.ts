@@ -54,7 +54,7 @@ class SecurityService {
    */
 
   async createUser(user: User) {
-    return this.http.POST(`/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`, user.body);
+    return this.http.POST(`/api/v1/Users`, user.body);
   }
 
   /**
@@ -71,12 +71,12 @@ class SecurityService {
   /**
    * Delete a user in TM1
    * 
-   * @param {User} user The user to delete. An instance of the `User` model
+   * @param {string} userName The user to delete
    * @returns 
    */
 
-  async deleteUser(user: User) {
-    return this.http.DELETE(`/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`);
+  async deleteUser(userName: string) {
+    return this.http.DELETE(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')`);
   }
 
   
@@ -104,7 +104,7 @@ class SecurityService {
   }
 
   /**
-   * Fetch the list of security groups a user belongs to
+   * Fetch the list of security groups a user belongs to in TM1
    * 
    * @param {string} userName The user name of the user
    * @returns {Group[]} Instances of the `Group` model
@@ -116,7 +116,7 @@ class SecurityService {
   }
 
   /**
-   * Create a security group in TM!
+   * Create a security group in TM1
    * 
    * @param {Group} group The security group to create. An instance of the `Group` model
    * @returns 
@@ -149,10 +149,10 @@ class SecurityService {
   }
 
   /**
-   * Add a user from one or more groups in TM1
+   * Add a user from one or more security groups in TM1
    * 
-   * @param user The user to update. An instance of the `User` model
-   * @param groups An array of strings representing existing security group names
+   * @param {User} The user to update. An instance of the `User` model
+   * @param {string[]} groups An array of strings representing existing security group names
    * @returns 
    */
 
@@ -171,14 +171,52 @@ class SecurityService {
   /**
    * Remove a user from a security group in TM1
    * 
-   * @param userName The user name of the user to update
-   * @param groupName The name of the security group to remove
+   * @param {string} userName The user name of the user to update
+   * @param {string} groupName The name of the security group to remove
    * @returns 
    */
 
   async removeUserFromGroup(userName: string, groupName: string) {
     const url = `/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups?$id=Groups('${fixedEncodeURIComponent(groupName)}')`;
     return this.http.DELETE(url);
+  }
+
+  /**
+   * Check if a user exists in TM1
+   * 
+   * @param {string} userName The user name of the user 
+   * @returns {boolean} If the user exists
+   */
+
+  async userExists(userName: string): Promise<boolean> {
+    try {
+      await this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')`)
+      return true
+    } catch (e) {
+      if (e.status === 404) {
+        return false
+      }
+      throw e
+    }
+  }
+
+  /**
+   * Check if a security group exists in TM1
+   * 
+   * @param {string} groupName The name of the group
+   * @returns {boolean} If the group exists
+   */
+  
+  async groupExists(groupName: string): Promise<boolean> {
+    try {
+      await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`)
+      return true
+    } catch (e) {
+      if (e.status === 404) {
+        return false
+      }
+      throw e
+    }
   }
 }
 
