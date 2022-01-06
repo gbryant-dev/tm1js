@@ -42,7 +42,7 @@ class SecurityService {
    */
   
   async getCurrentUser (): Promise<User> {
-    const response = this.http.GET('/api/v1/ActiveUser?$expand=Groups,Sessions');
+    const response = await this.http.GET('/api/v1/ActiveUser?$expand=Groups,Sessions');  
     return User.fromJson(response);
   }
 

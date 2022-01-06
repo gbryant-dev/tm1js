@@ -8,41 +8,59 @@ class User {
   public password?: string;
   public groups?: string[];
   public friendlyName?: string;
-  public type?: UserType;
+  private _type?: UserTypeString;
   public isActive?: boolean;
   public enabled?: boolean;
-  public sessions?: Session[];
   
   constructor(
     name: string,
     password?: string,
     groups?: string[],
     friendlyName?: string,
-    type?: UserType,
+    type?: UserTypeString,
     isActive?: boolean,
-    enabled?: boolean,
-    sessions?: Session[]
+    enabled?: boolean
   ) {
     this.name = name;
-    this.friendlyName = friendlyName;
-    this.type = type;
-    this.isActive = isActive;
-    this.enabled = enabled;
     this.password = password;
-
+    
     this.groups = [];
     if (groups) {
       for (const g of groups) {
         this.groups.push(g);
       }
     }
+    
+    this.friendlyName = friendlyName;
 
-    this.sessions = [];
-    if (sessions) {
-      for (const s of sessions) {
-        this.sessions.push(s);
+    // Determine type based on group membership if not set
+    if (type) {
+      this._type = type
+    } else {
+      if (this.groups.includes('ADMIN')) {
+        this._type = "Admin"
+      } else if (this.groups.includes('SecurityAdmin')) {
+        this._type = "SecurityAdmin"
+      } else if (this.groups.includes('DataAdmin')) {
+        this._type = "DataAdmin"
+      } else if (this.groups.includes('OperationsAdmin')) {
+        this._type = "OperationsAdmin"
+      } else {
+        this._type = "User"
       }
     }
+
+
+    this.isActive = isActive;
+    this.enabled = enabled;
+  }
+
+  get type() {
+    return UserType[this._type.toString()]
+  }
+
+  set type(value: UserTypeString) {
+    this._type = value
   }
 
   addGroup(groupName: string) {
@@ -63,12 +81,11 @@ class User {
     return new User(
       data.Name,
       data.Password,
-      data.Groups.map(group => Group.fromJson(group.Name)),
+      data.Groups?.map(group => group.Name) ?? [],
       data.FriendlyName,
       data.Type,
-      data.isActive,
-      data.Enabled,
-      data.Sessions.map(session => Session.fromJson(session))
+      data.IsActive,
+      data.Enabled
     );
   }
 
@@ -106,5 +123,7 @@ enum UserType {
   Admin = "3",
   OperationsAdmin = "4"
 }
+
+type UserTypeString = keyof typeof UserType
 
 export { User, UserType }
