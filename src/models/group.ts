@@ -19,10 +19,9 @@ class Group {
 
 
   static fromJson(data: any) {
-    console.log({ data })
     return new Group(
       data.Name,
-      data.Users.map(user => User.fromJson(user)) 
+      data.Users?.map(user => User.fromJson(user)) ?? []
     );
   }
 
