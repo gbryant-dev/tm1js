@@ -66,17 +66,59 @@ describe('SecurityService', () => {
 
   it('Should fetch the current user', async () => {
     const currentUser = await global.tm1.security.getCurrentUser()
-    console.log(currentUser)
     expect(currentUser.name).toEqual('Admin')
     expect(currentUser.type).toEqual(UserType.Admin)
     expect(currentUser.groups).toEqual(['ADMIN'])
   })
 
-  it.todo('Should create and delete a user')
-  it.todo('Should update a user')
+  it('Should create and delete a user', async () => {
+
+    const newUserName = prefix + 'new_user'
+    const newUser = new User(newUserName, '', [groupName1])
+    await global.tm1.security.createUser(newUser)
+
+    const createdUser = await global.tm1.security.getUser(newUserName)
+    expect(createdUser).toBeInstanceOf(User)
+    expect(createdUser.name).toEqual(newUserName)
+    expect(createdUser.type).toEqual(UserType.User)
+    expect(createdUser.groups).toHaveLength(1)
+    expect(createdUser.groups).toEqual([groupName1])
+
+    await global.tm1.security.deleteUser(newUserName)
+    const exists = global.tm1.security.userExists(newUserName)
+    expect(exists).toBeFalsy()
+
+  })
+
+  it('Should update a user', async () => {
+    const user1 = await global.tm1.security.getUser(userName1)
+    expect(user1.groups).toHaveLength(1)
+    expect(user1.type).toEqual(UserType.User)
+
+    // Add group via User instance
+    user1.addGroup('DataAdmin')
+    await global.tm1.security.updateUser(user1)
+
+    // Validate update
+    const updatedUser = await global.tm1.security.getUser(userName1)
+    expect(updatedUser.groups).toHaveLength(2)
+    expect(updatedUser.groups).toContain('DataAdmin')
+    expect(updatedUser.type).toEqual(UserType.DataAdmin)
+    
+  })
   
-  it.todo('Should fetch a single group')
-  it.todo('Should fetch all groups')
+  it('Should fetch a single group', async () => {
+    const group = await global.tm1.security.getGroup(groupName2)
+    expect(group).toBeInstanceOf(Group)
+    expect(group.name).toEqual(groupName2)
+  })
+
+  it('Should fetch all groups', async () => {
+    const groups = await global.tm1.security.getAllGroups()
+    // Four predefined groups plus three created groups
+    expect(groups.length).toEqual(7)
+  })
+
   it.todo('Should fetch groups belonging to a user')
   it.todo('Should create and delete a group')
   it.todo('Should update a group')

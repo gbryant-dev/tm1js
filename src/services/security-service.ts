@@ -87,7 +87,7 @@ class SecurityService {
    */
   
   async getAllGroups (): Promise<Group[]> {
-    const response = this.http.GET('/api/v1/Groups');
+    const response = await this.http.GET('/api/v1/Groups');
     return response['value'].map(group => Group.fromJson(group));
   }
 
@@ -99,7 +99,7 @@ class SecurityService {
    */
 
   async getGroup (groupName: string): Promise<Group> {
-    const response = this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`);
+    const response = await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`);
     return Group.fromJson(response);
   }
 
@@ -111,7 +111,7 @@ class SecurityService {
    */
 
   async getUserGroups (userName: string): Promise<Group[]> {
-    const response = this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups`);
+    const response = await this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups`);
     return response['value'].map((group: Group) => Group.fromJson(group));
   }
 
