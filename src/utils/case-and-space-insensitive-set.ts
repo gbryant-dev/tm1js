@@ -35,4 +35,18 @@ class CaseAndSpaceInsensitiveSet<T> {
 
   }
 
+  keys(): IterableIterator<T> {
+    return Set.prototype.keys.call(this)
+  }
+
+  values(): IterableIterator<T> {
+    return Set.prototype.values.call(this)
+  }
+
+  get size(): number {
+    return Array.from(this.keys()).length
+  }
+
 }
+
+export default CaseAndSpaceInsensitiveSet
