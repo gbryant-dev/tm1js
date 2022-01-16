@@ -65,6 +65,14 @@ class SecurityService {
    */
 
   async updateUser(user: User) {
+    
+    // Remove groups that are no longer in the user object
+    const groups = await this.getUserGroups(user.name)
+    for (const group of groups) {
+      if (!user.groups.includes(group.name)) {
+        await this.removeUserFromGroup(user.name, group.name)
+      }
+    }
     return this.http.PATCH(`/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`, user.body);
   }
 
@@ -124,17 +132,6 @@ class SecurityService {
 
   async createGroup (group: Group) {
     return this.http.POST('/api/v1/Groups', group.body);
-  }
-
-  /**
-   * Update a security group in TM1
-   * 
-   * @param {Group} group The security group to update. An instance of the `Group` model
-   * @returns 
-   */
-
-  async updateGroup (group: Group) {
-    return this.http.PATCH(`/api/v1/Group('${fixedEncodeURIComponent(group.name)}')`, group.body);
   }
 
   /**
