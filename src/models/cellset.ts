@@ -4,28 +4,25 @@ class Cellset {
   public Axes: CellsetAxis[] = [];
   public Cells: CellsetCell[] = [];
 
-  constructor() {
+  constructor () {
 
   }
 
-
-  static fromJson() {
+  static fromJson () {
 
   }
-
 }
-
 
 interface CellsetAxis {
 
 }
 
 interface CellsetAxisTuple {
-  
+
 }
 
 interface CellsetCell {
 
 }
 
-export default Cellset;
+export default Cellset

@@ -17,5 +17,7 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "no-use-before-define": "off",
+        "dot-notation": "off"
     }
 }

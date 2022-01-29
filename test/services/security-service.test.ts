@@ -1,11 +1,9 @@
-import { Group, User, UserType } from "../../src/models"
+import { Group, User, UserType } from '../../src/models'
 
 describe('SecurityService', () => {
-
   const prefix = 'TM1ts_test_security_'
   const [userName1, userName2, userName3] = [prefix + 'user_1', prefix + 'user_2', prefix + 'user_3']
   const [groupName1, groupName2, groupName3] = [prefix + 'group_1', prefix + 'group_2', prefix + 'group_3']
-
 
   const createUserWithGroup = async (userName: string, groupName: string) => {
     const group = new Group(groupName)
@@ -21,7 +19,6 @@ describe('SecurityService', () => {
   }
 
   const cleanUp = async () => {
-
     for (const userName of [userName1, userName2, userName3]) {
       if (await global.tm1.security.userExists(userName)) {
         await global.tm1.security.deleteUser(userName)
@@ -63,7 +60,6 @@ describe('SecurityService', () => {
   })
 
   it('Should create and delete a user', async () => {
-
     const newUserName = prefix + 'new_user'
     const newUser = new User(newUserName, '', [groupName1])
     await global.tm1.security.createUser(newUser)
@@ -78,7 +74,6 @@ describe('SecurityService', () => {
     await global.tm1.security.deleteUser(newUserName)
     const exists = await global.tm1.security.userExists(newUserName)
     expect(exists).toBeFalsy()
-
   })
 
   it('Should update a user', async () => {
@@ -98,16 +93,15 @@ describe('SecurityService', () => {
 
     // Remove group via User instance
     userAfterGroupAdd.removeGroup('DataAdmin')
-    
+
     await global.tm1.security.updateUser(userAfterGroupAdd)
 
     const userAfterGroupRemove = await global.tm1.security.getUser(userName1)
     expect(userAfterGroupRemove.groups).toHaveLength(1)
     expect(userAfterGroupRemove.groups).not.toContain('DataAdmin')
     expect(userAfterGroupRemove.type).toEqual(UserType.User)
-
   })
-  
+
   it('Should fetch a single group', async () => {
     const group = await global.tm1.security.getGroup(groupName2)
     expect(group).toBeInstanceOf(Group)
@@ -121,7 +115,7 @@ describe('SecurityService', () => {
   })
 
   it('Should create and delete a group', async () => {
-    const groupName = 'New Group';
+    const groupName = 'New Group'
     const group = new Group(groupName)
     await global.tm1.security.createGroup(group)
 
@@ -135,7 +129,6 @@ describe('SecurityService', () => {
     await global.tm1.security.deleteGroup(groupName)
     const shouldExist = await global.tm1.security.groupExists(groupName)
     expect(shouldExist).toBeFalsy()
-
   })
 
   it('Should add a user to groups', async () => {
@@ -154,14 +147,13 @@ describe('SecurityService', () => {
     const user = await global.tm1.security.getUser(userName2)
     expect(user.groups.includes(groupName2)).toBeTruthy()
     expect(group.users.map(user => user.name).includes(userName2)).toBeTruthy()
-    
+
     await global.tm1.security.removeUserFromGroup(userName2, groupName2)
     const updatedGroup = await global.tm1.security.getGroup(groupName2)
     const updatedUser = await global.tm1.security.getUser(userName2)
 
     expect(updatedGroup.users.map(user => user.name).includes(userName2)).toBeFalsy()
     expect(updatedUser.groups.includes(userName2)).toBeFalsy()
-
   })
 
   it('Should fetch groups belonging to a user', async () => {
@@ -169,5 +161,4 @@ describe('SecurityService', () => {
     expect(groups).toHaveLength(1)
     expect(groups[0].name).toEqual(groupName3)
   })
-
 })

@@ -12,7 +12,7 @@ class Server {
   public clientCAMURI: string;
   public clientPingCAMPassport: number;
 
-  constructor(
+  constructor (
     name: string,
     productVersion: string,
     portNumber: number,
@@ -25,20 +25,20 @@ class Server {
     clientCAMURI: string,
     clientPingCAMPassport: number
   ) {
-    this.name = name;
-    this.productVersion = productVersion;
-    this.portNumber = portNumber;
-    this.clientMessagePortNumber = clientMessagePortNumber;
-    this.httpPortNumber = httpPortNumber;
-    this.usingSSL = usingSSL;
-    this.securityPackageName = securityPackageName;
-    this.servicePrincipalName = servicePrincipalName;
-    this.integratedSecurityMode = integratedSecurityMode;
-    this.clientCAMURI = clientCAMURI;
-    this.clientPingCAMPassport = clientPingCAMPassport;
+    this.name = name
+    this.productVersion = productVersion
+    this.portNumber = portNumber
+    this.clientMessagePortNumber = clientMessagePortNumber
+    this.httpPortNumber = httpPortNumber
+    this.usingSSL = usingSSL
+    this.securityPackageName = securityPackageName
+    this.servicePrincipalName = servicePrincipalName
+    this.integratedSecurityMode = integratedSecurityMode
+    this.clientCAMURI = clientCAMURI
+    this.clientPingCAMPassport = clientPingCAMPassport
   }
 
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new Server(
       data.Name,
       data.ProductVersion,
@@ -50,18 +50,18 @@ class Server {
       data.ServicePrincipalName,
       data.IntegratedSecurityMode,
       data.ClientCAMURI,
-      data.ClientPingCAMPassport,
-    );
+      data.ClientPingCAMPassport
+    )
   }
 
-  get body() {
-    return this.constructBody();
+  get body () {
+    return this.constructBody()
   }
 
-  constructBody() {
-    const body = {};
+  constructBody () {
+    const body = {}
 
-    return body;
+    return body
   }
 }
 

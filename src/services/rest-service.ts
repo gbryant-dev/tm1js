@@ -1,19 +1,17 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
-import { Agent } from 'https';
-import { CookieJar } from 'tough-cookie';
-import axiosCookieJarSupport from 'axios-cookiejar-support';
-import { RestError } from '../errors/rest-error';
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
+import { Agent } from 'https'
+import { CookieJar } from 'tough-cookie'
+import axiosCookieJarSupport from 'axios-cookiejar-support'
+import { RestError } from '../errors/rest-error'
 
 const HEADERS = {
   'Content-Type': 'application/json; odata.streaming=true; charset=utf-8',
-  'Accept': 'application/json; odata.metadata=none, text/plain',
+  Accept: 'application/json; odata.metadata=none, text/plain',
   'TM1-SessionContext': 'TM1ts',
   'User-Agent': 'TM1ts'
 }
 
-
 class RestService {
-
   public address: string;
   public port: number;
   public user: string;
@@ -25,7 +23,7 @@ class RestService {
   private http: AxiosInstance;
   private _version: string;
 
-  constructor(
+  constructor (
     address: string,
     port: number,
     user: string,
@@ -33,32 +31,32 @@ class RestService {
     ssl: boolean,
     namespace?: string
   ) {
-    this.address = address;
-    this.port = port;
-    this.user = user;
-    this.password = password;
-    this.ssl = ssl;
-    this.namespace = namespace;
-    this.baseUrl = `http${ssl ? 's' : ''}://${address ? address : 'localhost'}:${port}`;
+    this.address = address
+    this.port = port
+    this.user = user
+    this.password = password
+    this.ssl = ssl
+    this.namespace = namespace
+    this.baseUrl = `http${ssl ? 's' : ''}://${address || 'localhost'}:${port}`
     this.http = axios.create({
       headers: HEADERS,
       withCredentials: true,
       httpsAgent: new Agent({ rejectUnauthorized: false })
-    });
+    })
 
-    axiosCookieJarSupport(this.http);
-    this.http.defaults.jar = new CookieJar();
-    this.http.defaults.baseURL = this.baseUrl;
+    axiosCookieJarSupport(this.http)
+    this.http.defaults.jar = new CookieJar()
+    this.http.defaults.baseURL = this.baseUrl
 
-    this.setupInterceptors();
+    this.setupInterceptors()
   }
 
-  private setupInterceptors() {
+  private setupInterceptors () {
     this.http.interceptors.request.use(
       config => {
-        return config;
+        return config
       }, err => err
-    );
+    )
 
     this.http.interceptors.response.use(
       res => {
@@ -66,7 +64,7 @@ class RestService {
       }, (err: AxiosError) => {
         let error: any
         if (err.response) {
-          const { status, statusText, headers, data, request } = err.response;
+          const { status, statusText, headers, data } = err.response
 
           error = {
             status,
@@ -74,7 +72,6 @@ class RestService {
             headers,
             data: data.error || data
           }
-
         } else {
           error = { status: 500, statusText: null, data: err.message, headers: err.config.headers }
         }
@@ -83,7 +80,7 @@ class RestService {
     )
   }
 
-  private buildAuthToken(user: string, password: string, namespace: string | null): string {
+  private buildAuthToken (user: string, password: string, namespace: string | null): string {
     if (namespace) {
       return this.buildAuthTokenCam(user, password, namespace)
     } else {
@@ -91,20 +88,19 @@ class RestService {
     }
   }
 
-  private buildAuthTokenBasic(user: string, password: string): string {
+  private buildAuthTokenBasic (user: string, password: string): string {
     return `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`
   }
 
-  private buildAuthTokenCam(user: string, password: string, namespace: string): string {
-    return `CAMNamespace ${Buffer.from(`${user}:${password}:${namespace}`).toString('base64')}`;
+  private buildAuthTokenCam (user: string, password: string, namespace: string): string {
+    return `CAMNamespace ${Buffer.from(`${user}:${password}:${namespace}`).toString('base64')}`
   }
 
-  public async startSession(user: string, password: string, namespace: string, impersonate: string) {
+  public async startSession (user: string, password: string, namespace: string, impersonate: string) {
+    const url = '/api/v1/Configuration/ProductVersion/$value'
 
-    const url = '/api/v1/Configuration/ProductVersion/$value';
-
+    // eslint-disable-next-line no-useless-catch
     try {
-
       const additionalHeaders = {
         Authorization: this.buildAuthToken(user, password, namespace)
       }
@@ -114,37 +110,35 @@ class RestService {
       }
 
       const version = await this.GET(url, { headers: additionalHeaders, responseType: 'text' })
-      this._version = version as unknown as string;
-
+      this._version = version as unknown as string
     } catch (error) {
       throw error
     }
-
   }
 
-  get version() {
-    return this._version;
+  get version () {
+    return this._version
   }
 
-  async logout() {
-    return await this.POST(`/api/v1/ActiveSession/tm1.Close`, null, { headers: { 'Connection': 'close' }});
+  async logout () {
+    return await this.POST('/api/v1/ActiveSession/tm1.Close', null, { headers: { Connection: 'close' } })
   }
 
-  async GET(url: string, config: AxiosRequestConfig = {}) {
-    return this.http.get(url, config);
+  async GET (url: string, config: AxiosRequestConfig = {}) {
+    return this.http.get(url, config)
   }
 
-  async POST(url: string, data: any, config: AxiosRequestConfig = {}) {
+  async POST (url: string, data: any, config: AxiosRequestConfig = {}) {
     return this.http.post(url, JSON.stringify(data), config)
   }
 
-  async PATCH(url: string, data: any, config: AxiosRequestConfig = {}) {
-    return this.http.patch(url, JSON.stringify(data), config);
+  async PATCH (url: string, data: any, config: AxiosRequestConfig = {}) {
+    return this.http.patch(url, JSON.stringify(data), config)
   }
 
-  async DELETE(url: string, config: AxiosRequestConfig = {}) {
-    return this.http.delete(url, config);
+  async DELETE (url: string, config: AxiosRequestConfig = {}) {
+    return this.http.delete(url, config)
   }
 }
 
-export default RestService;
+export default RestService
