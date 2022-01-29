@@ -107,7 +107,7 @@ class SecurityService {
    */
 
   async getGroup (groupName: string): Promise<Group> {
-    const response = await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`);
+    const response = await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')?$expand=Users`);
     return Group.fromJson(response);
   }
 

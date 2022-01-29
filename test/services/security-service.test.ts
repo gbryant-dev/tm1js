@@ -1,13 +1,4 @@
 import { Group, User, UserType } from "../../src/models"
-import TM1Service from '../../src/services/tm1-service'
-
-declare global {
-  namespace NodeJS {
-    interface Global {
-      tm1: TM1Service
-    }
-  }
-}
 
 describe('SecurityService', () => {
 
@@ -85,7 +76,7 @@ describe('SecurityService', () => {
     expect(createdUser.groups).toEqual([groupName1])
 
     await global.tm1.security.deleteUser(newUserName)
-    const exists = global.tm1.security.userExists(newUserName)
+    const exists = await global.tm1.security.userExists(newUserName)
     expect(exists).toBeFalsy()
 
   })
@@ -107,6 +98,7 @@ describe('SecurityService', () => {
 
     // Remove group via User instance
     userAfterGroupAdd.removeGroup('DataAdmin')
+    
     await global.tm1.security.updateUser(userAfterGroupAdd)
 
     const userAfterGroupRemove = await global.tm1.security.getUser(userName1)
@@ -175,7 +167,7 @@ describe('SecurityService', () => {
   it('Should fetch groups belonging to a user', async () => {
     const groups = await global.tm1.security.getUserGroups(userName3)
     expect(groups).toHaveLength(1)
-    expect(groups).toEqual([groupName3])
+    expect(groups[0].name).toEqual(groupName3)
   })
 
 })

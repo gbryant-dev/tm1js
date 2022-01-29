@@ -72,7 +72,7 @@ class User {
   removeGroup(groupName: string) {
     const index = this.groups.findIndex(group => group === groupName)
     if (index !== -1) {
-      this.groups.splice(index)
+      this.groups.splice(index, 1)
     }
   }
 
