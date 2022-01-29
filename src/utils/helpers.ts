@@ -1,25 +1,26 @@
 
-const extractComponentsFromUniqueName = (uniqueName: string): { dimension: string, hierarchy: string, member: string } => {
-  const separator = '].[';
+const extractComponentsFromUniqueName = (uniqueName: string): { dimension: string, hierarchy: string, object: string } => {
+ 
+  const separator = '].['
 
-  let components = uniqueName.split(separator);
+  const segments = (uniqueName.match(/\]\.\[/g) ?? []).length
 
-  const dimension = components.shift().substring(1);
-  let hierarchy: string;
-  let member: string;
+  let dimension: string, hierarchy: string, object: string
 
-  if (components.length === 1) {
-    hierarchy = dimension;
+  dimension = uniqueName.substring(1, uniqueName.indexOf(separator))
+  
+  if (segments === 1) {
+    hierarchy = dimension
   } else {
-    hierarchy = components.shift();
+    hierarchy = uniqueName.substring(uniqueName.indexOf(separator) + 3, uniqueName.lastIndexOf(separator))
   }
 
-  member = components[0].substring(0, components[0].length - 1);
-
+  object = uniqueName.substring(uniqueName.lastIndexOf(separator) + 3, uniqueName.length - 1)
+  
   return {
     dimension,
     hierarchy,
-    member
+    object
   }
 }
 
