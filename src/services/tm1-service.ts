@@ -1,11 +1,11 @@
-import RestService from './rest-service'
-import CubeService from './cube-service'
-import DimensionService from './dimension-service'
-import ProcessService from './process-service'
-import ViewService from './view-service'
+import { RestService } from './rest-service'
+import { CubeService } from './cube-service'
+import { DimensionService } from './dimension-service'
+import { ProcessService } from './process-service'
+import { ViewService } from './view-service'
 import { SecurityService } from './security-service'
-import ChoreService from './chore-service'
-import CellService from './cell-service'
+import { ChoreService } from './chore-service'
+import { CellService } from './cell-service'
 
 class TM1Service {
   private _rest: RestService;
@@ -42,4 +42,4 @@ class TM1Service {
   }
 }
 
-export default TM1Service
+export { TM1Service }

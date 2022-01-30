@@ -1,9 +1,9 @@
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 import { Cube } from '../models/cube'
-import ViewService from './view-service'
+import { ViewService } from './view-service'
 import { MinimumVersion } from '../utils/decorators'
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc'
-import CellService from './cell-service'
+import { CellService } from './cell-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
 /**
@@ -177,4 +177,4 @@ class CubeService {
   }
 }
 
-export default CubeService
+export { CubeService }

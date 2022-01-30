@@ -1,4 +1,4 @@
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 import { NativeView, MDXView, ViewType, ViewContext } from '../models/view'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
@@ -128,4 +128,4 @@ class ViewService {
   }
 }
 
-export default ViewService
+export { ViewService }

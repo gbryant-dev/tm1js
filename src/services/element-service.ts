@@ -1,6 +1,6 @@
 import { HierarchyElement } from '../models/element'
 import { ElementAttribute } from '../models/element-attribute'
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
 /**
@@ -184,4 +184,4 @@ class ElementService {
   }
 }
 
-export default ElementService
+export { ElementService }

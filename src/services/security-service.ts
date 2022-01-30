@@ -1,7 +1,7 @@
 import { Group } from '../models/group'
 import { User } from '../models/user'
 import { fixedEncodeURIComponent } from '../utils/helpers'
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 
 /** Service to handle security operations in TM1 */
 class SecurityService {

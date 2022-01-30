@@ -1,6 +1,6 @@
 import { Subset } from '../models/subset'
 import { fixedEncodeURIComponent } from '../utils/helpers'
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 
 /**
  * Service to handle operations on subsets in TM1
@@ -127,4 +127,4 @@ class SubsetService {
   }
 }
 
-export default SubsetService
+export { SubsetService }

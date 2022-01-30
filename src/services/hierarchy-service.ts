@@ -1,7 +1,7 @@
 import { Hierarchy } from '../models/hierarchy'
-import ElementService from './element-service'
-import RestService from './rest-service'
-import SubsetService from './subset-service'
+import { ElementService } from './element-service'
+import { RestService } from './rest-service'
+import { SubsetService } from './subset-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
 /**
@@ -159,4 +159,4 @@ class HierarchyService {
   }
 }
 
-export default HierarchyService
+export { HierarchyService }

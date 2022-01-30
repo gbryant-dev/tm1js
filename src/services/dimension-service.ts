@@ -1,6 +1,6 @@
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 import { Dimension } from '../models/dimension'
-import HierarchyService from './hierarchy-service'
+import { HierarchyService } from './hierarchy-service'
 import { caseAndSpaceInsensitiveEquals, fixedEncodeURIComponent } from '../utils/helpers'
 import { AxiosResponse } from 'axios'
 import { ExistError } from '../errors/exist-error'
@@ -175,4 +175,4 @@ class DimensionService {
   }
 }
 
-export default DimensionService
+export { DimensionService }

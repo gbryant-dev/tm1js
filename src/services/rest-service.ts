@@ -141,4 +141,4 @@ class RestService {
   }
 }
 
-export default RestService
+export { RestService }

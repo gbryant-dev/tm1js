@@ -1,5 +1,5 @@
 import { Chore, ChoreTask } from '../models/chore'
-import RestService from './rest-service'
+import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
 /**
@@ -228,4 +228,4 @@ class ChoreService {
   }
 }
 
-export default ChoreService
+export { ChoreService }

@@ -1,7 +1,7 @@
 import { ViewContext } from '../models'
 import { RemoveCellset } from '../utils/decorators'
-import CubeService from './cube-service'
-import RestService from './rest-service'
+import { CubeService } from './cube-service'
+import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
 /**
@@ -344,4 +344,4 @@ class CellService {
   }
 }
 
-export default CellService
+export { CellService }
