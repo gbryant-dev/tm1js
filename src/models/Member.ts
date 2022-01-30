@@ -8,11 +8,7 @@ class Member {
   public hierarchyName: string;
   public level: number;
 
-  constructor () {
-
-  }
-
-  static fromJson (data: any) {
+  static fromJson () {
     return new Member()
   }
 

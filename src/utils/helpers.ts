@@ -4,17 +4,16 @@ const extractComponentsFromUniqueName = (uniqueName: string): { dimension: strin
 
   const segments = (uniqueName.match(/\]\.\[/g) ?? []).length
 
-  let dimension: string, hierarchy: string, object: string
+  const dimension: string = uniqueName.substring(1, uniqueName.indexOf(separator))
+  const object: string = uniqueName.substring(uniqueName.lastIndexOf(separator) + 3, uniqueName.length - 1)
 
-  dimension = uniqueName.substring(1, uniqueName.indexOf(separator))
+  let hierarchy: string
 
   if (segments === 1) {
     hierarchy = dimension
   } else {
     hierarchy = uniqueName.substring(uniqueName.indexOf(separator) + 3, uniqueName.lastIndexOf(separator))
   }
-
-  object = uniqueName.substring(uniqueName.lastIndexOf(separator) + 3, uniqueName.length - 1)
 
   return {
     dimension,

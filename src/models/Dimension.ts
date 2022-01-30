@@ -34,7 +34,7 @@ class Dimension {
 
     addHierarchy (hierarchy: Hierarchy) {
       if (this.hasHierarchy(hierarchy.name)) {
-        throw `Hierarchy ${hierarchy.name} already exists in dimension ${this.name}.`
+        throw new Error(`Hierarchy ${hierarchy.name} already exists in dimension ${this.name}.`)
       }
 
       this.hierarchies.push(hierarchy)
@@ -42,7 +42,7 @@ class Dimension {
 
     deleteHierarchy (hierarchyName: string) {
       if (hierarchyName.toLowerCase() === 'leaves') {
-        throw '\'Leaves\' hierarchy must not be removed from dimension'
+        throw new Error('\'Leaves\' hierarchy must not be removed from dimension')
       }
 
       const index = this.hierarchies.findIndex(hier => hier.name.toLowerCase() === hierarchyName.toLowerCase())

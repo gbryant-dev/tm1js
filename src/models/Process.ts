@@ -43,7 +43,7 @@ class Process {
     variablesUIData?: string[]
   ) {
     this.name = name
-    this.hasSecurityAccess = hasSecurityAccess,
+    this.hasSecurityAccess = hasSecurityAccess
     this.prologProcedure = Process.addGeneratedStatement(procedure?.prolog)
     this.metadataProcedure = Process.addGeneratedStatement(procedure?.metadata)
     this.dataProcedure = Process.addGeneratedStatement(procedure?.data)
@@ -65,6 +65,7 @@ class Process {
   }
 
   static fromJson (data: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Type, ...dataSource } = data.DataSource
     return new Process(
       data.Name,
@@ -117,7 +118,7 @@ class Process {
   addParameter (name: string, value: string | number, prompt?: string, type?: 'String' | 'Numeric') {
     // Infer type if not provided
 
-    const paramType = type ? type : typeof value == 'string' ? 'String' : 'Numeric'
+    const paramType = type || (typeof value === 'string' ? 'String' : 'Numeric')
     const parameter: ProcessParameter = {
       Name: name,
       Type: paramType,
@@ -169,7 +170,7 @@ class Process {
           asciiThousandSeparator: this.dataSource.asciiThousandSeparator
         }
 
-        if (this.dataSource.asciiDelimiterType == 'FixedWidth') {
+        if (this.dataSource.asciiDelimiterType === 'FixedWidth') {
           delete body['DataSource']['asciiDelimiterChar']
         }
         break

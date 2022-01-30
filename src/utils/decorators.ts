@@ -33,6 +33,7 @@ function RemoveCellset () {
             await this.deleteCellset(cellsetID)
           } catch (e) {
             if (e.status !== 404) {
+              // eslint-disable-next-line no-unsafe-finally
               throw e
             }
           }

@@ -72,7 +72,7 @@ class CellService {
    * @returns
    */
 
-  async executeViewValues (cubeName: string, viewName: string, isPrivate: boolean = false, options?: CellsetQueryOptions) {
+  async executeViewValues (cubeName: string, viewName: string, isPrivate: boolean = false) {
     const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate)
     return this.extractCellsetValues(cellsetID)
   }
@@ -118,12 +118,12 @@ class CellService {
     const _buildSetFromElementString = (dimension: string, el: string): string[] => {
       const sets = []
 
-      const isSingleHierarchy = el.indexOf('&&') == -1
+      const isSingleHierarchy = el.indexOf('&&') === -1
       const parts = isSingleHierarchy ? [el] : el.split('&&')
 
       for (const part of parts) {
         // Check for hierarchy delimiter
-        const isDefaultHierarchy = part.indexOf('::') == -1
+        const isDefaultHierarchy = part.indexOf('::') === -1
 
         // Determine dimension, hierarchy, element arrangement
         const [hierarchy, element] = isDefaultHierarchy ? [dimension, part] : part.split('::')
@@ -244,6 +244,7 @@ class CellService {
       memberProperties = ['UniqueName'],
       top = null,
       skip = null,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       deleteCellset = true,
       skipContexts = false,
       skipZeros = false,
@@ -292,7 +293,11 @@ class CellService {
    * @returns
    */
   @RemoveCellset()
-  async extractCellsetValues (cellsetID: string, { deleteCellset = true }: { deleteCellset?: boolean } = {}) {
+  async extractCellsetValues (
+    cellsetID: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { deleteCellset = true }: { deleteCellset?: boolean } = {}
+  ) {
     const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cells($select=Value)`
     const response = await this.http.GET(url)
     return response['Cells'].map(cell => cell.Value)

@@ -1,6 +1,3 @@
-import { Group } from './group'
-import { Session } from './session'
-
 class User {
   public name: string;
   public password?: string;

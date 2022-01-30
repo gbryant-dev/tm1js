@@ -20,7 +20,7 @@ class Cube {
   }
 
   constructBody () {
-    let body = {
+    const body = {
       Name: this.name,
       'Dimensions@odata.bind': []
     }

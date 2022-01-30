@@ -162,16 +162,32 @@ class ChoreFrequency {
     this._seconds = seconds.toString().padStart(2, '0')
   }
 
+  get days () {
+    return this._days
+  }
+
   set days (value: string | number) {
     this._days = value.toString().padStart(2, '0')
+  }
+
+  get hours () {
+    return this._hours
   }
 
   set hours (value: string | number) {
     this._hours = value.toString().padStart(2, '0')
   }
 
+  get minutes () {
+    return this._minutes
+  }
+
   set minutes (value: string | number) {
     this._minutes = value.toString().padStart(2, '0')
+  }
+
+  get seconds () {
+    return this._seconds
   }
 
   set seconds (value: string | number) {

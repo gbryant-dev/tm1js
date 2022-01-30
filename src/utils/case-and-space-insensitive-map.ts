@@ -1,5 +1,7 @@
 interface CaseAndSpaceInsensitiveMap<T, U> extends Map<T, U> {}
+// eslint-disable-next-line no-redeclare
 class CaseAndSpaceInsensitiveMap<T, U> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor (entries?: Array<[T, U]> | Iterable<[T, U]>) {
     return Reflect.construct(Map, arguments, CaseAndSpaceInsensitiveMap)
   }
@@ -32,7 +34,7 @@ class CaseAndSpaceInsensitiveMap<T, U> {
     return Map.prototype.delete.call(this, key) as boolean
   }
 
-  forEach (callbackfn: (value: U, key: T, map: CaseAndSpaceInsensitiveMap<T, U>) => void, thisArg?: any): void {
+  forEach (callbackfn: (value: U, key: T, map: CaseAndSpaceInsensitiveMap<T, U>) => void): void {
     return Map.prototype.forEach.call(this, callbackfn)
   }
 

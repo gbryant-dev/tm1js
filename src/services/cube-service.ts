@@ -149,7 +149,7 @@ class CubeService {
     // Construct body consisting of elements that define the cell
     const body = { 'Tuple@odata.bind': [] }
 
-    elements.map((element, i) => {
+    elements.forEach((element, i) => {
       const path = `Dimensions('${fixedEncodeURIComponent(_dimensions[i])}')/Hierarchies('${fixedEncodeURIComponent(_dimensions[i])}')/Elements('${fixedEncodeURIComponent(element)}')`
       body['Tuple@odata.bind'].push(path)
     })

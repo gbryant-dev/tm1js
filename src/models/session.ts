@@ -1,10 +1,6 @@
 
 class Session {
-  constructor () {
-
-  }
-
-  static fromJson (data: any) {
+  static fromJson () {
     return new Session()
   }
 

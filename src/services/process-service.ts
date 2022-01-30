@@ -52,6 +52,7 @@ class ProcessService {
    */
 
   async getAll (): Promise<Process[]> {
+    // eslint-disable-next-line no-multi-str
     const url = '/api/v1/Processes?$select=*,\
         UIData,\
         VariablesUIData,\
@@ -141,7 +142,7 @@ class ProcessService {
 
   async executeTICode (prolog: string, epilog: string = '') {
     const name = '}TM1ts_' + uuid()
-    let process = new Process(name, false, { prolog, epilog })
+    const process = new Process(name, false, { prolog, epilog })
     try {
       await this.create(process)
       return this.executeWithReturn(process.name)
