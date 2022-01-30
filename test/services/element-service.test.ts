@@ -1,6 +1,6 @@
 import { ElementType, HierarchyElement } from '../../src/models'
-import Dimension from '../../src/models/dimension'
-import Hierarchy from '../../src/models/hierarchy'
+import { Dimension } from '../../src/models/dimension'
+import { Hierarchy } from '../../src/models/hierarchy'
 
 describe('ElementService', () => {
   const prefix = 'TM1ts_test_'

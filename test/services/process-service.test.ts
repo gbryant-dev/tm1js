@@ -1,5 +1,5 @@
 import { ProcessExecuteStatusCode } from '../../src/models'
-import Process, { DataSourceType, ProcessDataSource, ProcessParameter, ProcessProcedure } from '../../src/models/process'
+import { Process, ProcessDataSource, ProcessParameter, ProcessProcedure } from '../../src/models/process'
 
 describe('ProcessService', () => {
   const prefix = 'TM1ts_test_'

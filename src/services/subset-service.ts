@@ -1,4 +1,4 @@
-import Subset from '../models/subset'
+import { Subset } from '../models/subset'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 import RestService from './rest-service'
 

@@ -1,4 +1,4 @@
-import Chore, { ChoreTask } from '../models/chore'
+import { Chore, ChoreTask } from '../models/chore'
 import RestService from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 

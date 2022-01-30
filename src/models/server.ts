@@ -65,4 +65,4 @@ class Server {
   }
 }
 
-export { Server as default }
+export { Server }

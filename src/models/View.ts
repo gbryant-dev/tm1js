@@ -1,7 +1,6 @@
 
 import { ViewAxisSelection, ViewAxisTitle } from './view-axis'
-import { HierarchyElement } from './element'
-import Subset from './subset'
+import { Subset } from './subset'
 
 enum ViewType {
   NATIVE = 'ibm.tm1.api.v1.NativeView',

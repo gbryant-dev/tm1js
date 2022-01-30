@@ -1,5 +1,5 @@
 import RestService from './rest-service'
-import Cube from '../models/cube'
+import { Cube } from '../models/cube'
 import ViewService from './view-service'
 import { MinimumVersion } from '../utils/decorators'
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc'

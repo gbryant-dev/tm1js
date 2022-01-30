@@ -253,4 +253,4 @@ interface ProcessParameter {
   Type: ProcessVariableType;
 }
 
-export { Process as default, ProcessProcedure, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType }
+export { Process, ProcessProcedure, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType }

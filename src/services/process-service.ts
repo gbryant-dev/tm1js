@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
 import { ProcessExecuteResult, ProcessSyntaxError } from '../models/misc'
-import Process, { ProcessParameter } from '../models/process'
+import { Process, ProcessParameter } from '../models/process'
 import RestService from './rest-service'
 import { v4 as uuid } from 'uuid'
 import { MinimumVersion } from '../utils/decorators'

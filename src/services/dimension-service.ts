@@ -1,5 +1,5 @@
 import RestService from './rest-service'
-import Dimension from '../models/dimension'
+import { Dimension } from '../models/dimension'
 import HierarchyService from './hierarchy-service'
 import { caseAndSpaceInsensitiveEquals, fixedEncodeURIComponent } from '../utils/helpers'
 import { AxiosResponse } from 'axios'

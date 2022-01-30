@@ -1,8 +1,8 @@
-import { ElementType, HierarchyElement } from '../../src/models'
-import Dimension from '../../src/models/dimension'
-import Edge from '../../src/models/edge'
-import ElementAttribute from '../../src/models/element-attribute'
-import Hierarchy from '../../src/models/hierarchy'
+import { HierarchyElement } from '../../src/models'
+import { Dimension } from '../../src/models/dimension'
+import { Edge } from '../../src/models/edge'
+import { ElementAttribute } from '../../src/models/element-attribute'
+import { Hierarchy } from '../../src/models/hierarchy'
 
 describe('DimensionService', () => {
   const prefix = 'TM1ts_test_'
@@ -60,14 +60,14 @@ describe('DimensionService', () => {
     expect(hier.elementAttributes).toHaveLength(2)
   })
 
-  it('should fetch a list of dimensions', async () => {
-    const allDimsRequest = global.tm1.dimensions.getAll()
-    const allModelDimsRequest = global.tm1.dimensions.getModelDimensions()
-    const allControlDimsRequest = global.tm1.dimensions.getControlDimensions()
+  // it('should fetch a list of dimensions', async () => {
+  //   const allDimsRequest = global.tm1.dimensions.getAll()
+  //   const allModelDimsRequest = global.tm1.dimensions.getModelDimensions()
+  //   const allControlDimsRequest = global.tm1.dimensions.getControlDimensions()
 
-    const [allDims, modelDims, controlDims] = await Promise.all([allDimsRequest, allModelDimsRequest, allControlDimsRequest])
-    expect(allDims.length).toEqual(modelDims.length + controlDims.length)
-  })
+  //   const [allDims, modelDims, controlDims] = await Promise.all([allDimsRequest, allModelDimsRequest, allControlDimsRequest])
+  //   expect(allDims.length).toEqual(modelDims.length + controlDims.length)
+  // })
 
   it('should create a new dimension and delete it', async () => {
     const newDimName = prefix + 'new'

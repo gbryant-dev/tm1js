@@ -1,4 +1,4 @@
-import Hierarchy from '../models/hierarchy'
+import { Hierarchy } from '../models/hierarchy'
 import ElementService from './element-service'
 import RestService from './rest-service'
 import SubsetService from './subset-service'

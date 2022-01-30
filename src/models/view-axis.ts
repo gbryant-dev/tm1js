@@ -1,5 +1,4 @@
-import { HierarchyElement } from './element'
-import Subset from './subset'
+import { Subset } from './subset'
 
 class ViewAxisSelection {
   public subset: Subset;

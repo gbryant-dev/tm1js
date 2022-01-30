@@ -1,8 +1,8 @@
-import Cube from '../../src/models/Cube'
-import Dimension from '../../src/models/dimension'
-import Hierarchy from '../../src/models/hierarchy'
+import { Cube } from '../../src/models/Cube'
+import { Dimension } from '../../src/models/dimension'
+import { Hierarchy } from '../../src/models/hierarchy'
 import { HierarchyElement, MDXView, NativeView, ViewAxisSelection, ViewAxisTitle } from '../../src/models'
-import Subset from '../../src/models/subset'
+import { Subset } from '../../src/models/subset'
 
 describe('ViewService', () => {
   const prefix = 'TM1ts_test_view_'

@@ -122,4 +122,4 @@ enum UserType {
 
 type UserTypeString = keyof typeof UserType
 
-export { User, UserType }
+export { User, UserType, UserTypeString }

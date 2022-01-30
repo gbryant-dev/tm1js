@@ -1,10 +1,3 @@
-import Dimension from './dimension'
-
-// interface CubeBody {
-//   Name: string;
-//   'Dimensions@odata.bind': Array<string>;
-//   Rules?: string | null;
-// }
 
 class Cube {
   public name: string;
@@ -59,4 +52,4 @@ class Cube {
   }
 }
 
-export default Cube
+export { Cube }

@@ -1,8 +1,8 @@
 import { HierarchyElement, NativeView } from '../../src/models'
-import Cube from '../../src/models/Cube'
-import Dimension from '../../src/models/dimension'
-import Hierarchy from '../../src/models/hierarchy'
-import Subset from '../../src/models/subset'
+import { Cube } from '../../src/models/Cube'
+import { Dimension } from '../../src/models/dimension'
+import { Hierarchy } from '../../src/models/hierarchy'
+import { Subset } from '../../src/models/subset'
 
 describe('CellService', () => {
   const prefix = 'TM1ts_test_cell_'

@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
-import Chore, { ChoreExecutionMode, ChoreFrequency, ChoreStartTime, ChoreTask } from '../../src/models/chore'
-import Process from '../../src/models/process'
+import { Chore, ChoreExecutionMode, ChoreFrequency, ChoreStartTime, ChoreTask } from '../../src/models/chore'
+import { Process } from '../../src/models/process'
 
 describe('ChoreService', () => {
   const prefix = 'TM1ts_test_'

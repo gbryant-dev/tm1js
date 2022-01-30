@@ -1,5 +1,5 @@
 import { HierarchyElement } from '../models/element'
-import ElementAttribute from '../models/element-attribute'
+import { ElementAttribute } from '../models/element-attribute'
 import RestService from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 

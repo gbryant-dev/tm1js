@@ -1,4 +1,4 @@
-import Cube from './cube'
+import { Cube } from './cube'
 import { HierarchyElement } from './element'
 
 interface RuleSyntaxError {

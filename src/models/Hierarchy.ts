@@ -1,8 +1,7 @@
-import Dimension from './dimension'
-import Edge from './edge'
-import Subset from './subset'
+import { Edge } from './edge'
+import { Subset } from './subset'
 import { HierarchyElement, ElementTypeString } from './element'
-import ElementAttribute, { AttributeTypeString } from './element-attribute'
+import { ElementAttribute, AttributeTypeString } from './element-attribute'
 import TupleMap from '../utils/tuple-map'
 import CaseAndSpaceInsensitiveMap from '../utils/case-and-space-insensitive-map'
 import { caseAndSpaceInsensitiveEquals } from '../utils/helpers'
@@ -159,4 +158,4 @@ class Hierarchy {
   }
 }
 
-export default Hierarchy
+export { Hierarchy }

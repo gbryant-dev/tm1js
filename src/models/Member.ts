@@ -27,4 +27,4 @@ class Member {
   }
 }
 
-export { Member as default }
+export { Member }

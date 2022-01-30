@@ -200,4 +200,4 @@ interface ChoreTaskParameter {
   Value?: string | number;
 }
 
-export { Chore as default, ChoreTask, ChoreStartTime, ChoreFrequency, ChoreExecutionMode, ChoreExecuteModeString }
+export { Chore, ChoreTask, ChoreStartTime, ChoreFrequency, ChoreExecutionMode, ChoreExecuteModeString }

@@ -1,5 +1,5 @@
 import { caseAndSpaceInsensitiveEquals } from '../utils/helpers'
-import Hierarchy from './hierarchy'
+import { Hierarchy } from './hierarchy'
 
 class Dimension {
     public name: string;
@@ -79,4 +79,4 @@ class Dimension {
     }
 }
 
-export default Dimension
+export { Dimension }

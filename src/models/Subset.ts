@@ -92,4 +92,4 @@ class Subset {
     }
 }
 
-export default Subset
+export { Subset }

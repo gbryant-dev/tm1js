@@ -1,5 +1,3 @@
-export * from './cell'
-export * from './cellset'
 export * from './Cube'
 export * from './dimension'
 export * from './edge'
