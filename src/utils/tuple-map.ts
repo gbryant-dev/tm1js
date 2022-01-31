@@ -1,4 +1,4 @@
-import CaseAndSpaceInsensitiveMap from './case-and-space-insensitive-map'
+import { CaseAndSpaceInsensitiveMap } from './case-and-space-insensitive-map'
 
 class TupleMap {
   private _map: CaseAndSpaceInsensitiveMap<string, string | number>;
@@ -48,4 +48,4 @@ class TupleMap {
   }
 }
 
-export default TupleMap
+export { TupleMap }

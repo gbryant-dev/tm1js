@@ -51,4 +51,4 @@ class CaseAndSpaceInsensitiveMap<T, U> {
   }
 }
 
-export default CaseAndSpaceInsensitiveMap
+export { CaseAndSpaceInsensitiveMap }
