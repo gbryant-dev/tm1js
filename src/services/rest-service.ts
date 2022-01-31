@@ -4,6 +4,16 @@ import { CookieJar } from 'tough-cookie'
 import axiosCookieJarSupport from 'axios-cookiejar-support'
 import { RestError } from '../errors/rest-error'
 
+export interface RestConfig {
+  address: string;
+  port: number;
+  user: string;
+  password: string;
+  ssl: boolean;
+  namespace?: string;
+  impersonate?: string;
+}
+
 const HEADERS = {
   'Content-Type': 'application/json; odata.streaming=true; charset=utf-8',
   Accept: 'application/json; odata.metadata=none, text/plain',
@@ -24,12 +34,14 @@ class RestService {
   private _version: string;
 
   constructor (
-    address: string,
-    port: number,
-    user: string,
-    password: string,
-    ssl: boolean,
-    namespace?: string
+    {
+      address,
+      port,
+      user,
+      password,
+      ssl,
+      namespace
+    }: RestConfig
   ) {
     this.address = address
     this.port = port
