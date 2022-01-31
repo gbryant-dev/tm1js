@@ -1,3 +1,4 @@
-export * as Models from './models'
-export * as Services from './services'
-export * as Errors from './errors'
+export * from './models'
+export * from './services'
+export * from './errors'
+export * from './utils'
