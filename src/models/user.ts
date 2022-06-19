@@ -1,110 +1,122 @@
-import { Group } from "./group";
-import { Session } from './session';
-
-
-class User { 
-
+class User {
   public name: string;
   public password?: string;
   public groups?: string[];
   public friendlyName?: string;
-  public type?: UserType;
+  private _type?: UserTypeString;
   public isActive?: boolean;
   public enabled?: boolean;
-  public sessions?: Session[];
-  
-  constructor(
+
+  constructor (
     name: string,
     password?: string,
     groups?: string[],
     friendlyName?: string,
-    type?: UserType,
+    type?: UserTypeString,
     isActive?: boolean,
-    enabled?: boolean,
-    sessions?: Session[]
+    enabled?: boolean
   ) {
-    this.name = name;
-    this.friendlyName = friendlyName;
-    this.type = type;
-    this.isActive = isActive;
-    this.enabled = enabled;
-    this.password = password;
+    this.name = name
+    this.password = password
 
-    this.groups = [];
+    this.groups = []
     if (groups) {
       for (const g of groups) {
-        this.groups.push(g);
+        this.groups.push(g)
       }
     }
 
-    this.sessions = [];
-    if (sessions) {
-      for (const s of sessions) {
-        this.sessions.push(s);
+    this.friendlyName = friendlyName
+
+    // Determine type based on group membership if not set
+    if (type) {
+      this._type = type
+    } else {
+      if (this.groups.includes('ADMIN')) {
+        this._type = 'Admin'
+      } else if (this.groups.includes('SecurityAdmin')) {
+        this._type = 'SecurityAdmin'
+      } else if (this.groups.includes('DataAdmin')) {
+        this._type = 'DataAdmin'
+      } else if (this.groups.includes('OperationsAdmin')) {
+        this._type = 'OperationsAdmin'
+      } else {
+        this._type = 'User'
       }
     }
+
+    this.isActive = isActive
+    this.enabled = enabled
   }
 
-  addGroup(groupName: string) {
+  get type () {
+    return UserType[this._type.toString()]
+  }
+
+  set type (value: UserTypeString) {
+    this._type = value
+  }
+
+  addGroup (groupName: string) {
     if (!this.groups.includes(groupName)) {
       this.groups.push(groupName)
     }
   }
 
-  removeGroup(groupName: string) {
+  removeGroup (groupName: string) {
     const index = this.groups.findIndex(group => group === groupName)
     if (index !== -1) {
-      this.groups.splice(index)
+      this.groups.splice(index, 1)
     }
   }
 
-
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new User(
       data.Name,
       data.Password,
-      data.Groups.map(group => Group.fromJson(group.Name)),
+      data.Groups?.map(group => group.Name) ?? [],
       data.FriendlyName,
       data.Type,
-      data.isActive,
-      data.Enabled,
-      data.Sessions.map(session => Session.fromJson(session))
-    );
+      data.IsActive,
+      data.Enabled
+    )
   }
 
-  get body() {
-    return this.constructBody();
+  get body () {
+    return this.constructBody()
   }
 
-  constructBody() {
+  constructBody () {
     const body = {
       Name: this.name,
       FriendlyName: this.friendlyName ?? this.name,
       Type: this.type,
       Enabled: this.enabled
-    };
+    }
 
     if (this.password) {
       body['Password'] = this.password
     }
 
     if (this.groups?.length > 0) {
-      body['Groups@odata.bind'] = [];
+      body['Groups@odata.bind'] = []
       for (const group of this.groups) {
-        body['Groups@odata.bind'].push(`Groups('${group}')`);
+        body['Groups@odata.bind'].push(`Groups('${group}')`)
       }
     }
 
-    return body;
+    return body
   }
 }
 
 enum UserType {
-  User = "0",
-  SecurityAdmin = "1",
-  DataAdmin = "2",
-  Admin = "3",
-  OperationsAdmin = "4"
+  User = '0',
+  SecurityAdmin = '1',
+  DataAdmin = '2',
+  Admin = '3',
+  OperationsAdmin = '4'
 }
 
-export { User, UserType }
+type UserTypeString = keyof typeof UserType
+
+export { User, UserType, UserTypeString }

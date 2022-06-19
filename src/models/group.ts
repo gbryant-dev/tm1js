@@ -1,40 +1,37 @@
-import { User } from "./user";
+import { User } from './user'
 
-
-class Group { 
-
+class Group {
   public name: string;
   public users?: User[];
 
-  constructor(name: string, users?: User[]) {
-    this.name = name;
+  constructor (name: string, users?: User[]) {
+    this.name = name
 
     if (users) {
-      this.users = [];
+      this.users = []
       for (const user of users) {
-        this.users.push(user);
+        this.users.push(user)
       }
     }
   }
 
-
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new Group(
       data.Name,
-      data.Users.map(user => User.fromJson(user))
-    );
+      data.Users?.map(user => User.fromJson(user)) ?? []
+    )
   }
 
-  get body() {
-    return this.constructBody();
+  get body () {
+    return this.constructBody()
   }
 
-  constructBody() {
+  constructBody () {
     const body = {
       Name: this.name
-    };
+    }
 
-    return body;
+    return body
   }
 }
 

@@ -1,5 +1,4 @@
 class HierarchyElement {
-    
     public name: string;
     public uniqueName?: string;
     public level?: number;
@@ -7,38 +6,37 @@ class HierarchyElement {
     public attributes?: {[key: string]: string | number};
     private _type: ElementTypeString;
 
-    constructor(
-        name: string,
-        type: ElementTypeString,
-        uniqueName?: string,
-        level?: number,
-        index?: number,
-        attributes?: {[key: string]: string | number}
+    constructor (
+      name: string,
+      type: ElementTypeString,
+      uniqueName?: string,
+      level?: number,
+      index?: number,
+      attributes?: {[key: string]: string | number}
     ) {
-        this.name = name;
-        this._type = type
-        this.uniqueName = uniqueName;
-        this.level = level;
-        this.index = index;
-        
-        if (attributes) {
-          this.attributes = {}
-          for (const [key, value] of Object.entries(attributes)) {
-            this.attributes[key] = value
-          }
+      this.name = name
+      this._type = type
+      this.uniqueName = uniqueName
+      this.level = level
+      this.index = index
+
+      if (attributes) {
+        this.attributes = {}
+        for (const [key, value] of Object.entries(attributes)) {
+          this.attributes[key] = value
         }
+      }
     }
 
-    get type() {
+    get type () {
       return ElementType[this._type.toString()]
     }
-    
-    set type(value: ElementTypeString) {
-      this._type = value;
+
+    set type (value: ElementTypeString) {
+      this._type = value
     }
 
-
-    static fromJson(data: any) {
+    static fromJson (data: any) {
       return new HierarchyElement(
         data.Name,
         data.Type,
@@ -49,20 +47,18 @@ class HierarchyElement {
       )
     }
 
-    constructBody() {
+    constructBody () {
       const body = {}
-      body['Name'] = this.name;
-      body['Type'] = this.type;
-      
-      return body;
+      body['Name'] = this.name
+      body['Type'] = this.type
+
+      return body
     }
 
-
-    get body() {
+    get body () {
       return this.constructBody()
     }
 }
-
 
 enum ElementType {
   Numeric = 1,

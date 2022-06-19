@@ -1,25 +1,24 @@
 
-const extractComponentsFromUniqueName = (uniqueName: string): { dimension: string, hierarchy: string, member: string } => {
-  const separator = '].[';
+const extractComponentsFromUniqueName = (uniqueName: string): { dimension: string, hierarchy: string, object: string } => {
+  const separator = '].['
 
-  let components = uniqueName.split(separator);
+  const segments = (uniqueName.match(/\]\.\[/g) ?? []).length
 
-  const dimension = components.shift().substring(1);
-  let hierarchy: string;
-  let member: string;
+  const dimension: string = uniqueName.substring(1, uniqueName.indexOf(separator))
+  const object: string = uniqueName.substring(uniqueName.lastIndexOf(separator) + 3, uniqueName.length - 1)
 
-  if (components.length === 1) {
-    hierarchy = dimension;
+  let hierarchy: string
+
+  if (segments === 1) {
+    hierarchy = dimension
   } else {
-    hierarchy = components.shift();
+    hierarchy = uniqueName.substring(uniqueName.indexOf(separator) + 3, uniqueName.lastIndexOf(separator))
   }
-
-  member = components[0].substring(0, components[0].length - 1);
 
   return {
     dimension,
     hierarchy,
-    member
+    object
   }
 }
 
@@ -32,12 +31,12 @@ const caseAndSpaceInsensitiveEquals = (str1: string, str2: string): boolean => {
 }
 
 const fixedEncodeURIComponent = (str: string): string => {
-  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
-    return '%' + c.charCodeAt(0).toString(16);
-  });
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16)
+  })
 }
 
-export { 
+export {
   extractComponentsFromUniqueName,
   removeSpacesAndLower,
   caseAndSpaceInsensitiveEquals,

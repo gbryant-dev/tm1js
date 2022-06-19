@@ -8,24 +8,19 @@ class Member {
   public hierarchyName: string;
   public level: number;
 
-
-  constructor() {
-
-  }
-
-  static fromJson(data: any) {
+  static fromJson () {
     return new Member()
   }
 
-  get body() {
+  get body () {
     return this.constructBody()
   }
 
-  constructBody() {
+  constructBody () {
     const body = {}
 
-    return body;
+    return body
   }
 }
 
-export { Member as default }
+export { Member }

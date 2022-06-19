@@ -1,5 +1,5 @@
-import Cube from "./cube";
-import { HierarchyElement } from "./element";
+import { Cube } from './cube'
+import { HierarchyElement } from './element'
 
 interface RuleSyntaxError {
   LineNumber: number;
@@ -19,12 +19,12 @@ interface ProcessSyntaxError {
 }
 
 enum ProcessExecuteStatusCode {
-  CompletedSuccessfully = "CompletedSuccessfully",
-  Aborted = "Aborted",
-  HasMinorErrors = "HasMinorErrors",
-  QuitCalled = "QuitCalled",
-  CompletedWithMessages = "CompletedWithMessages",
-  RollbackCalled = "RollbackCalled"
+  CompletedSuccessfully = 'CompletedSuccessfully',
+  Aborted = 'Aborted',
+  HasMinorErrors = 'HasMinorErrors',
+  QuitCalled = 'QuitCalled',
+  CompletedWithMessages = 'CompletedWithMessages',
+  RollbackCalled = 'RollbackCalled'
 }
 
 interface ErrorLogFile {

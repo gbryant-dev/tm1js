@@ -1,47 +1,46 @@
-import { VersionError } from '../errors/version-error';
+import { VersionError } from '../errors/version-error'
 
-function MinimumVersion(version: number) {
+function MinimumVersion (version: number) {
   return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+    const original = descriptor.value
 
-    const original = descriptor.value;
-
-    descriptor.value = function(...args: any[]) {
+    descriptor.value = function (...args: any[]) {
       if (version <= Number(this.http.version.slice(0, 4))) {
-        const result = original.apply(this, args);
-        return result;
+        const result = original.apply(this, args)
+        return result
       } else {
-        throw new VersionError(key, version);
+        throw new VersionError(key, version)
       }
     }
 
-    return descriptor;
+    return descriptor
   }
 }
 
-function RemoveCellset() {
-  return function(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+function RemoveCellset () {
+  return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+    const original = descriptor.value
 
-    const original = descriptor.value;
-
-    descriptor.value = async function(...args: any[]) {
+    descriptor.value = async function (...args: any[]) {
       try {
-        const result = await original.apply(this, args);
+        const result = await original.apply(this, args)
         return result
       } finally {
         const [cellsetID, options] = args
         const shouldDelete = options?.deleteCellset ?? true
         if (shouldDelete) {
-          try {   
+          try {
             await this.deleteCellset(cellsetID)
           } catch (e) {
             if (e.status !== 404) {
+              // eslint-disable-next-line no-unsafe-finally
               throw e
             }
           }
-        }        
+        }
       }
     }
-    return descriptor;
+    return descriptor
   }
 }
 

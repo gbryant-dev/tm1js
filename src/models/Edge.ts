@@ -3,31 +3,31 @@ class Edge {
   public componentName: string;
   public weight?: number
 
-  constructor(parentName: string, componentName: string, weight?: number) {
-    this.parentName = parentName;
-    this.componentName = componentName;
-    this.weight = weight;
+  constructor (parentName: string, componentName: string, weight?: number) {
+    this.parentName = parentName
+    this.componentName = componentName
+    this.weight = weight
   }
 
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new Edge(
-      data.ParentName, 
+      data.ParentName,
       data.ComponentName,
       data.Weight
-    );
+    )
   }
 
-  constructBody() {
+  constructBody () {
     return {
-        ParentName: this.parentName,
-        ComponentName: this.componentName,
-        Weight: this.weight
+      ParentName: this.parentName,
+      ComponentName: this.componentName,
+      Weight: this.weight
     }
   }
 
-  get body() {
-    return this.constructBody();
+  get body () {
+    return this.constructBody()
   }
 }
 
-export default Edge;
+export { Edge }

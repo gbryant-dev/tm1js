@@ -1,25 +1,17 @@
 
-
-class Session { 
-
-
-  constructor() {
-
+class Session {
+  static fromJson () {
+    return new Session()
   }
 
-
-  static fromJson(data: any) {
-    return new Session();
+  get body () {
+    return this.constructBody()
   }
 
-  get body() {
-    return this.constructBody();
-  }
+  constructBody () {
+    const body = {}
 
-  constructBody() {
-    const body = {};
-
-    return body;
+    return body
   }
 }
 

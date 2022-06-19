@@ -1,11 +1,10 @@
-import Cube from '../../src/models/Cube';
-import Dimension from "../../src/models/dimension";
-import Hierarchy from "../../src/models/hierarchy";
-import { HierarchyElement, MDXView, NativeView, ViewAxisSelection, ViewAxisTitle } from "../../src/models";
-import Subset from "../../src/models/subset";
+import { Cube } from '../../src/models/Cube'
+import { Dimension } from '../../src/models/dimension'
+import { Hierarchy } from '../../src/models/hierarchy'
+import { HierarchyElement, MDXView, NativeView, ViewAxisSelection, ViewAxisTitle } from '../../src/models'
+import { Subset } from '../../src/models/subset'
 
 describe('ViewService', () => {
-
   const prefix = 'TM1ts_test_view_'
   const cubeName = prefix + 'cube'
   const dimensionNames = [prefix + 'dimension1', prefix + 'dimension2', prefix + 'dimension3']
@@ -21,8 +20,7 @@ describe('ViewService', () => {
   } ON COLUMNS, 
   {[${dimensionNames[2]}].[${dimensionNames[2]}].Members} ON ROWS 
   FROM [${cubeName}]
-`;
-
+`
 
   const setupDimension = (dimName: string) => {
     const elements = Array.from({ length: 100 }).map((_, i) => new HierarchyElement(`Element ${i}`, 'Numeric'))
@@ -32,14 +30,13 @@ describe('ViewService', () => {
   }
 
   const setup = async () => {
-
     // Create dimensions
     for (const dimName of dimensionNames) {
       const dimension = setupDimension(dimName)
       await global.tm1.dimensions.create(dimension)
     }
 
-    // Create cube 
+    // Create cube
     const cube = new Cube(cubeName, dimensionNames)
     await global.tm1.cubes.create(cube)
 
@@ -59,10 +56,8 @@ describe('ViewService', () => {
     // Create mdx view
     const mdxView = new MDXView(mdxViewName, mdx)
     await global.tm1.cubes.views.create(cubeName, mdxView)
-
   }
   const cleanup = async () => {
-
     // Delete views
     const viewNames = [nativeViewName, mdxViewName]
 
@@ -87,7 +82,6 @@ describe('ViewService', () => {
   beforeAll(async () => await setup())
   afterAll(async () => await cleanup())
 
-
   it('Should fetch a native view', async () => {
     const view = await global.tm1.cubes.views.get(cubeName, nativeViewName) as NativeView
 
@@ -99,8 +93,6 @@ describe('ViewService', () => {
     expect(view.titles.length).toEqual(1)
     expect(view.titles[0].subset.elements).toEqual(['Element 10', 'Element 12', 'Element 14'])
     expect(view.titles[0].selected).toEqual('Element 10')
-
-
   })
   it('Should fetch a mdx view', async () => {
     const view = await global.tm1.cubes.views.get(cubeName, mdxViewName) as MDXView
@@ -119,9 +111,8 @@ describe('ViewService', () => {
   })
 
   it('Should create and delete a view', async () => {
-
     // Create view
-    const newViewName = prefix + 'new_mdx_view';
+    const newViewName = prefix + 'new_mdx_view'
 
     const newMDX = `SELECT {
       ([${dimensionNames[0]}].[${dimensionNames[0]}].[Element 10], 
@@ -133,7 +124,7 @@ describe('ViewService', () => {
 
     const newViewObj = new MDXView(newViewName, newMDX)
     await global.tm1.cubes.views.create(cubeName, newViewObj)
-    
+
     const newViewExists = await global.tm1.cubes.views.exists(cubeName, newViewName)
     expect(newViewExists).toEqual(true)
 
@@ -149,7 +140,6 @@ describe('ViewService', () => {
     // Verify view has been deleted
     const exists = await global.tm1.cubes.views.exists(cubeName, newViewName)
     expect(exists).toEqual(false)
-    
   })
 
   it('Should update a view', async () => {
@@ -169,7 +159,5 @@ describe('ViewService', () => {
     expect(updatedView.rows.length).toEqual(1)
     expect(updatedView.rows[0].subset).toEqual(subset)
     expect(updatedView.suppressEmptyColumns).toEqual(true)
-
   })
-
 })

@@ -1,6 +1,5 @@
 
 class Chore {
-
   public name: string;
   public startTime: ChoreStartTime;
   public dstSensitive: boolean;
@@ -9,7 +8,7 @@ class Chore {
   public frequency: ChoreFrequency;
   public tasks: ChoreTask[] = [];
 
-  constructor(
+  constructor (
     name: string,
     startTime: ChoreStartTime,
     dstSensitive: boolean,
@@ -18,34 +17,33 @@ class Chore {
     frequency: ChoreFrequency,
     tasks?: ChoreTask[]
   ) {
-    this.name = name;
-    this.startTime = startTime;
-    this.dstSensitive = dstSensitive;
-    this.active = active;
-    this._executionMode = executionMode;
-    this.frequency = frequency;
-    this.tasks = tasks || [];
+    this.name = name
+    this.startTime = startTime
+    this.dstSensitive = dstSensitive
+    this.active = active
+    this._executionMode = executionMode
+    this.frequency = frequency
+    this.tasks = tasks || []
   }
 
-  get executionMode() {
+  get executionMode () {
     return ChoreExecutionMode[this._executionMode.toString()]
   }
 
-  set executionMode(value: ChoreExecuteModeString) {
-    this._executionMode = value;
+  set executionMode (value: ChoreExecuteModeString) {
+    this._executionMode = value
   }
 
-
-  addTask(processName: string, parameters?: ChoreTaskParameter[]) {
-    const task = new ChoreTask(this.tasks.length, processName, parameters);
-    this.tasks.push(task);
+  addTask (processName: string, parameters?: ChoreTaskParameter[]) {
+    const task = new ChoreTask(this.tasks.length, processName, parameters)
+    this.tasks.push(task)
   }
 
-  get body() {
+  get body () {
     return this.constructBody()
   }
 
-  constructBody() {
+  constructBody () {
     const body = {
       Name: this.name,
       StartTime: this.startTime.toStartTimeString(),
@@ -64,7 +62,7 @@ class Chore {
     return body
   }
 
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new Chore(
       data.Name,
       ChoreStartTime.fromString(data.StartTime),
@@ -73,29 +71,26 @@ class Chore {
       data.ExecutionMode,
       ChoreFrequency.fromString(data.Frequency),
       data.Tasks.map(task => ChoreTask.fromJson(task))
-    );
+    )
   }
-
 }
 
 class ChoreTask {
-
   public step: number;
   public processName?: string;
   public parameters: ChoreTaskParameter[];
 
-  constructor(step: number, processName?: string, parameters?: ChoreTaskParameter[]) {
-    this.step = step;
-    this.processName = processName;
-    this.parameters = parameters || [];
+  constructor (step: number, processName?: string, parameters?: ChoreTaskParameter[]) {
+    this.step = step
+    this.processName = processName
+    this.parameters = parameters || []
   }
 
-  get body() {
+  get body () {
     return this.constructBody()
   }
 
-  constructBody() {
-
+  constructBody () {
     const body = {
       // Step: this.step,
       'Process@odata.bind': `Processes('${this.processName}')`,
@@ -105,33 +100,31 @@ class ChoreTask {
     return body
   }
 
-  static fromJson(data: any) {
+  static fromJson (data: any) {
     return new ChoreTask(
       data.Step,
       data.Process.Name,
       data.Parameters
     )
   }
-
 }
 
 class ChoreStartTime {
-
   private _datetime: Date;
 
-  constructor(year: number, month: number, day: number, hour: number, minute: number, second: number) {
-    this._datetime = new Date(year, month, day, hour, minute, second);
+  constructor (year: number, month: number, day: number, hour: number, minute: number, second: number) {
+    this._datetime = new Date(year, month, day, hour, minute, second)
   }
 
-  get datetime() {
-    return this._datetime;
+  get datetime () {
+    return this._datetime
   }
 
-  toStartTimeString() {
+  toStartTimeString () {
     return this._datetime.toISOString()
   }
 
-  static fromDate(date: Date) {
+  static fromDate (date: Date) {
     return new ChoreStartTime(
       date.getFullYear(),
       date.getMonth(),
@@ -139,10 +132,10 @@ class ChoreStartTime {
       date.getHours(),
       date.getMinutes(),
       date.getSeconds()
-    );
+    )
   }
 
-  static fromString(startTime: string) {
+  static fromString (startTime: string) {
     const datetime = new Date(startTime)
 
     return new ChoreStartTime(
@@ -152,49 +145,63 @@ class ChoreStartTime {
       datetime.getHours(),
       datetime.getMinutes(),
       datetime.getSeconds()
-    );
+    )
   }
 }
 
 class ChoreFrequency {
-
   private _days: string;
   private _hours: string;
   private _minutes: string;
   private _seconds: string;
 
-  constructor(days: string | number = 0, hours: string | number = 0, minutes: string | number = 0, seconds: string | number = 0) {
-    this._days = days.toString().padStart(2, '0');
-    this._hours = hours.toString().padStart(2, '0');
-    this._minutes = minutes.toString().padStart(2, '0');
-    this._seconds = seconds.toString().padStart(2, '0');
+  constructor (days: string | number = 0, hours: string | number = 0, minutes: string | number = 0, seconds: string | number = 0) {
+    this._days = days.toString().padStart(2, '0')
+    this._hours = hours.toString().padStart(2, '0')
+    this._minutes = minutes.toString().padStart(2, '0')
+    this._seconds = seconds.toString().padStart(2, '0')
   }
 
-  set days(value: string | number) {
-    this._days = value.toString().padStart(2, '0');
+  get days () {
+    return this._days
   }
 
-  set hours(value: string | number) {
-    this._hours = value.toString().padStart(2, '0');
+  set days (value: string | number) {
+    this._days = value.toString().padStart(2, '0')
   }
 
-  set minutes(value: string | number) {
-    this._minutes = value.toString().padStart(2, '0');
+  get hours () {
+    return this._hours
   }
 
-  set seconds(value: string | number) {
-    this._seconds = value.toString().padStart(2, '0');
+  set hours (value: string | number) {
+    this._hours = value.toString().padStart(2, '0')
   }
 
-  toFrequencyString() {
-    return `P${this._days}DT${this._hours}H${this._minutes}M${this._seconds}S`;
+  get minutes () {
+    return this._minutes
   }
 
-  static fromString(frequency: string): ChoreFrequency {
-    const [days, hours, minutes, seconds] = frequency.match(/\d+/g);
-    return new ChoreFrequency(days, hours, minutes, seconds);
+  set minutes (value: string | number) {
+    this._minutes = value.toString().padStart(2, '0')
   }
 
+  get seconds () {
+    return this._seconds
+  }
+
+  set seconds (value: string | number) {
+    this._seconds = value.toString().padStart(2, '0')
+  }
+
+  toFrequencyString () {
+    return `P${this._days}DT${this._hours}H${this._minutes}M${this._seconds}S`
+  }
+
+  static fromString (frequency: string): ChoreFrequency {
+    const [days, hours, minutes, seconds] = frequency.match(/\d+/g)
+    return new ChoreFrequency(days, hours, minutes, seconds)
+  }
 }
 
 enum ChoreExecutionMode {
@@ -209,4 +216,4 @@ interface ChoreTaskParameter {
   Value?: string | number;
 }
 
-export { Chore as default, ChoreTask, ChoreStartTime, ChoreFrequency, ChoreExecutionMode, ChoreExecuteModeString };
+export { Chore, ChoreTask, ChoreStartTime, ChoreFrequency, ChoreExecutionMode, ChoreExecuteModeString }
