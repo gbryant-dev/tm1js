@@ -66,7 +66,7 @@ class SecurityService {
     // Remove groups that are no longer in the user object
     const groups = await this.getUserGroups(user.name)
     for (const group of groups) {
-      if (!user.groups.includes(group.name)) {
+      if (!user.groups.has(group.name)) {
         await this.removeUserFromGroup(user.name, group.name)
       }
     }

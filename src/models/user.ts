@@ -1,7 +1,9 @@
+import CaseAndSpaceInsensitiveSet from '../utils/case-and-space-insensitive-set'
+
 class User {
   public name: string;
   public password?: string;
-  public groups?: string[];
+  public groups?: CaseAndSpaceInsensitiveSet<string>;
   public friendlyName?: string;
   private _type?: UserTypeString;
   public isActive?: boolean;
@@ -19,10 +21,10 @@ class User {
     this.name = name
     this.password = password
 
-    this.groups = []
+    this.groups = new CaseAndSpaceInsensitiveSet()
     if (groups) {
       for (const g of groups) {
-        this.groups.push(g)
+        this.groups.add(g)
       }
     }
 
@@ -32,13 +34,13 @@ class User {
     if (type) {
       this._type = type
     } else {
-      if (this.groups.includes('ADMIN')) {
+      if (this.groups.has('ADMIN')) {
         this._type = 'Admin'
-      } else if (this.groups.includes('SecurityAdmin')) {
+      } else if (this.groups.has('SecurityAdmin')) {
         this._type = 'SecurityAdmin'
-      } else if (this.groups.includes('DataAdmin')) {
+      } else if (this.groups.has('DataAdmin')) {
         this._type = 'DataAdmin'
-      } else if (this.groups.includes('OperationsAdmin')) {
+      } else if (this.groups.has('OperationsAdmin')) {
         this._type = 'OperationsAdmin'
       } else {
         this._type = 'User'
@@ -58,15 +60,14 @@ class User {
   }
 
   addGroup (groupName: string) {
-    if (!this.groups.includes(groupName)) {
-      this.groups.push(groupName)
+    if (!this.groups.has(groupName)) {
+      this.groups.add(groupName)
     }
   }
 
   removeGroup (groupName: string) {
-    const index = this.groups.findIndex(group => group === groupName)
-    if (index !== -1) {
-      this.groups.splice(index, 1)
+    if (this.groups.has(groupName)) {
+      this.groups.delete(groupName)
     }
   }
 
@@ -98,11 +99,11 @@ class User {
       body['Password'] = this.password
     }
 
-    if (this.groups?.length > 0) {
+    if (this.groups?.size > 0) {
       body['Groups@odata.bind'] = []
-      for (const group of this.groups) {
+      this.groups.forEach(group => {
         body['Groups@odata.bind'].push(`Groups('${group}')`)
-      }
+      })
     }
 
     return body

@@ -39,24 +39,20 @@ describe('SecurityService', () => {
     const user = await global.tm1.security.getUser(userName1)
     expect(user).toBeInstanceOf(User)
     expect(user.name).toEqual(userName1)
-    expect(user.groups.length).toEqual(1)
-    expect(user.groups[0]).toEqual(groupName1)
+    expect(user.groups.size).toEqual(1)
+    expect(user.groups.keys().next().value).toEqual(groupName1.toLowerCase())
     expect(user.type).toEqual(UserType.User)
   })
 
   it('Should fetch all users', async () => {
     const users = await global.tm1.security.getAllUsers()
-    // Created users + Admin
-    expect(users).toHaveLength(4)
-    const userNames = users.map(user => user.name)
-    expect(userNames).toEqual(['Admin', userName1, userName2, userName3])
+    users.forEach(user => expect(user).toBeInstanceOf(User))
   })
 
   it('Should fetch the current user', async () => {
     const currentUser = await global.tm1.security.getCurrentUser()
-    expect(currentUser.name).toEqual('Admin')
     expect(currentUser.type).toEqual(UserType.Admin)
-    expect(currentUser.groups).toEqual(['ADMIN'])
+    expect(currentUser.groups.has('ADMIN')).toBeTruthy()
   })
 
   it('Should create and delete a user', async () => {
@@ -68,8 +64,8 @@ describe('SecurityService', () => {
     expect(createdUser).toBeInstanceOf(User)
     expect(createdUser.name).toEqual(newUserName)
     expect(createdUser.type).toEqual(UserType.User)
-    expect(createdUser.groups).toHaveLength(1)
-    expect(createdUser.groups).toEqual([groupName1])
+    expect(createdUser.groups.size).toEqual(1)
+    expect(createdUser.groups.has(groupName1)).toBeTruthy()
 
     await global.tm1.security.deleteUser(newUserName)
     const exists = await global.tm1.security.userExists(newUserName)
@@ -78,7 +74,7 @@ describe('SecurityService', () => {
 
   it('Should update a user', async () => {
     const user1 = await global.tm1.security.getUser(userName1)
-    expect(user1.groups).toHaveLength(1)
+    expect(user1.groups.size).toEqual(1)
     expect(user1.type).toEqual(UserType.User)
 
     // Add group via User instance
@@ -87,8 +83,8 @@ describe('SecurityService', () => {
 
     // Validate update
     const userAfterGroupAdd = await global.tm1.security.getUser(userName1)
-    expect(userAfterGroupAdd.groups).toHaveLength(2)
-    expect(userAfterGroupAdd.groups).toContain('DataAdmin')
+    expect(userAfterGroupAdd.groups.size).toEqual(2)
+    expect(userAfterGroupAdd.groups.has('DataAdmin')).toBeTruthy()
     expect(userAfterGroupAdd.type).toEqual(UserType.DataAdmin)
 
     // Remove group via User instance
@@ -97,7 +93,7 @@ describe('SecurityService', () => {
     await global.tm1.security.updateUser(userAfterGroupAdd)
 
     const userAfterGroupRemove = await global.tm1.security.getUser(userName1)
-    expect(userAfterGroupRemove.groups).toHaveLength(1)
+    expect(userAfterGroupRemove.groups.size).toEqual(1)
     expect(userAfterGroupRemove.groups).not.toContain('DataAdmin')
     expect(userAfterGroupRemove.type).toEqual(UserType.User)
   })
@@ -133,19 +129,20 @@ describe('SecurityService', () => {
 
   it('Should add a user to groups', async () => {
     const user = await global.tm1.security.getUser(userName1)
-    expect(user.groups).toHaveLength(1)
-    expect(user.groups[0]).toEqual(groupName1)
+    expect(user.groups.size).toEqual(1)
+    expect(user.groups.has(groupName1)).toBeTruthy()
 
     await global.tm1.security.addUserToGroups(user, [groupName2, groupName3])
     const updatedUser = await global.tm1.security.getUser(userName1)
-    expect(updatedUser.groups).toHaveLength(3)
-    expect(updatedUser.groups).toEqual([groupName1, groupName2, groupName3])
+    expect(updatedUser.groups.size).toEqual(3)
+    const expectedGroups = [groupName1, groupName2, groupName3]
+    expect(expectedGroups.every(group => updatedUser.groups.has(group))).toBeTruthy()
   })
 
   it('Should remove a user from a group', async () => {
     const group = await global.tm1.security.getGroup(groupName2)
     const user = await global.tm1.security.getUser(userName2)
-    expect(user.groups.includes(groupName2)).toBeTruthy()
+    expect(user.groups.has(groupName2)).toBeTruthy()
     expect(group.users.map(user => user.name).includes(userName2)).toBeTruthy()
 
     await global.tm1.security.removeUserFromGroup(userName2, groupName2)
@@ -153,7 +150,7 @@ describe('SecurityService', () => {
     const updatedUser = await global.tm1.security.getUser(userName2)
 
     expect(updatedGroup.users.map(user => user.name).includes(userName2)).toBeFalsy()
-    expect(updatedUser.groups.includes(userName2)).toBeFalsy()
+    expect(updatedUser.groups.has(userName2)).toBeFalsy()
   })
 
   it('Should fetch groups belonging to a user', async () => {
