@@ -54,8 +54,4 @@ describe('CaseAndSpaceInsensitiveSet', () => {
         expect(set.size).toEqual(0)
     })
 
-    it.todo('Should check if a value exists in the set')
-
-
-
 })
