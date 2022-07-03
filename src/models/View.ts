@@ -50,7 +50,7 @@ class NativeView extends View {
   public rows: ViewAxisSelection[] = [];
   public titles: ViewAxisTitle[] = [];
   public suppressEmptyColumns?: boolean = false;
-  public suppressEmptyRows: boolean = false;
+  public suppressEmptyRows: boolean;
 
   constructor (
     name: string,

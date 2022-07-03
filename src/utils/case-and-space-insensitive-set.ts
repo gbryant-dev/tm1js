@@ -1,9 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface CaseAndSpaceInsensitiveSet<T> extends Set<T> {}
 
 // eslint-disable-next-line no-redeclare
 class CaseAndSpaceInsensitiveSet<T> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor (values?: T[] | Iterable<T>) {
+    // eslint-disable-next-line prefer-rest-params
     return Reflect.construct(Set, arguments, CaseAndSpaceInsensitiveSet)
   }
 

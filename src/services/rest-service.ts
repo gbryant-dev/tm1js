@@ -133,7 +133,7 @@ class RestService {
   }
 
   async logout () {
-    return await this.POST('/api/v1/ActiveSession/tm1.Close', null, { headers: { Connection: 'close' } })
+    return this.POST('/api/v1/ActiveSession/tm1.Close', null, { headers: { Connection: 'close' } })
   }
 
   async GET (url: string, config: AxiosRequestConfig = {}) {

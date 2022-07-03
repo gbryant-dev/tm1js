@@ -6,7 +6,8 @@
     },
     "extends": [
         "standard",
-        "eslint:recommended"
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -20,6 +21,8 @@
         "no-use-before-define": "off",
         "dot-notation": "off",
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": ["error"]
+        "@typescript-eslint/no-unused-vars": ["error"],
+        "no-return-await": ["error"],
+        "block-scoped-var": ["error"]
     }
 }

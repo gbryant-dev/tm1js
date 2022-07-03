@@ -205,7 +205,7 @@ class ChoreService {
 
   async deactivate (choreName: string): Promise<any> {
     const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Deactivate`
-    return await this.http.POST(url, null)
+    return this.http.POST(url, null)
   }
 
   /**

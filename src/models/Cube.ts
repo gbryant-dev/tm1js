@@ -4,8 +4,8 @@ class Cube {
   public drillThroughRules?: string = null;
   public rules?: string = null;
   public dimensions: string[] = [];
-  public lastDataUpdate: String;
-  public lastSchemaUpdate: String;
+  public lastDataUpdate: string;
+  public lastSchemaUpdate: string;
   // public Views: View[] = [];
 
   constructor (name: string, dimensions: string[], rules?: string) {

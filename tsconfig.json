@@ -3,13 +3,14 @@
       "target": "es5",
       "module": "commonjs",
       "declaration": true,
+      "sourceMap": true,
       "outDir": "dist",
       "strict": false,
       "experimentalDecorators": true,
       "lib": ["DOM", "ESNext"]
     },
     "include": [
-      "src/**/*.ts"
+      "src"
     ],
     "exclude": [
       "dist"

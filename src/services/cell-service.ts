@@ -55,7 +55,7 @@ class CellService {
   async executeView (
     cubeName: string,
     viewName: string,
-    isPrivate: boolean = false,
+    isPrivate = false,
     options?: CellsetQueryOptions
   ) {
     const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate)
@@ -72,7 +72,7 @@ class CellService {
    * @returns
    */
 
-  async executeViewValues (cubeName: string, viewName: string, isPrivate: boolean = false) {
+  async executeViewValues (cubeName: string, viewName: string, isPrivate = false) {
     const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate)
     return this.extractCellsetValues(cellsetID)
   }
@@ -222,7 +222,7 @@ class CellService {
    * @param {boolean} [isPrivate=false] Private (true) or Public (false) view. Defaults to a public view
    * @returns {string} The ID of the cellset
    */
-  async createCellsetFromView (cubeName: string, viewName: string, isPrivate: boolean = false): Promise<string> {
+  async createCellsetFromView (cubeName: string, viewName: string, isPrivate = false): Promise<string> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')/tm1.Execute`
     const response = await this.http.POST(url, null)

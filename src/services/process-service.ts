@@ -140,7 +140,7 @@ class ProcessService {
    * @returns
    */
 
-  async executeTICode (prolog: string, epilog: string = '') {
+  async executeTICode (prolog: string, epilog = '') {
     const name = '}TM1ts_' + uuid()
     const process = new Process(name, false, { prolog, epilog })
     try {

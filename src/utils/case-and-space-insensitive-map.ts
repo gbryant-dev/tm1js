@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 interface CaseAndSpaceInsensitiveMap<T, U> extends Map<T, U> {}
 // eslint-disable-next-line no-redeclare
 class CaseAndSpaceInsensitiveMap<T, U> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor (entries?: Array<[T, U]> | Iterable<[T, U]>) {
+    // eslint-disable-next-line prefer-rest-params
     return Reflect.construct(Map, arguments, CaseAndSpaceInsensitiveMap)
   }
 

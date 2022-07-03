@@ -76,7 +76,7 @@ class ElementService {
    */
 
   async update (dimensionName: string, hierarchyName: string, element: HierarchyElement): Promise<any> {
-    return await this.http.PATCH(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(element.name)}')`, element.body)
+    return this.http.PATCH(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(element.name)}')`, element.body)
   }
 
   /**
@@ -89,7 +89,7 @@ class ElementService {
    */
 
   async delete (dimensionName: string, hierarchyName: string, elementName: string): Promise<any> {
-    return await this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(elementName)}')`)
+    return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(elementName)}')`)
   }
 
   /**
@@ -142,7 +142,7 @@ class ElementService {
 
   async createElementAttribute (dimensionName: string, hierarchyName: string, elementAttribute: ElementAttribute) {
     const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/ElementAttributes`
-    return await this.http.POST(url, elementAttribute.body)
+    return this.http.POST(url, elementAttribute.body)
   }
 
   /**

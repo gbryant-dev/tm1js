@@ -4,11 +4,11 @@ const AUTO_GENERATED_STATEMENTS = `${BEGIN_GENERATED_STATEMENTS}\r\n${END_GENERA
 
 class Process {
   public name: string;
-  public hasSecurityAccess: boolean = false;
-  public prologProcedure: string = '';
-  public metadataProcedure: string = '';
-  public dataProcedure: string = '';
-  public epilogProcedure: string = '';
+  public hasSecurityAccess = false;
+  public prologProcedure = '';
+  public metadataProcedure = '';
+  public dataProcedure = '';
+  public epilogProcedure = '';
   public dataSource: ProcessDataSource = {
     type: 'None',
     dataSourceNameForClient: null,
@@ -29,7 +29,7 @@ class Process {
 
   public variables: ProcessVariable[] = [];
   public parameters: ProcessParameter[] = [];
-  public UIData: string = 'CubeAction=1511\fDataAction=1503\fCubeLogChanges=0\f';
+  public UIData = 'CubeAction=1511\fDataAction=1503\fCubeLogChanges=0\f';
   public variablesUIData: string[] = [];
 
   constructor (
@@ -55,7 +55,7 @@ class Process {
     this.variablesUIData = variablesUIData ?? []
   }
 
-  static addGeneratedStatement (code: string = ''): string {
+  static addGeneratedStatement (code = ''): string {
     const pattern = /#\*\*\*\*Begin: Generated Statements[\s\S]*#\*\*\*\*End: Generated Statements\*\*\*\*/g
     if (pattern.test(code)) {
       return code

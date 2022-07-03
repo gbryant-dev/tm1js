@@ -18,13 +18,13 @@ class ViewService {
    * @returns {NativeView | MDXView} An instance of either the `NativeView` | `MDXView` model
    */
 
-  async get (cubeName: string, viewName: string, isPrivate: boolean = false): Promise<MDXView | NativeView> {
+  async get (cubeName: string, viewName: string, isPrivate = false): Promise<MDXView | NativeView> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     const response = await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')?$expand=*`)
     if (response['@odata.type'] === `#${ViewType.MDX}`) {
       return MDXView.fromJson(response)
     } else {
-      return await this.getNativeView(cubeName, viewName, isPrivate)
+      return this.getNativeView(cubeName, viewName, isPrivate)
     }
   }
 
@@ -37,7 +37,7 @@ class ViewService {
    * @returns {NativeView} An instance of the `NativeView` model
    */
 
-  async getNativeView (cubeName: string, viewName: string, isPrivate: boolean = false): Promise<NativeView> {
+  async getNativeView (cubeName: string, viewName: string, isPrivate = false): Promise<NativeView> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name,UniqueName)`
     const response = await this.http.GET(url)
@@ -52,7 +52,7 @@ class ViewService {
    * @returns {(NativeView | MDXView)[]} Instances of the `NativeView` and `MDXView` model
    */
 
-  async getAll (cubeName: string, isPrivate: boolean = false): Promise<(NativeView | MDXView)[]> {
+  async getAll (cubeName: string, isPrivate = false): Promise<(NativeView | MDXView)[]> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}?$expand=tm1.NativeView/Rows/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Columns/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Subset($expand=Hierarchy($select=Name;$expand=Dimension($select=Name)),Elements($select=Name);$select=Expression,UniqueName,Name,Alias),tm1.NativeView/Titles/Selected($select=Name,UniqueName)`
     const response = await this.http.GET(url)
@@ -72,7 +72,7 @@ class ViewService {
    * @returns
    */
 
-  async create (cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
+  async create (cubeName: string, view: NativeView | MDXView, isPrivate = false) {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     return this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}`, view.body)
   }
@@ -86,7 +86,7 @@ class ViewService {
    * @returns
    */
 
-  async update (cubeName: string, view: NativeView | MDXView, isPrivate: boolean = false) {
+  async update (cubeName: string, view: NativeView | MDXView, isPrivate = false) {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     return this.http.PATCH(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(view.name)}')`, view.body)
   }
@@ -100,7 +100,7 @@ class ViewService {
    * @returns
    */
 
-  async delete (cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
+  async delete (cubeName: string, viewName: string, isPrivate = false): Promise<any> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     return this.http.DELETE(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')`)
   }
@@ -114,7 +114,7 @@ class ViewService {
    * @returns {boolean} If the view exists
    */
 
-  async exists (cubeName: string, viewName: string, isPrivate: boolean = false): Promise<any> {
+  async exists (cubeName: string, viewName: string, isPrivate = false): Promise<any> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
     try {
       await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')`)

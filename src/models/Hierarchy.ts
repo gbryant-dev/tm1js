@@ -97,7 +97,7 @@ class Hierarchy {
     }
   }
 
-  addEdge (parent: string, component: string, weight: number = 1) {
+  addEdge (parent: string, component: string, weight = 1) {
     this._edges.set([parent, component], weight)
   }
 

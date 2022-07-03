@@ -34,7 +34,7 @@ class TM1Service {
   }
 
   async logout () {
-    return await this._rest.logout()
+    return this._rest.logout()
   }
 
   get version () {
