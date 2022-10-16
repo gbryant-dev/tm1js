@@ -1,12 +1,18 @@
 import { randomBytes } from 'crypto'
-import { Chore, ChoreExecutionMode, ChoreFrequency, ChoreStartTime, ChoreTask } from '../../src/models/chore'
+import {
+  Chore,
+  ChoreExecutionMode,
+  ChoreFrequency,
+  ChoreStartTime,
+  ChoreTask
+} from '../../src/models/chore'
 import { Process } from '../../src/models/process'
 
 describe('ChoreService', () => {
   const prefix = 'TM1ts_test_'
   const choreName = prefix + 'chore'
   const processName = prefix + 'chore_process'
-  const allProcessNames = []
+  const allProcessNames: string[] = []
 
   const createInitialProcess = async () => {
     const process = new Process(processName)
@@ -18,7 +24,9 @@ describe('ChoreService', () => {
 
   const createProcesses = async (count: number = 1) => {
     // const processNames = [prefix + 'chore_process_1', prefix + 'chore_process_2'];
-    const processNames = Array.from({ length: count }).map((_, i) => (`${prefix}chore_process_${randomBytes(4).toString('hex')}`))
+    const processNames = Array.from({ length: count }).map(
+      (_, i) => `${prefix}chore_process_${randomBytes(4).toString('hex')}`
+    )
     for (const processName of processNames) {
       const processObj = new Process(processName)
       await global.tm1.processes.create(processObj)
@@ -38,9 +46,7 @@ describe('ChoreService', () => {
       true,
       'SingleCommit',
       new ChoreFrequency(1, 2, 30, 15),
-      [
-        new ChoreTask(0, processName, [{ Name: 'pSleep', Value: 3 }])
-      ]
+      [new ChoreTask(0, processName, [{ Name: 'pSleep', Value: 3 }])]
     )
 
     await global.tm1.chores.create(chore)
@@ -84,13 +90,13 @@ describe('ChoreService', () => {
     const chores = await global.tm1.chores.getAll()
     expect(chores.length).toBeGreaterThanOrEqual(1)
     expect(chores[0]).toBeInstanceOf(Chore)
-    expect(chores.find(chore => chore.name === choreName)).not.toBeUndefined()
+    expect(chores.find((chore) => chore.name === choreName)).not.toBeUndefined()
   })
 
   it('Should fetch all chore names', async () => {
     const choreNames = await global.tm1.chores.getAllNames()
     expect(choreNames.length).toBeGreaterThanOrEqual(1)
-    expect(choreNames.find(name => name === choreName)).not.toBeUndefined()
+    expect(choreNames.find((name) => name === choreName)).not.toBeUndefined()
   })
 
   it('Should create and delete a chore', async () => {
@@ -100,9 +106,19 @@ describe('ChoreService', () => {
     const processNames = await createProcesses(2)
 
     // Create tasks and Chore
-    const tasks: ChoreTask[] = processNames.map((name, i) => new ChoreTask(i, name))
+    const tasks: ChoreTask[] = processNames.map(
+      (name, i) => new ChoreTask(i, name)
+    )
 
-    const newChoreObj = new Chore(newChoreName, ChoreStartTime.fromDate(new Date()), false, false, 'MultipleCommit', new ChoreFrequency(1), tasks)
+    const newChoreObj = new Chore(
+      newChoreName,
+      ChoreStartTime.fromDate(new Date()),
+      false,
+      false,
+      'MultipleCommit',
+      new ChoreFrequency(1),
+      tasks
+    )
     await global.tm1.chores.create(newChoreObj)
     const newChore = await global.tm1.chores.get(newChoreName)
 

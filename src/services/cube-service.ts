@@ -1,19 +1,20 @@
 import { RestService } from './rest-service'
-import { Cube } from '../models/cube'
+import { Cube, CubeResponse, CubesResponse } from '../models/cube'
 import { ViewService } from './view-service'
 import { MinimumVersion } from '../utils/decorators'
 import { FedCellDescriptor, RuleSyntaxError } from '../models/misc'
 import { CellService } from './cell-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
+import { DimensionsResponse } from '../models'
 
 /**
  * Service to handle cube operations in TM1
  */
 class CubeService {
-  private http: RestService;
-  public views: ViewService;
-  public cells: CellService;
-  constructor (http: RestService) {
+  private http: RestService
+  public views: ViewService
+  public cells: CellService
+  constructor(http: RestService) {
     this.http = http
     this.views = new ViewService(http)
     this.cells = new CellService(http)
@@ -26,9 +27,13 @@ class CubeService {
    * @returns An instance of the `Cube` model
    */
 
-  async get (cubeName: string): Promise<Cube> {
-    const response = await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')?$expand=Dimensions($select=Name)`)
-    return Cube.fromJson(response)
+  async get(cubeName: string): Promise<Cube> {
+    const response = await this.http.GET<CubeResponse>(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(
+        cubeName
+      )}')?$expand=Dimensions($select=Name)`
+    )
+    return Cube.fromJson(response.data)
   }
 
   /**
@@ -37,9 +42,11 @@ class CubeService {
    * @returns An array of the `Cube` model
    */
 
-  async getAll (): Promise<Cube[]> {
-    const response = await this.http.GET('/api/v1/Cubes?$expand=Dimensions($select=Name)')
-    return response['value'].map((cube: any) => Cube.fromJson(cube))
+  async getAll(): Promise<Cube[]> {
+    const response = await this.http.GET<CubesResponse>(
+      '/api/v1/Cubes?$expand=Dimensions($select=Name)'
+    )
+    return response.data.value.map((cube: CubeResponse) => Cube.fromJson(cube))
   }
 
   /**
@@ -48,9 +55,11 @@ class CubeService {
    * @returns An array of cube names
    */
 
-  async getAllNames (): Promise<string[]> {
-    const response = await this.http.GET('/api/v1/Cubes?$select=Name')
-    return response['value'].map((cube: { Name: string }) => cube.Name)
+  async getAllNames(): Promise<string[]> {
+    const response = await this.http.GET<CubesResponse>(
+      '/api/v1/Cubes?$select=Name'
+    )
+    return response.data.value.map((cube: { Name: string }) => cube.Name)
   }
 
   /**
@@ -59,9 +68,11 @@ class CubeService {
    * @returns An array of the `Cube` model
    */
 
-  async getModelCubes (): Promise<Cube[]> {
-    const response = await this.http.GET('/api/v1/ModelCubes()?$expand=Dimensions($select=Name)')
-    return response['value'].map((cube: any) => Cube.fromJson(cube))
+  async getModelCubes(): Promise<Cube[]> {
+    const response = await this.http.GET<CubesResponse>(
+      '/api/v1/ModelCubes()?$expand=Dimensions($select=Name)'
+    )
+    return response.data.value.map((cube: CubeResponse) => Cube.fromJson(cube))
   }
 
   /**
@@ -70,9 +81,11 @@ class CubeService {
    * @returns An array of the `Cube` model
    */
 
-  async getControlCubes (): Promise<Cube[]> {
-    const response = await this.http.GET('/api/v1/ControlCubes()?$expand=Dimensions($select=Name)')
-    return response['value'].map((cube: any) => Cube.fromJson(cube))
+  async getControlCubes(): Promise<Cube[]> {
+    const response = await this.http.GET<CubesResponse>(
+      '/api/v1/ControlCubes()?$expand=Dimensions($select=Name)'
+    )
+    return response.data.value.map((cube: CubeResponse) => Cube.fromJson(cube))
   }
 
   /**
@@ -82,8 +95,8 @@ class CubeService {
    * @returns
    */
 
-  async create (cube: Cube) {
-    return this.http.POST('/api/v1/Cubes', cube.body)
+  async create(cube: Cube) {
+    return this.http.POST<CubeResponse>('/api/v1/Cubes', cube.body)
   }
 
   /**
@@ -93,8 +106,11 @@ class CubeService {
    * @returns
    */
 
-  async update (cube: Cube) {
-    return this.http.PATCH(`/api/v1/Cubes('${fixedEncodeURIComponent(cube.name)}')`, cube.body)
+  async update(cube: Cube) {
+    return this.http.PATCH(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(cube.name)}')`,
+      cube.body
+    )
   }
 
   /**
@@ -104,8 +120,10 @@ class CubeService {
    * @returns
    */
 
-  async delete (cubeName: string) {
-    return this.http.DELETE(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')`)
+  async delete(cubeName: string) {
+    return this.http.DELETE(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')`
+    )
   }
 
   /**
@@ -115,9 +133,13 @@ class CubeService {
    * @returns
    */
 
-  async getDimensionNames (cubeName: string) {
-    const response = await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/Dimensions?$select=Name`)
-    return response['value'].map((dim: { Name: string }) => dim.Name)
+  async getDimensionNames(cubeName: string) {
+    const response = await this.http.GET<DimensionsResponse>(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(
+        cubeName
+      )}')/Dimensions?$select=Name`
+    )
+    return response.data.value.map((dim: { Name: string }) => dim.Name)
   }
 
   /**
@@ -128,9 +150,12 @@ class CubeService {
    */
 
   @MinimumVersion(11.1)
-  async checkRules (cubeName: string): Promise<RuleSyntaxError[]> {
-    const response = this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckRules`, null)
-    return response['value']
+  async checkRules(cubeName: string): Promise<RuleSyntaxError[]> {
+    const response = await this.http.POST(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckRules`,
+      null
+    )
+    return response.data.value
   }
 
   /**
@@ -143,18 +168,29 @@ class CubeService {
    */
 
   @MinimumVersion(11.1)
-  async checkFeeders (cubeName: string, elements: string[], dimensions?: string[]): Promise<FedCellDescriptor[]> {
-    const _dimensions = dimensions ?? await this.getDimensionNames(cubeName)
+  async checkFeeders(
+    cubeName: string,
+    elements: string[],
+    dimensions?: string[]
+  ): Promise<FedCellDescriptor[]> {
+    const _dimensions = dimensions ?? (await this.getDimensionNames(cubeName))
 
     // Construct body consisting of elements that define the cell
     const body = { 'Tuple@odata.bind': [] }
 
     elements.forEach((element, i) => {
-      const path = `Dimensions('${fixedEncodeURIComponent(_dimensions[i])}')/Hierarchies('${fixedEncodeURIComponent(_dimensions[i])}')/Elements('${fixedEncodeURIComponent(element)}')`
+      const path = `Dimensions('${fixedEncodeURIComponent(
+        _dimensions[i]
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        _dimensions[i]
+      )}')/Elements('${fixedEncodeURIComponent(element)}')`
       body['Tuple@odata.bind'].push(path)
     })
-    const response = this.http.POST(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckFeeders`, body)
-    return response['value']
+    const response = await this.http.POST(
+      `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.CheckFeeders`,
+      body
+    )
+    return response.data.value
   }
 
   /**
@@ -164,9 +200,11 @@ class CubeService {
    * @returns {boolean} If the cube exists
    */
 
-  async exists (cubeName: string): Promise<boolean> {
+  async exists(cubeName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')?$select=Name`)
+      await this.http.GET(
+        `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')?$select=Name`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {

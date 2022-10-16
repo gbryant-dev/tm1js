@@ -1,4 +1,4 @@
-import { Subset } from '../models/subset'
+import { Subset, SubsetResponse, SubsetsResponse } from '../models/subset'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 import { RestService } from './rest-service'
 
@@ -6,8 +6,8 @@ import { RestService } from './rest-service'
  * Service to handle operations on subsets in TM1
  */
 class SubsetService {
-  private http: RestService;
-  constructor (http: RestService) {
+  private http: RestService
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -21,10 +21,23 @@ class SubsetService {
    * @returns {Subset} An instance of the `Subset` model
    */
 
-  async get (dimensionName: string, hierarchyName: string = null, subsetName: string, isPrivate = false): Promise<Subset> {
+  async get(
+    dimensionName: string,
+    hierarchyName: string = null,
+    subsetName: string,
+    isPrivate = false
+  ): Promise<Subset> {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName || dimensionName)}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')?$select=*,Alias&$expand=Hierarchy($select=Name),Elements($select=Name)`)
-    return Subset.fromJson(response)
+    const response = await this.http.GET<SubsetResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName || dimensionName
+      )}')/${subsetType}('${fixedEncodeURIComponent(
+        subsetName
+      )}')?$select=*,Alias&$expand=Hierarchy($select=Name),Elements($select=Name)`
+    )
+    return Subset.fromJson(response.data)
   }
 
   /**
@@ -36,10 +49,20 @@ class SubsetService {
    * @returns {string[]} An array of subset names
    */
 
-  async getAllNames (dimensionName: string, hierarchyName: string = null, isPrivate = false): Promise<string[]> {
+  async getAllNames(
+    dimensionName: string,
+    hierarchyName: string = null,
+    isPrivate = false
+  ): Promise<string[]> {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName || dimensionName)}')/${subsetType}?$select=Name`)
-    return response['value'].map((s: any) => s['Name'])
+    const response = await this.http.GET<SubsetsResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName || dimensionName
+      )}')/${subsetType}?$select=Name`
+    )
+    return response.data.value.map((s: SubsetResponse) => s.Name)
   }
 
   /**
@@ -50,9 +73,16 @@ class SubsetService {
    * @returns
    */
 
-  async create (subset: Subset, isPrivate = false) {
+  async create(subset: Subset, isPrivate = false) {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
-    return this.http.POST(`/api/v1/Dimensions('${fixedEncodeURIComponent(subset.dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(subset.hierarchyName)}')/${subsetType}`, subset.body)
+    return this.http.POST(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        subset.dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        subset.hierarchyName
+      )}')/${subsetType}`,
+      subset.body
+    )
   }
 
   /**
@@ -63,14 +93,25 @@ class SubsetService {
    * @returns
    */
 
-  async update (subset: Subset, isPrivate = false) {
+  async update(subset: Subset, isPrivate = false) {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
 
     if (subset.isStatic) {
-      await this.deleteAllElements(subset.dimensionName, subset.hierarchyName, subset.name)
+      await this.deleteAllElements(
+        subset.dimensionName,
+        subset.hierarchyName,
+        subset.name
+      )
     }
 
-    return this.http.PATCH(`/api/v1/Dimensions('${fixedEncodeURIComponent(subset.dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(subset.hierarchyName)}')/${subsetType}('${fixedEncodeURIComponent(subset.name)}')`, subset.body)
+    return this.http.PATCH(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        subset.dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        subset.hierarchyName
+      )}')/${subsetType}('${fixedEncodeURIComponent(subset.name)}')`,
+      subset.body
+    )
   }
 
   /**
@@ -83,9 +124,20 @@ class SubsetService {
    * @returns
    */
 
-  async delete (dimensionName: string, hierarchyName: string, subsetName: string, isPrivate = false) {
+  async delete(
+    dimensionName: string,
+    hierarchyName: string,
+    subsetName: string,
+    isPrivate = false
+  ) {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
-    return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')`)
+    return this.http.DELETE(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')`
+    )
   }
 
   /**
@@ -98,9 +150,22 @@ class SubsetService {
    * @returns
    */
 
-  async deleteAllElements (dimensionName: string, hierarchyName: string, subsetName: string, isPrivate = false) {
+  async deleteAllElements(
+    dimensionName: string,
+    hierarchyName: string,
+    subsetName: string,
+    isPrivate = false
+  ) {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
-    return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')/Elements/$ref`)
+    return this.http.DELETE(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/${subsetType}('${fixedEncodeURIComponent(
+        subsetName
+      )}')/Elements/$ref`
+    )
   }
 
   /**
@@ -113,10 +178,21 @@ class SubsetService {
    * @returns {boolean} If the subset exists
    */
 
-  async exists (dimensionName: string, hierarchyName: string, subsetName: string, isPrivate = false): Promise<boolean> {
+  async exists(
+    dimensionName: string,
+    hierarchyName: string,
+    subsetName: string,
+    isPrivate = false
+  ): Promise<boolean> {
     const subsetType = isPrivate ? 'PrivateSubsets' : 'Subsets'
     try {
-      await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')`)
+      await this.http.GET(
+        `/api/v1/Dimensions('${fixedEncodeURIComponent(
+          dimensionName
+        )}')/Hierarchies('${fixedEncodeURIComponent(
+          hierarchyName
+        )}')/${subsetType}('${fixedEncodeURIComponent(subsetName)}')`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {

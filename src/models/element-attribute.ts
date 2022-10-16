@@ -1,6 +1,6 @@
 class ElementAttribute {
-  public name: string;
-  private _type: AttributeTypeString;
+  public name: string
+  private _type: AttributeTypeString
 
   constructor (name: string, type: AttributeTypeString) {
     this.name = name
@@ -15,7 +15,7 @@ class ElementAttribute {
     this._type = value
   }
 
-  static fromJson (data: any): ElementAttribute {
+  static fromJson (data: ElementAttributeResponse): ElementAttribute {
     return new ElementAttribute(data.Name, data.Type)
   }
 
@@ -34,9 +34,24 @@ class ElementAttribute {
 enum AttributeType {
   Numeric,
   String,
-  Alias
+  Alias,
 }
 
 type AttributeTypeString = keyof typeof AttributeType
 
-export { ElementAttribute, AttributeType, AttributeTypeString }
+interface ElementAttributeResponse {
+  Name: string
+  Type: AttributeTypeString
+}
+
+interface ElementAttributesResponse {
+  value: ElementAttributeResponse[]
+}
+
+export {
+  ElementAttribute,
+  ElementAttributeResponse,
+  ElementAttributesResponse,
+  AttributeType,
+  AttributeTypeString
+}

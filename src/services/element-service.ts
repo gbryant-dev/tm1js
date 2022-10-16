@@ -1,5 +1,13 @@
-import { HierarchyElement } from '../models/element'
-import { ElementAttribute } from '../models/element-attribute'
+import {
+  ElementResponse,
+  ElementsResponse,
+  HierarchyElement
+} from '../models/element'
+import {
+  ElementAttribute,
+  ElementAttributeResponse,
+  ElementAttributesResponse
+} from '../models/element-attribute'
 import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
@@ -7,8 +15,8 @@ import { fixedEncodeURIComponent } from '../utils/helpers'
  * Service to handle element operations in TM1
  */
 class ElementService {
-  private http: RestService;
-  constructor (http: RestService) {
+  private http: RestService
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -21,9 +29,19 @@ class ElementService {
    * @returns {HierarchyElement} An instance of the `HierarchyElement` model
    *
    */
-  async get (dimensionName: string, hierarchyName: string, elementName: string): Promise<HierarchyElement> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(elementName)}')?$expand=*`)
-    return HierarchyElement.fromJson(response)
+  async get(
+    dimensionName: string,
+    hierarchyName: string,
+    elementName: string
+  ): Promise<HierarchyElement> {
+    const response = await this.http.GET<ElementResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements('${fixedEncodeURIComponent(elementName)}')?$expand=*`
+    )
+    return HierarchyElement.fromJson(response.data)
   }
 
   /**
@@ -35,9 +53,20 @@ class ElementService {
    *
    */
 
-  async getAll (dimensionName: string, hierarchyName: string): Promise<HierarchyElement[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements?$expand=*`)
-    return response['value'].map((element: HierarchyElement) => HierarchyElement.fromJson(element))
+  async getAll(
+    dimensionName: string,
+    hierarchyName: string
+  ): Promise<HierarchyElement[]> {
+    const response = await this.http.GET<ElementsResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements?$expand=*`
+    )
+    return response.data.value.map((element: ElementResponse) =>
+      HierarchyElement.fromJson(element)
+    )
   }
 
   /**
@@ -48,9 +77,18 @@ class ElementService {
    * @returns {string[]} An array of element names
    */
 
-  async getAllNames (dimensionName: string, hierarchyName: string): Promise<string[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements?$select=Name`)
-    return response['value'].map((element: any) => element['Name'])
+  async getAllNames(
+    dimensionName: string,
+    hierarchyName: string
+  ): Promise<string[]> {
+    const response = await this.http.GET<ElementsResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements?$select=Name`
+    )
+    return response.data.value.map((element: ElementResponse) => element.Name)
   }
 
   /**
@@ -62,8 +100,17 @@ class ElementService {
    * @returns
    */
 
-  async create (dimensionName: string, hierarchyName: string, element: HierarchyElement): Promise<any> {
-    return this.http.POST(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements`, element.body)
+  async create(
+    dimensionName: string,
+    hierarchyName: string,
+    element: HierarchyElement
+  ): Promise<any> {
+    return this.http.POST(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements`,
+      element.body
+    )
   }
 
   /**
@@ -75,8 +122,19 @@ class ElementService {
    * @returns
    */
 
-  async update (dimensionName: string, hierarchyName: string, element: HierarchyElement): Promise<any> {
-    return this.http.PATCH(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(element.name)}')`, element.body)
+  async update(
+    dimensionName: string,
+    hierarchyName: string,
+    element: HierarchyElement
+  ): Promise<any> {
+    return this.http.PATCH(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements('${fixedEncodeURIComponent(element.name)}')`,
+      element.body
+    )
   }
 
   /**
@@ -88,8 +146,18 @@ class ElementService {
    * @returns
    */
 
-  async delete (dimensionName: string, hierarchyName: string, elementName: string): Promise<any> {
-    return this.http.DELETE(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements('${fixedEncodeURIComponent(elementName)}')`)
+  async delete(
+    dimensionName: string,
+    hierarchyName: string,
+    elementName: string
+  ): Promise<any> {
+    return this.http.DELETE(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements('${fixedEncodeURIComponent(elementName)}')`
+    )
   }
 
   /**
@@ -100,9 +168,20 @@ class ElementService {
    * @returns {HierarchyElement[]} Instances of the `HierarchyElement` model
    */
 
-  async getAllLeaf (dimensionName: string, hierarchyName: string): Promise<HierarchyElement[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements?$expand=*&$filter=Type ne 3`)
-    return response['value'].map((element: HierarchyElement) => HierarchyElement.fromJson(element))
+  async getAllLeaf(
+    dimensionName: string,
+    hierarchyName: string
+  ): Promise<HierarchyElement[]> {
+    const response = await this.http.GET<ElementsResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements?$expand=*&$filter=Type ne 3`
+    )
+    return response.data.value.map((element: ElementResponse) =>
+      HierarchyElement.fromJson(element)
+    )
   }
 
   /**
@@ -113,9 +192,18 @@ class ElementService {
    * @returns {string[]} An array of element names
    */
 
-  async getAllLeafNames (dimensionName: string, hierarchyName: string): Promise<string[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements?$select=Name&$filter=Type ne 3`)
-    return response['value'].map((element: any) => element['Name'])
+  async getAllLeafNames(
+    dimensionName: string,
+    hierarchyName: string
+  ): Promise<string[]> {
+    const response = await this.http.GET<ElementsResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/Elements?$select=Name&$filter=Type ne 3`
+    )
+    return response.data.value.map((element: ElementResponse) => element.Name)
   }
 
   /**
@@ -126,9 +214,20 @@ class ElementService {
    * @returns {ElementAttribute[]} An array of element attributes. Instances of the `ElementAttribute` model
    */
 
-  async getElementAttributes (dimensionName: string, hierarchyName: string): Promise<ElementAttribute[]> {
-    const response = await this.http.GET(`/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/ElementAttributes`)
-    return response['value'].map((ea: ElementAttribute) => ElementAttribute.fromJson(ea))
+  async getElementAttributes(
+    dimensionName: string,
+    hierarchyName: string
+  ): Promise<ElementAttribute[]> {
+    const response = await this.http.GET<ElementAttributesResponse>(
+      `/api/v1/Dimensions('${fixedEncodeURIComponent(
+        dimensionName
+      )}')/Hierarchies('${fixedEncodeURIComponent(
+        hierarchyName
+      )}')/ElementAttributes`
+    )
+    return response.data.value.map((ea: ElementAttributeResponse) =>
+      ElementAttribute.fromJson(ea)
+    )
   }
 
   /**
@@ -140,8 +239,16 @@ class ElementService {
    * @returns
    */
 
-  async createElementAttribute (dimensionName: string, hierarchyName: string, elementAttribute: ElementAttribute) {
-    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/ElementAttributes`
+  async createElementAttribute(
+    dimensionName: string,
+    hierarchyName: string,
+    elementAttribute: ElementAttribute
+  ) {
+    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(
+      dimensionName
+    )}')/Hierarchies('${fixedEncodeURIComponent(
+      hierarchyName
+    )}')/ElementAttributes`
     return this.http.POST(url, elementAttribute.body)
   }
 
@@ -154,8 +261,16 @@ class ElementService {
    * @returns
    */
 
-  async deleteElementAttribute (dimensionName: string, hierarchyName: string, elementAttribute: string) {
-    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/ElementAttributes('${fixedEncodeURIComponent(elementAttribute)}')`
+  async deleteElementAttribute(
+    dimensionName: string,
+    hierarchyName: string,
+    elementAttribute: string
+  ) {
+    const url = `/api/v1/Dimensions('${fixedEncodeURIComponent(
+      dimensionName
+    )}')/Hierarchies('${fixedEncodeURIComponent(
+      hierarchyName
+    )}')/ElementAttributes('${fixedEncodeURIComponent(elementAttribute)}')`
     return this.http.DELETE(url)
   }
 
@@ -169,18 +284,27 @@ class ElementService {
    * @returns {string[]} An array of element names
    */
 
-  async getElementsFilteredByAttribute (dimensionName: string, hierarchyName: string, attrName: string, attrValue: string | number): Promise<string[]> {
+  async getElementsFilteredByAttribute(
+    dimensionName: string,
+    hierarchyName: string,
+    attrName: string,
+    attrValue: string | number
+  ): Promise<string[]> {
     const attr = attrName.replace(/\s/g, '')
 
-    let url = `/api/v1/Dimensions('${fixedEncodeURIComponent(dimensionName)}')/Hierarchies('${fixedEncodeURIComponent(hierarchyName)}')/Elements?$select=Name`
+    let url = `/api/v1/Dimensions('${fixedEncodeURIComponent(
+      dimensionName
+    )}')/Hierarchies('${fixedEncodeURIComponent(
+      hierarchyName
+    )}')/Elements?$select=Name`
 
     if (typeof attrValue === 'string') {
       url += `&$filter=Attributes/${attr} eq '${attrValue}'`
     } else {
       url += `$filter=Attributes/${attr} eq ${attrValue}`
     }
-    const response = await this.http.GET(url)
-    return response['value'].map((element: any) => element['Name'])
+    const response = await this.http.GET<ElementsResponse>(url)
+    return response.data.value.map((element: ElementResponse) => element.Name)
   }
 }
 

@@ -9,7 +9,9 @@ describe('CellService', () => {
   const cubeName = prefix + 'cube'
   const nativeViewName = prefix + 'native_view'
   const dimNamePrefix = prefix + 'dim'
-  const dimNames = Array.from({ length: 3 }).map((_, i) => `${dimNamePrefix}${i}`)
+  const dimNames = Array.from({ length: 3 }).map(
+    (_, i) => `${dimNamePrefix}${i}`
+  )
 
   const setupDimension = (dimName: string, elementCount: number) => {
     const elements = Array.from({ length: elementCount }).map((_, i) => {
@@ -24,7 +26,7 @@ describe('CellService', () => {
   const setup = async () => {
     // Create 3 dimensions with elements
 
-    const dimensions = dimNames.map(dimName => {
+    const dimensions = dimNames.map((dimName) => {
       const dimension = setupDimension(dimName, 5)
       return dimension
     })
@@ -94,10 +96,14 @@ describe('CellService', () => {
 
   it('Should execute a view and return a cellset', async () => {
     // Execute view
-    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName, false)
+    const cellset = await global.tm1.cells.executeView(
+      cubeName,
+      nativeViewName,
+      false
+    )
 
     // Verify components of returned Cellset
-    const { ID, Cells, Axes } = cellset as any
+    const { ID, Cells, Axes } = cellset
     expect(ID).toBeTruthy()
 
     // 3 dimensions, 5 elements in each, no suppression so 5**3
@@ -120,10 +126,15 @@ describe('CellService', () => {
 
   it('Should execute a view with top and return a cellset', async () => {
     // Execute view
-    const cellset = await global.tm1.cells.executeView(cubeName, nativeViewName, false, { top: 5 })
+    const cellset = await global.tm1.cells.executeView(
+      cubeName,
+      nativeViewName,
+      false,
+      { top: 5 }
+    )
 
     // Verify components of returned Cellset
-    const { ID, Cells, Axes } = cellset as any
+    const { ID, Cells, Axes } = cellset
     expect(ID).toBeTruthy()
 
     expect(Cells.length).toEqual(5)
@@ -144,7 +155,10 @@ describe('CellService', () => {
   })
 
   it('Should execute a view and return only the values', async () => {
-    const cells = await global.tm1.cells.executeViewValues(cubeName, nativeViewName)
+    const cells = await global.tm1.cells.executeViewValues(
+      cubeName,
+      nativeViewName
+    )
     // 3 dimensions, 5 elements in each, no suppression so 5**3
     expect(cells.length).toEqual(5 ** 3)
     expect(cells).toBeInstanceOf(Array)
@@ -162,7 +176,7 @@ describe('CellService', () => {
 
     const cellset = await global.tm1.cells.executeMDX(mdx)
 
-    const { ID, Cells, Axes } = cellset as any
+    const { ID, Cells, Axes } = cellset
     expect(ID).toBeTruthy()
 
     // 3 dimensions, 5 elements in each, no suppression so 5**3
@@ -195,7 +209,7 @@ describe('CellService', () => {
 
     const cellset = await global.tm1.cells.executeMDX(mdx, { top: 5 })
 
-    const { ID, Cells, Axes } = cellset as any
+    const { ID, Cells, Axes } = cellset
     expect(ID).toBeTruthy()
 
     expect(Cells.length).toEqual(5)
@@ -225,11 +239,13 @@ describe('CellService', () => {
     WHERE ([${dimNames[2]}].[${dimNames[2]}].[Element 2])
   `
 
-    const cellset = await global.tm1.cells.executeMDX(mdx) as any
+    const cellset = await global.tm1.cells.executeMDX(mdx)
     expect(cellset.Axes.length).toEqual(3)
     expect(cellset.Axes[2].Hierarchies[0].Name).toEqual(dimNames[2])
 
-    const cellsetWithoutContext = await global.tm1.cells.executeMDX(mdx, { skipContexts: true }) as any
+    const cellsetWithoutContext = await global.tm1.cells.executeMDX(mdx, {
+      skipContexts: true
+    })
     expect(cellsetWithoutContext.Axes.length).toEqual(2)
   })
 
@@ -244,7 +260,9 @@ describe('CellService', () => {
     `
 
     const cellProperties = ['Value', 'Updateable', 'RuleDerived']
-    const { Cells } = await global.tm1.cells.executeMDX(mdx, { cellProperties }) as any
+    const { Cells } = await global.tm1.cells.executeMDX(mdx, {
+      cellProperties
+    })
 
     const actualProperties = Object.keys(Cells[0])
     expect(cellProperties).toEqual(actualProperties)
@@ -277,7 +295,7 @@ describe('CellService', () => {
     FROM [${cubeName}]
   `
 
-    const result1 = await global.tm1.cells.executeMDX(mdx) as any
+    const result1 = await global.tm1.cells.executeMDX(mdx)
     const currentValue = result1.Cells[0].Value
     expect(currentValue).toEqual(null)
 
@@ -285,13 +303,13 @@ describe('CellService', () => {
 
     await global.tm1.cells.writeValue(100, cubeName, elements)
 
-    const result2 = await global.tm1.cells.executeMDX(mdx) as any
+    const result2 = await global.tm1.cells.executeMDX(mdx)
     const newValue1 = result2.Cells[0].Value
     expect(newValue1).toEqual(100)
 
     await global.tm1.cells.writeValue(200, cubeName, elements, dimNames)
 
-    const result3 = await global.tm1.cells.executeMDX(mdx) as any
+    const result3 = await global.tm1.cells.executeMDX(mdx)
     const newValue2 = result3.Cells[0].Value
     expect(newValue2).toEqual(200)
   })
@@ -318,9 +336,9 @@ describe('CellService', () => {
       FROM [${cubeName}]
     `
 
-    const { Cells } = await global.tm1.cells.executeMDX(mdx) as any
+    const { Cells } = await global.tm1.cells.executeMDX(mdx)
 
-    const values = Cells.map(cell => cell.Value)
+    const values = Cells.map((cell) => cell.Value)
 
     expect(Cells.length).toEqual(3)
     expect(values).toEqual([100, 300, 800])
@@ -330,9 +348,13 @@ describe('CellService', () => {
     const elements = ['Element 1', 'Element 3', 'Element 5']
 
     await global.tm1.cells.writeValue(500, cubeName, elements)
-    const { Cells: [cell] } = await global.tm1.cells.getValue(cubeName, elements) as any
+    const {
+      Cells: [cell]
+    } = await global.tm1.cells.getValue(cubeName, elements)
     expect(cell.Value).toEqual(500)
   })
+
+  it.todo('Should get a single value from a cube using hierarchies')
 
   it('Should write values through a cellset', async () => {
     // Create a cellset to write to
@@ -352,8 +374,8 @@ describe('CellService', () => {
     await global.tm1.cells.writeValuesThroughCellset(mdx, values)
 
     // Verify updates
-    const { Cells } = await global.tm1.cells.executeMDX(mdx) as any
-    const cellValues = Cells.map(cell => cell.Value)
+    const { Cells } = await global.tm1.cells.executeMDX(mdx)
+    const cellValues = Cells.map((cell) => cell.Value)
     expect(cellValues).toEqual(values)
   })
 })

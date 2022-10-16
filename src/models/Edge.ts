@@ -1,6 +1,6 @@
 class Edge {
-  public parentName: string;
-  public componentName: string;
+  public parentName: string
+  public componentName: string
   public weight?: number
 
   constructor (parentName: string, componentName: string, weight?: number) {
@@ -9,12 +9,8 @@ class Edge {
     this.weight = weight
   }
 
-  static fromJson (data: any) {
-    return new Edge(
-      data.ParentName,
-      data.ComponentName,
-      data.Weight
-    )
+  static fromJson (data: EdgeResponse) {
+    return new Edge(data.ParentName, data.ComponentName, data.Weight)
   }
 
   constructBody () {
@@ -30,4 +26,10 @@ class Edge {
   }
 }
 
-export { Edge }
+interface EdgeResponse {
+  ParentName: string
+  ComponentName: string
+  Weight: number
+}
+
+export { Edge, EdgeResponse }
