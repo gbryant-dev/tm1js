@@ -6,17 +6,19 @@ import { ViewService } from './view-service'
 import { SecurityService } from './security-service'
 import { ChoreService } from './chore-service'
 import { CellService } from './cell-service'
+import ServerService from './server-service'
 
 class TM1Service {
-  private _rest: RestService;
-  public cubes: CubeService;
-  public dimensions: DimensionService;
-  public processes: ProcessService;
-  public chores: ChoreService;
-  public views: ViewService;
-  public security: SecurityService;
-  public cells: CellService;
-  constructor (rest: RestService) {
+  private _rest: RestService
+  public cubes: CubeService
+  public dimensions: DimensionService
+  public processes: ProcessService
+  public chores: ChoreService
+  public views: ViewService
+  public security: SecurityService
+  public cells: CellService
+  public server: ServerService
+  constructor(rest: RestService) {
     this._rest = rest
     this.cubes = new CubeService(this._rest)
     this.dimensions = new DimensionService(this._rest)
@@ -25,19 +27,25 @@ class TM1Service {
     this.views = new ViewService(this._rest)
     this.security = new SecurityService(this._rest)
     this.cells = new CellService(this._rest)
+    this.server = new ServerService(this._rest)
   }
 
-  static async connect (config: RestConfig) {
+  static async connect(config: RestConfig) {
     const _rest = new RestService(config)
-    await _rest.startSession(config.user, config.password, config.namespace, config.impersonate)
+    await _rest.startSession(
+      config.user,
+      config.password,
+      config.namespace,
+      config.impersonate
+    )
     return new TM1Service(_rest)
   }
 
-  async logout () {
+  async logout() {
     return this._rest.logout()
   }
 
-  get version () {
+  get version() {
     return this._rest.version
   }
 }
