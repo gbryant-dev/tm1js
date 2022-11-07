@@ -1,25 +1,24 @@
+import { DimensionResponse } from './dimension'
 
 class Cube {
-  public name: string;
-  public drillThroughRules?: string = null;
-  public rules?: string = null;
-  public dimensions: string[] = [];
-  public lastDataUpdate: string;
-  public lastSchemaUpdate: string;
+  public name: string
+  public drillThroughRules?: string = null
+  public rules?: string = null
+  public dimensions: string[] = []
+  public lastDataUpdate: string
+  public lastSchemaUpdate: string
   // public Views: View[] = [];
 
-  constructor (name: string, dimensions: string[], rules?: string) {
+  constructor(name: string, dimensions: string[], rules?: string) {
     this.name = name
     this.rules = rules
-
-    // this.dimensions = dimensions;
 
     for (const d of dimensions) {
       this.dimensions.push(d)
     }
   }
 
-  constructBody () {
+  constructBody() {
     const body = {
       Name: this.name,
       'Dimensions@odata.bind': []
@@ -39,11 +38,11 @@ class Cube {
     return body
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  static fromJson (data: any) {
+  static fromJson(data: CubeResponse) {
     return new Cube(
       data.Name,
       data.Dimensions.map((dim: { Name: string }) => dim.Name),
@@ -52,4 +51,14 @@ class Cube {
   }
 }
 
-export { Cube }
+interface CubeResponse {
+  Name: string
+  Dimensions: DimensionResponse[]
+  Rules: string
+}
+
+interface CubesResponse {
+  value: CubeResponse[]
+}
+
+export { Cube, CubeResponse, CubesResponse }

@@ -1,5 +1,9 @@
-
-import { ViewAxisSelection, ViewAxisTitle } from './view-axis'
+import {
+  ViewAxisSelection,
+  ViewAxisSelectionResponse,
+  ViewAxisTitle,
+  ViewAxisTitleResponse
+} from './view-axis'
 import { Subset } from './subset'
 
 enum ViewType {
@@ -13,28 +17,28 @@ enum ViewContext {
 }
 
 abstract class View {
-  abstract name: string;
+  abstract name: string
 }
 
 class MDXView extends View {
-  public name: string;
-  public mdx: string;
+  public name: string
+  public mdx: string
 
-  constructor (name: string, mdx: string) {
+  constructor(name: string, mdx: string) {
     super()
     this.name = name
     this.mdx = mdx
   }
 
-  static fromJson (data: any): MDXView {
+  static fromJson(data: MDXViewResponse): MDXView {
     return new MDXView(data.Name, data.MDX)
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  constructBody () {
+  constructBody() {
     const body = {}
     body['@odata.type'] = ViewType.MDX
     body['Name'] = this.name
@@ -44,15 +48,21 @@ class MDXView extends View {
   }
 }
 
-class NativeView extends View {
-  public name: string;
-  public columns: ViewAxisSelection[] = [];
-  public rows: ViewAxisSelection[] = [];
-  public titles: ViewAxisTitle[] = [];
-  public suppressEmptyColumns?: boolean = false;
-  public suppressEmptyRows: boolean;
+interface MDXViewResponse {
+  '@odata.type': `#${ViewType.MDX}`
+  Name: string
+  MDX: string
+}
 
-  constructor (
+class NativeView extends View {
+  public name: string
+  public columns: ViewAxisSelection[] = []
+  public rows: ViewAxisSelection[] = []
+  public titles: ViewAxisTitle[] = []
+  public suppressEmptyColumns?: boolean = false
+  public suppressEmptyRows: boolean
+
+  constructor(
     name: string,
     columns?: ViewAxisSelection[],
     rows?: ViewAxisSelection[],
@@ -85,13 +95,13 @@ class NativeView extends View {
     this.suppressEmptyRows = suppressEmptyRows
   }
 
-  addColumn (subset: Subset) {
+  addColumn(subset: Subset) {
     const axis = new ViewAxisSelection(subset)
     this.columns.push(axis)
   }
 
-  removeColumn (dimensionName: string) {
-    const index = this.columns.findIndex(col => {
+  removeColumn(dimensionName: string) {
+    const index = this.columns.findIndex((col) => {
       return col.subset.dimensionName === dimensionName
     })
     if (index !== -1) {
@@ -99,13 +109,13 @@ class NativeView extends View {
     }
   }
 
-  addRow (subset: Subset) {
+  addRow(subset: Subset) {
     const axis = new ViewAxisSelection(subset)
     this.rows.push(axis)
   }
 
-  removeRow (dimensionName: string) {
-    const index = this.rows.findIndex(r => {
+  removeRow(dimensionName: string) {
+    const index = this.rows.findIndex((r) => {
       return r.subset.dimensionName === dimensionName
     })
     if (index !== -1) {
@@ -113,13 +123,13 @@ class NativeView extends View {
     }
   }
 
-  addTitle (subset: Subset, selection: string) {
+  addTitle(subset: Subset, selection: string) {
     const axis = new ViewAxisTitle(subset, selection)
     this.titles.push(axis)
   }
 
-  removeTitle (dimensionName: string) {
-    const index = this.titles.findIndex(t => {
+  removeTitle(dimensionName: string) {
+    const index = this.titles.findIndex((t) => {
       return t.subset.dimensionName === dimensionName
     })
     if (index !== -1) {
@@ -127,27 +137,27 @@ class NativeView extends View {
     }
   }
 
-  suppressEmptyCells () {
+  suppressEmptyCells() {
     this.suppressEmptyColumns = true
     this.suppressEmptyRows = true
   }
 
-  static fromJson (data: any): NativeView {
+  static fromJson(data: NativeViewResponse): NativeView {
     return new NativeView(
       data.Name,
-      data.Columns.map(column => ViewAxisSelection.fromJson(column)),
-      data.Rows.map(row => ViewAxisSelection.fromJson(row)),
-      data.Titles.map(title => ViewAxisTitle.fromJson(title)),
+      data.Columns.map((column) => ViewAxisSelection.fromJson(column)),
+      data.Rows.map((row) => ViewAxisSelection.fromJson(row)),
+      data.Titles.map((title) => ViewAxisTitle.fromJson(title)),
       data.SuppressEmptyColumns,
       data.SuppressEmptyRows
     )
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  constructBody () {
+  constructBody() {
     const body = {}
     body['@odata.type'] = ViewType.NATIVE
     body['Name'] = this.name
@@ -175,4 +185,34 @@ class NativeView extends View {
   }
 }
 
-export { View, NativeView, MDXView, ViewType, ViewContext }
+interface NativeViewResponse {
+  '@odata.type': `#${ViewType.NATIVE}`
+  Name: string
+  Columns: ViewAxisSelectionResponse[]
+  Rows: ViewAxisSelectionResponse[]
+  Titles: ViewAxisTitleResponse[]
+  SuppressEmptyColumns: boolean
+  SuppressEmptyRows: boolean
+}
+
+interface ViewsResponse {
+  value: (NativeViewResponse | MDXViewResponse)[]
+}
+
+const isMDXView = (
+  view: NativeViewResponse | MDXViewResponse
+): view is MDXViewResponse => {
+  return view['@odata.type'] === '#ibm.tm1.api.v1.MDXView'
+}
+
+export {
+  View,
+  NativeView,
+  MDXView,
+  ViewType,
+  ViewContext,
+  NativeViewResponse,
+  MDXViewResponse,
+  ViewsResponse,
+  isMDXView
+}

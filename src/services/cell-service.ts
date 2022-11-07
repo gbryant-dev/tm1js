@@ -3,6 +3,8 @@ import { RemoveCellset } from '../utils/decorators'
 import { CubeService } from './cube-service'
 import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
+import { CellResponse, CellsetResponse, CellValue } from '../models/cellset'
+import { AxiosResponse } from 'axios'
 
 /**
  * @property {string[]} [cellProperties] A list of cell properties
@@ -17,15 +19,15 @@ import { fixedEncodeURIComponent } from '../utils/helpers'
  * @property {boolean} [includeHierarchies] If the Tuples in the cellset should include information on hierarcies or not
  */
 export interface CellsetQueryOptions {
-  cellProperties?: string[],
-  memberProperties?: string[],
-  top?: number,
-  skip?: number,
-  deleteCellset?: boolean,
-  skipContexts?: boolean,
-  skipZeros?: boolean,
-  skipConsolidated?: boolean,
-  skipRuleDerived?: boolean,
+  cellProperties?: string[]
+  memberProperties?: string[]
+  top?: number
+  skip?: number
+  deleteCellset?: boolean
+  skipContexts?: boolean
+  skipZeros?: boolean
+  skipConsolidated?: boolean
+  skipRuleDerived?: boolean
   includeHierarchies?: boolean
 }
 
@@ -38,7 +40,7 @@ class CellService {
   /**
    * @property {RestService} http An instance of the RestService
    */
-  constructor (http: RestService) {
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -52,13 +54,17 @@ class CellService {
    * @returns
    */
 
-  async executeView (
+  async executeView(
     cubeName: string,
     viewName: string,
     isPrivate = false,
     options?: CellsetQueryOptions
-  ) {
-    const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate)
+  ): Promise<CellsetResponse> {
+    const cellsetID = await this.createCellsetFromView(
+      cubeName,
+      viewName,
+      isPrivate
+    )
     return this.extractCellset(cellsetID, options)
   }
 
@@ -72,8 +78,16 @@ class CellService {
    * @returns
    */
 
-  async executeViewValues (cubeName: string, viewName: string, isPrivate = false) {
-    const cellsetID = await this.createCellsetFromView(cubeName, viewName, isPrivate)
+  async executeViewValues(
+    cubeName: string,
+    viewName: string,
+    isPrivate = false
+  ): Promise<CellValue[]> {
+    const cellsetID = await this.createCellsetFromView(
+      cubeName,
+      viewName,
+      isPrivate
+    )
     return this.extractCellsetValues(cellsetID)
   }
 
@@ -84,10 +98,10 @@ class CellService {
    * @param {CellsetQueryOptions} [options]
    * @returns
    */
-  async executeMDX (
+  async executeMDX(
     mdx: string,
     options?: CellsetQueryOptions
-  ) {
+  ): Promise<CellsetResponse> {
     const cellsetID = await this.createCellset(mdx)
     return this.extractCellset(cellsetID, options)
   }
@@ -98,7 +112,7 @@ class CellService {
    * @param {string} mdx A valid MDX query
    * @returns
    */
-  async executeMDXValues (mdx: string) {
+  async executeMDXValues(mdx: string): Promise<CellValue[]> {
     const cellsetID = await this.createCellset(mdx)
     return this.extractCellsetValues(cellsetID)
   }
@@ -112,10 +126,18 @@ class CellService {
    * @param {string[]} [dimensions]
    * @returns
    */
-  async getValue (cubeName: string, elements: string[], dimensions?: string[]) {
-    const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName)
+  async getValue(
+    cubeName: string,
+    elements: string[],
+    dimensions?: string[]
+  ): Promise<CellsetResponse> {
+    const _dimensions =
+      dimensions ?? (await this.getCubeDimensionNames(cubeName))
 
-    const _buildSetFromElementString = (dimension: string, el: string): string[] => {
+    const _buildSetFromElementString = (
+      dimension: string,
+      el: string
+    ): string[] => {
       const sets = []
 
       const isSingleHierarchy = el.indexOf('&&') === -1
@@ -126,7 +148,9 @@ class CellService {
         const isDefaultHierarchy = part.indexOf('::') === -1
 
         // Determine dimension, hierarchy, element arrangement
-        const [hierarchy, element] = isDefaultHierarchy ? [dimension, part] : part.split('::')
+        const [hierarchy, element] = isDefaultHierarchy
+          ? [dimension, part]
+          : part.split('::')
         const set = `{[${dimension}].[${hierarchy}].[${element}]}`
         sets.push(set)
       }
@@ -149,6 +173,7 @@ class CellService {
       FROM [${cubeName}]
     `
 
+    // TODO: Refactor to return the cell value directly
     // Return result of executeMDX call
     return this.executeMDX(mdx)
   }
@@ -162,14 +187,27 @@ class CellService {
    * @param {string[]} [dimensions]
    * @returns
    */
-  async writeValue (value: string | number, cubeName: string, elements: string[], dimensions?: string[]) {
-    const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName)
+  async writeValue(
+    value: string | number,
+    cubeName: string,
+    elements: string[],
+    dimensions?: string[]
+  ) {
+    const _dimensions =
+      dimensions ?? (await this.getCubeDimensionNames(cubeName))
 
-    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.Update`
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(
+      cubeName
+    )}')/tm1.Update`
     const body = {
-      Cells: [{
-        'Tuple@odata.bind': elements.map((element, i) => `Dimensions('${_dimensions[i]}')/Hierarchies('${_dimensions[i]}')/Elements('${element}')`)
-      }],
+      Cells: [
+        {
+          'Tuple@odata.bind': elements.map(
+            (element, i) =>
+              `Dimensions('${_dimensions[i]}')/Hierarchies('${_dimensions[i]}')/Elements('${element}')`
+          )
+        }
+      ],
       Value: value
     }
     return this.http.POST(url, body)
@@ -183,22 +221,38 @@ class CellService {
    * @param {string[]} [dimensions]
    * @returns
    */
-  async writeValues (cubeName: string, cellsetAsMap: Map<string[], string | number>, dimensions?: string[]) {
-    const _dimensions = dimensions ?? await this.getDimensionNamesForWriting(cubeName)
+  async writeValues(
+    cubeName: string,
+    cellsetAsMap: Map<string[], string | number>,
+    dimensions?: string[]
+  ) {
+    const _dimensions =
+      dimensions ?? (await this.getCubeDimensionNames(cubeName))
 
     const updates = []
 
     cellsetAsMap.forEach((value, tuple) => {
       const update = {
-        Cells: [{
-          'Tuple@odata.bind': tuple.map((element, i) => `Dimensions('${fixedEncodeURIComponent(_dimensions[i])}')/Hierarchies('${fixedEncodeURIComponent(_dimensions[i])}')/Elements('${fixedEncodeURIComponent(element)}')`)
-        }],
+        Cells: [
+          {
+            'Tuple@odata.bind': tuple.map(
+              (element, i) =>
+                `Dimensions('${fixedEncodeURIComponent(
+                  _dimensions[i]
+                )}')/Hierarchies('${fixedEncodeURIComponent(
+                  _dimensions[i]
+                )}')/Elements('${fixedEncodeURIComponent(element)}')`
+            )
+          }
+        ],
         Value: value
       }
       updates.push(update)
     })
 
-    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/tm1.Update`
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(
+      cubeName
+    )}')/tm1.Update`
     return this.http.POST(url, updates)
   }
 
@@ -208,10 +262,10 @@ class CellService {
    * @param {string} mdx A valid MDX statement
    * @returns {string} The ID of the cellset
    */
-  async createCellset (mdx: string): Promise<string> {
+  async createCellset(mdx: string): Promise<CellsetResponse['ID']> {
     const url = '/api/v1/ExecuteMDX'
     const response = await this.http.POST(url, { MDX: mdx })
-    return response['ID']
+    return response.data.ID
   }
 
   /**
@@ -222,11 +276,17 @@ class CellService {
    * @param {boolean} [isPrivate=false] Private (true) or Public (false) view. Defaults to a public view
    * @returns {string} The ID of the cellset
    */
-  async createCellsetFromView (cubeName: string, viewName: string, isPrivate = false): Promise<string> {
+  async createCellsetFromView(
+    cubeName: string,
+    viewName: string,
+    isPrivate = false
+  ): Promise<CellsetResponse['ID']> {
     const viewType = isPrivate ? ViewContext.PRIVATE : ViewContext.PUBLIC
-    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(cubeName)}')/${viewType}('${fixedEncodeURIComponent(viewName)}')/tm1.Execute`
+    const url = `/api/v1/Cubes('${fixedEncodeURIComponent(
+      cubeName
+    )}')/${viewType}('${fixedEncodeURIComponent(viewName)}')/tm1.Execute`
     const response = await this.http.POST(url, null)
-    return response['ID']
+    return response.data.ID
   }
 
   /**
@@ -237,7 +297,7 @@ class CellService {
    * @returns Cellset
    */
   @RemoveCellset()
-  async extractCellset (
+  async extractCellset(
     cellsetID: string,
     {
       cellProperties = ['Value'],
@@ -252,13 +312,17 @@ class CellService {
       skipRuleDerived = false,
       includeHierarchies = true
     }: CellsetQueryOptions = {}
-  ) {
-    const baseUrl = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`
+  ): Promise<CellsetResponse> {
+    const baseUrl = `/api/v1/Cellsets('${fixedEncodeURIComponent(
+      cellsetID
+    )}')?$expand=Cube($select=Name;$expand=Dimensions($select=Name))`
 
     const filterAxis = skipContexts ? '$filter=Ordinal ne 2;' : ''
 
     const memberProps = `$select=${memberProperties.join(',')}`
-    const expandHierarchies = includeHierarchies ? ',Hierarchies($select=Name;$expand=Dimension($select=Name))' : ''
+    const expandHierarchies = includeHierarchies
+      ? ',Hierarchies($select=Name;$expand=Dimension($select=Name))'
+      : ''
 
     const selectCells = `$select=${cellProperties.join(',')}`
     const topCells = top ? `$top=${top}` : ''
@@ -267,7 +331,7 @@ class CellService {
     const cellFilters = []
     if (skipZeros || skipConsolidated || skipRuleDerived) {
       if (skipZeros) {
-        cellFilters.push('Value ne 0 and Value ne null and Value ne \'\'')
+        cellFilters.push("Value ne 0 and Value ne null and Value ne ''")
       }
       if (skipConsolidated) {
         cellFilters.push('Consolidated eq false')
@@ -277,12 +341,15 @@ class CellService {
       }
     }
 
-    const filterCells = cellFilters.length > 0 ? `$filter=${cellFilters.join(' and ')}` : ''
-    const cellQuery = [selectCells, filterCells, topCells, skipCells].filter(f => f.length > 0).join(';')
+    const filterCells =
+      cellFilters.length > 0 ? `$filter=${cellFilters.join(' and ')}` : ''
+    const cellQuery = [selectCells, filterCells, topCells, skipCells]
+      .filter((f) => f.length > 0)
+      .join(';')
 
     const url = `${baseUrl},Axes(${filterAxis}$expand=Tuples($expand=Members(${memberProps}))${expandHierarchies}),Cells(${cellQuery})`
-
-    return this.http.GET(url)
+    const response = await this.http.GET<CellsetResponse>(url)
+    return response.data
   }
 
   /**
@@ -293,14 +360,16 @@ class CellService {
    * @returns
    */
   @RemoveCellset()
-  async extractCellsetValues (
+  async extractCellsetValues(
     cellsetID: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     { deleteCellset = true }: { deleteCellset?: boolean } = {}
-  ) {
-    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cells($select=Value)`
+  ): Promise<CellValue[]> {
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(
+      cellsetID
+    )}')?$expand=Cells($select=Value)`
     const response = await this.http.GET(url)
-    return response['Cells'].map(cell => cell.Value)
+    return response.data.Cells.map((cell: CellResponse) => cell.Value)
   }
 
   /**
@@ -311,11 +380,16 @@ class CellService {
    * @returns
    */
 
-  async extractCellsetCellProperties (cellsetID: string, cellProperties?: string[]) {
+  async extractCellsetCellProperties(
+    cellsetID: string,
+    cellProperties?: string[]
+  ): Promise<CellsetResponse['Cells']> {
     const cellProps = cellProperties ?? ['Value']
-    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')?$expand=Cells($select=${cellProps.join(',')})`
-    const response = await this.http.GET(url)
-    return response['Cells']
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(
+      cellsetID
+    )}')?$expand=Cells($select=${cellProps.join(',')})`
+    const response = await this.http.GET<CellsetResponse>(url)
+    return response.data.Cells
   }
 
   /**
@@ -326,23 +400,28 @@ class CellService {
    * @param values An array of values to write
    * @returns
    */
-  async writeValuesThroughCellset (mdx: string, values: Array<string | number>) {
+  async writeValuesThroughCellset(mdx: string, values: CellValue[]) {
     const cellsetID = await this.createCellset(mdx)
     return this.updateCellset(cellsetID, values)
   }
 
-  async updateCellset (cellsetID: string, values: Array<string | number>) {
-    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')/Cells`
-    const updates = values.map((value, ordinal) => ({ Ordinal: ordinal, Value: value }))
+  async updateCellset(cellsetID: string, values: CellValue[]) {
+    const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(
+      cellsetID
+    )}')/Cells`
+    const updates = values.map((value, ordinal) => ({
+      Ordinal: ordinal,
+      Value: value
+    }))
     return this.http.PATCH(url, updates)
   }
 
-  async deleteCellset (cellsetID: string) {
+  async deleteCellset(cellsetID: string): Promise<AxiosResponse<void>> {
     const url = `/api/v1/Cellsets('${fixedEncodeURIComponent(cellsetID)}')`
-    return this.http.DELETE(url)
+    return this.http.DELETE<void>(url)
   }
 
-  async getDimensionNamesForWriting (cubeName: string) {
+  async getCubeDimensionNames(cubeName: string): Promise<string[]> {
     const cubeService = new CubeService(this.http)
     const dimensions = await cubeService.getDimensionNames(cubeName)
     return dimensions

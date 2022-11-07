@@ -1,10 +1,10 @@
-import { User } from './user'
+import { User, UserResponse } from './user'
 
 class Group {
-  public name: string;
-  public users?: User[];
+  public name: string
+  public users: User[]
 
-  constructor (name: string, users?: User[]) {
+  constructor(name: string, users?: User[]) {
     this.name = name
 
     if (users) {
@@ -15,18 +15,18 @@ class Group {
     }
   }
 
-  static fromJson (data: any) {
+  static fromJson(data: GroupResponse) {
     return new Group(
       data.Name,
-      data.Users?.map(user => User.fromJson(user)) ?? []
+      data.Users?.map((user) => User.fromJson(user)) ?? []
     )
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  constructBody () {
+  constructBody() {
     const body = {
       Name: this.name
     }
@@ -35,4 +35,13 @@ class Group {
   }
 }
 
-export { Group }
+interface GroupResponse {
+  Name: string
+  Users: UserResponse[]
+}
+
+interface GroupsResponse {
+  value: GroupResponse[]
+}
+
+export { Group, GroupResponse, GroupsResponse }

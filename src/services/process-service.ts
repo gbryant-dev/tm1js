@@ -1,6 +1,10 @@
-import { AxiosResponse } from 'axios'
 import { ProcessExecuteResult, ProcessSyntaxError } from '../models/misc'
-import { Process, ProcessParameter } from '../models/process'
+import {
+  Process,
+  ProcessesResponse,
+  ProcessParameter,
+  ProcessResponse
+} from '../models/process'
 import { RestService } from './rest-service'
 import { v4 as uuid } from 'uuid'
 import { MinimumVersion } from '../utils/decorators'
@@ -11,7 +15,7 @@ import { fixedEncodeURIComponent } from '../utils/helpers'
  */
 class ProcessService {
   private http: RestService
-  constructor (http: RestService) {
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -22,8 +26,10 @@ class ProcessService {
    * @returns {Process} An instance of the `Process` model
    */
 
-  async get (processName: string): Promise<Process> {
-    const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')?$select=*,\
+  async get(processName: string): Promise<Process> {
+    const url = `/api/v1/Processes('${fixedEncodeURIComponent(
+      processName
+    )}')?$select=*,\
         UIData,\
         VariablesUIData,\
         DataSource/dataSourceNameForClient,\
@@ -41,8 +47,8 @@ class ProcessService {
         DataSource/query,\
         DataSource/usesUnicode`
 
-    const response = await this.http.GET(url)
-    return Process.fromJson(response)
+    const response = await this.http.GET<ProcessResponse>(url)
+    return Process.fromJson(response.data)
   }
 
   /**
@@ -51,9 +57,10 @@ class ProcessService {
    * @returns {Process[]} An array of the `Process` model
    */
 
-  async getAll (): Promise<Process[]> {
+  async getAll(): Promise<Process[]> {
     // eslint-disable-next-line no-multi-str
-    const url = '/api/v1/Processes?$select=*,\
+    const url =
+      '/api/v1/Processes?$select=*,\
         UIData,\
         VariablesUIData,\
         DataSource/dataSourceNameForClient,\
@@ -71,8 +78,8 @@ class ProcessService {
         DataSource/query,\
         DataSource/usesUnicode'
 
-    const response = await this.http.GET(url)
-    return response['value'].map((p: Process) => Process.fromJson(p))
+    const response = await this.http.GET<ProcessesResponse>(url)
+    return response.data.value.map((p: ProcessResponse) => Process.fromJson(p))
   }
 
   /**
@@ -81,9 +88,11 @@ class ProcessService {
    * @returns {string[]} An array of processs names
    */
 
-  async getAllNames (): Promise<string[]> {
-    const response = await this.http.GET('/api/v1/Processes?$select=Name')
-    return response['value'].map((p: any) => p['Name'])
+  async getAllNames(): Promise<string[]> {
+    const response = await this.http.GET<ProcessesResponse>(
+      '/api/v1/Processes?$select=Name'
+    )
+    return response.data.value.map((p: ProcessResponse) => p.Name)
   }
 
   /**
@@ -93,7 +102,7 @@ class ProcessService {
    * @returns
    */
 
-  async create (process: Process): Promise<any> {
+  async create(process: Process): Promise<any> {
     return this.http.POST('/api/v1/Processes', process.body)
   }
 
@@ -104,8 +113,11 @@ class ProcessService {
    * @returns
    */
 
-  async update (process: Process): Promise<any> {
-    return this.http.PATCH(`/api/v1/Processes('${fixedEncodeURIComponent(process.name)}')`, process.body)
+  async update(process: Process): Promise<any> {
+    return this.http.PATCH(
+      `/api/v1/Processes('${fixedEncodeURIComponent(process.name)}')`,
+      process.body
+    )
   }
 
   /**
@@ -114,8 +126,10 @@ class ProcessService {
    * @param {string} processName The name of the process
    * @returns
    */
-  async delete (processName: string): Promise<any> {
-    return this.http.DELETE(`/api/v1/Processes('${fixedEncodeURIComponent(processName)}')`)
+  async delete(processName: string): Promise<any> {
+    return this.http.DELETE(
+      `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')`
+    )
   }
 
   /**
@@ -126,8 +140,13 @@ class ProcessService {
    * @returns
    */
 
-  async execute (processName: string, parameters?: { Name: string, Value: string | number }[]) {
-    const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.Execute`
+  async execute(
+    processName: string,
+    parameters?: { Name: string; Value: string | number }[]
+  ) {
+    const url = `/api/v1/Processes('${fixedEncodeURIComponent(
+      processName
+    )}')/tm1.Execute`
     const body = { Parameters: parameters }
     return this.http.POST(url, body)
   }
@@ -140,7 +159,7 @@ class ProcessService {
    * @returns
    */
 
-  async executeTICode (prolog: string, epilog = '') {
+  async executeTICode(prolog: string, epilog = '') {
     const name = '}TM1ts_' + uuid()
     const process = new Process(name, false, { prolog, epilog })
     try {
@@ -162,11 +181,16 @@ class ProcessService {
    * @returns
    */
 
-  async executeWithReturn (processName: string, parameters?: { Name: string, Value: string | number }[]): Promise<ProcessExecuteResult> {
-    const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`
+  async executeWithReturn(
+    processName: string,
+    parameters?: { Name: string; Value: string | number }[]
+  ): Promise<ProcessExecuteResult> {
+    const url = `/api/v1/Processes('${fixedEncodeURIComponent(
+      processName
+    )}')/tm1.ExecuteWithReturn?$expand=ErrorLogFile`
     const body = { Parameters: parameters }
-    const result = await this.http.POST(url, body)
-    return result as unknown as ProcessExecuteResult
+    const response = await this.http.POST<ProcessExecuteResult>(url, body)
+    return response.data
   }
 
   /**
@@ -178,7 +202,10 @@ class ProcessService {
    */
 
   @MinimumVersion(11.3)
-  async executeProcessWithReturn (process: Process, parameters?: ProcessParameter[]): Promise<ProcessExecuteResult> {
+  async executeProcessWithReturn(
+    process: Process,
+    parameters?: ProcessParameter[]
+  ): Promise<ProcessExecuteResult> {
     const url = '/api/v1/ExecuteProcessWithReturn?$expand=ErrorLogFile'
     const params = []
     if (parameters) {
@@ -190,8 +217,8 @@ class ProcessService {
     }
 
     const body = { Process: process.body, Parameters: params }
-    const result = this.http.POST(url, body)
-    return result as unknown as ProcessExecuteResult
+    const response = await this.http.POST<ProcessExecuteResult>(url, body)
+    return response.data
   }
 
   /**
@@ -201,10 +228,15 @@ class ProcessService {
    * @returns {ProcessSyntaxError[]} An array of syntax errors. Instances of the `ProcessSyntaxError` interface
    */
 
-  async compile (processName: string): Promise<ProcessSyntaxError[]> {
-    const url = `/api/v1/Processes('${fixedEncodeURIComponent(processName)}')/tm1.Compile`
-    const res = await this.http.POST(url, null)
-    return res['value']
+  async compile(processName: string): Promise<ProcessSyntaxError[]> {
+    const url = `/api/v1/Processes('${fixedEncodeURIComponent(
+      processName
+    )}')/tm1.Compile`
+    const response = await this.http.POST<{ value: ProcessSyntaxError[] }>(
+      url,
+      null
+    )
+    return response.data.value
   }
 
   /**
@@ -214,10 +246,13 @@ class ProcessService {
    * @returns {ProcessSyntaxError[]} An array of syntax errors. Instances of the `ProcessSyntaxError` interface
    */
 
-  async compileProcess (process: Process): Promise<AxiosResponse<ProcessSyntaxError[]>> {
+  async compileProcess(process: Process): Promise<ProcessSyntaxError[]> {
     const body = { Process: process.body }
-    const res = await this.http.POST('/api/v1/CompileProcess', body)
-    return res['value']
+    const response = await this.http.POST<{ value: ProcessSyntaxError[] }>(
+      '/api/v1/CompileProcess',
+      body
+    )
+    return response.data.value
   }
 
   /**
@@ -227,7 +262,7 @@ class ProcessService {
    * @returns {string} The contents of the error log file as text
    */
 
-  async getErrorLogFileContent (filename: string) {
+  async getErrorLogFileContent(filename: string) {
     return this.http.GET(
       `/api/v1/ErrorLogFiles('${fixedEncodeURIComponent(filename)}')/Content`,
       { responseType: 'text' }
@@ -241,9 +276,13 @@ class ProcessService {
    * @returns {boolean} If the process exists
    */
 
-  async exists (processName: string): Promise<boolean> {
+  async exists(processName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Processes('${fixedEncodeURIComponent(processName)}')?$select=Name`)
+      await this.http.GET(
+        `/api/v1/Processes('${fixedEncodeURIComponent(
+          processName
+        )}')?$select=Name`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {

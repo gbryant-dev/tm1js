@@ -1,5 +1,10 @@
 import { ProcessExecuteStatusCode } from '../../src/models'
-import { Process, ProcessDataSource, ProcessParameter, ProcessProcedure } from '../../src/models/process'
+import {
+  Process,
+  ProcessDataSource,
+  ProcessParameter,
+  ProcessProcedure
+} from '../../src/models/process'
 
 describe('ProcessService', () => {
   const prefix = 'TM1ts_test_'
@@ -8,7 +13,7 @@ describe('ProcessService', () => {
   const setup = async () => {
     const parameters: ProcessParameter[] = []
     const dataSource: ProcessDataSource = {
-      type: 'None'
+      Type: 'None'
     }
 
     const process = new Process(processName)
@@ -44,22 +49,28 @@ describe('ProcessService', () => {
 
   it('Should fetch all process names', async () => {
     const processNames = await global.tm1.processes.getAllNames()
-    expect(processNames.find(name => name === processName)).toBeTruthy()
+    expect(processNames.find((name) => name === processName)).toBeTruthy()
   })
 
   it('Should create a process and delete it', async () => {
     const newProcessName = prefix + 'new'
     const parameters: ProcessParameter[] = [
       { Name: 'p1', Type: 'String' },
-      { Name: 'p2', Type: 'Numeric', 'Prompt': 'First parameter', Value: 5 }
+      { Name: 'p2', Type: 'Numeric', Prompt: 'First parameter', Value: 5 }
     ]
-    const newProcess = new Process(newProcessName, true, { prolog: 'SecurityRefresh();', epilog: 'SaveDataAll();' }, { type: 'None' }, parameters)
+    const newProcess = new Process(
+      newProcessName,
+      true,
+      { prolog: 'SecurityRefresh();', epilog: 'SaveDataAll();' },
+      { Type: 'None' },
+      parameters
+    )
     await global.tm1.processes.create(newProcess)
     const createdProcess = await global.tm1.processes.get(newProcessName)
     expect(createdProcess).toBeInstanceOf(Process)
     expect(createdProcess.name).toEqual(newProcessName)
     expect(createdProcess.hasSecurityAccess).toEqual(true)
-    expect(createdProcess.dataSource.type).toEqual('None')
+    expect(createdProcess.dataSource.Type).toEqual('None')
     expect(createdProcess.parameters).toHaveLength(2)
 
     const processCount = await global.tm1.processes.getAllNames()
@@ -76,7 +87,7 @@ describe('ProcessService', () => {
     const process = await global.tm1.processes.get(processName)
     expect(process.name).toEqual(processName)
     expect(process.parameters).toHaveLength(0)
-    expect(process.dataSource.type).toEqual('None')
+    expect(process.dataSource.Type).toEqual('None')
 
     process.hasSecurityAccess = true
     process.prologProcedure = 'ProcessBreak;'
@@ -103,7 +114,9 @@ describe('ProcessService', () => {
     await global.tm1.processes.create(processObj)
 
     try {
-      const executeResult = await global.tm1.processes.execute(processToExecuteName)
+      const executeResult = await global.tm1.processes.execute(
+        processToExecuteName
+      )
     } catch (e) {
       throw e
     } finally {
@@ -113,12 +126,16 @@ describe('ProcessService', () => {
 
   it('Should execute a process and return the result', async () => {
     const processName2 = prefix + 'execute_return'
-    const processObj2 = new Process(processName2, false, { prolog: 'Sleep(200);' })
+    const processObj2 = new Process(processName2, false, {
+      prolog: 'Sleep(200);'
+    })
     await global.tm1.processes.create(processObj2)
 
     try {
       const res = await global.tm1.processes.executeWithReturn(processName2)
-      expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+      expect(res.ProcessExecuteStatusCode).toEqual(
+        ProcessExecuteStatusCode.CompletedSuccessfully
+      )
     } catch (e) {
       console.log(e)
       throw e
@@ -129,20 +146,33 @@ describe('ProcessService', () => {
 
   it('Should execute TI code', async () => {
     const res = await global.tm1.processes.executeTICode('Sleep(200);')
-    expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+    expect(res?.ProcessExecuteStatusCode).toEqual(
+      ProcessExecuteStatusCode.CompletedSuccessfully
+    )
   })
 
   it('Should execute an unbound process', async () => {
     const unboundProcessName = prefix + 'execute_unbound'
-    const unboundProcessObj = new Process(unboundProcessName, true, { prolog: 'Sleep(pSleep);' })
-    const parameters: ProcessParameter[] = [{ Name: 'pSleep', Value: 500, Type: 'Numeric' }]
-    const res = await global.tm1.processes.executeProcessWithReturn(unboundProcessObj, parameters)
-    expect(res.ProcessExecuteStatusCode).toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+    const unboundProcessObj = new Process(unboundProcessName, true, {
+      prolog: 'Sleep(pSleep);'
+    })
+    const parameters: ProcessParameter[] = [
+      { Name: 'pSleep', Value: 500, Type: 'Numeric' }
+    ]
+    const res = await global.tm1.processes.executeProcessWithReturn(
+      unboundProcessObj,
+      parameters
+    )
+    expect(res.ProcessExecuteStatusCode).toEqual(
+      ProcessExecuteStatusCode.CompletedSuccessfully
+    )
   })
 
   it('Should compile an unbound process', async () => {
     const processName3 = prefix + 'compile'
-    const processObj3 = new Process(processName3, true, { prolog: 'Sleep(200);' })
+    const processObj3 = new Process(processName3, true, {
+      prolog: 'Sleep(200);'
+    })
     const errors = await global.tm1.processes.compileProcess(processObj3)
     expect(errors).toHaveLength(0)
 
@@ -153,7 +183,9 @@ describe('ProcessService', () => {
 
   it('Should compile a bound process', async () => {
     const processName4 = prefix + 'compile_bound'
-    const processObj4 = new Process(processName4, true, { prolog: 'Sleep(200);' })
+    const processObj4 = new Process(processName4, true, {
+      prolog: 'Sleep(200);'
+    })
     await global.tm1.processes.create(processObj4)
     const errors = await global.tm1.processes.compile(processName4)
     expect(errors).toHaveLength(0)
@@ -163,13 +195,19 @@ describe('ProcessService', () => {
 
   it('Should get content from a process error log file', async () => {
     const processName5 = prefix + 'execute_return'
-    const processObj5 = new Process(processName5, false, { prolog: 'Sleep(200)' })
+    const processObj5 = new Process(processName5, false, {
+      prolog: 'Sleep(200)'
+    })
     await global.tm1.processes.create(processObj5)
 
     try {
       const res = await global.tm1.processes.executeWithReturn(processName5)
-      const errors = await global.tm1.processes.getErrorLogFileContent(res.ErrorLogFile.Filename)
-      expect(res.ProcessExecuteStatusCode).not.toEqual(ProcessExecuteStatusCode.CompletedSuccessfully)
+      const errors = await global.tm1.processes.getErrorLogFileContent(
+        res.ErrorLogFile?.Filename ?? ''
+      )
+      expect(res.ProcessExecuteStatusCode).not.toEqual(
+        ProcessExecuteStatusCode.CompletedSuccessfully
+      )
       expect(errors).not.toBeUndefined()
     } catch (e) {
       console.log(e)

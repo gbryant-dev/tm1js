@@ -5,13 +5,13 @@ import axiosCookieJarSupport from 'axios-cookiejar-support'
 import { RestError } from '../errors/rest-error'
 
 export interface RestConfig {
-  address: string;
-  port: number;
-  user: string;
-  password: string;
-  ssl: boolean;
-  namespace?: string;
-  impersonate?: string;
+  address: string
+  port: number
+  user: string
+  password: string
+  ssl: boolean
+  namespace?: string
+  impersonate?: string
 }
 
 const HEADERS = {
@@ -22,27 +22,18 @@ const HEADERS = {
 }
 
 class RestService {
-  public address: string;
-  public port: number;
-  public user: string;
-  public password: string;
-  public ssl: boolean;
-  public namespace?: string;
-  public impersonate?: string;
-  private baseUrl: string;
-  private http: AxiosInstance;
-  private _version: string;
+  public address: string
+  public port: number
+  public user: string
+  public password: string
+  public ssl: boolean
+  public namespace?: string
+  public impersonate?: string
+  private baseUrl: string
+  private http: AxiosInstance
+  private _version: string
 
-  constructor (
-    {
-      address,
-      port,
-      user,
-      password,
-      ssl,
-      namespace
-    }: RestConfig
-  ) {
+  constructor({ address, port, user, password, ssl, namespace }: RestConfig) {
     this.address = address
     this.port = port
     this.user = user
@@ -63,17 +54,19 @@ class RestService {
     this.setupInterceptors()
   }
 
-  private setupInterceptors () {
+  private setupInterceptors() {
     this.http.interceptors.request.use(
-      config => {
+      (config) => {
         return config
-      }, err => err
+      },
+      (err) => err
     )
 
     this.http.interceptors.response.use(
-      res => {
-        return res.data
-      }, (err: AxiosError) => {
+      (res) => {
+        return res
+      },
+      (err: AxiosError) => {
         let error: any
         if (err.response) {
           const { status, statusText, headers, data } = err.response
@@ -85,14 +78,23 @@ class RestService {
             data: data.error || data
           }
         } else {
-          error = { status: 500, statusText: null, data: err.message, headers: err.config.headers }
+          error = {
+            status: 500,
+            statusText: null,
+            data: err.message,
+            headers: err.config.headers
+          }
         }
         throw new RestError(error.status, error.data, error.headers)
       }
     )
   }
 
-  private buildAuthToken (user: string, password: string, namespace: string | null): string {
+  private buildAuthToken(
+    user: string,
+    password: string,
+    namespace: string | null
+  ): string {
     if (namespace) {
       return this.buildAuthTokenCam(user, password, namespace)
     } else {
@@ -100,15 +102,26 @@ class RestService {
     }
   }
 
-  private buildAuthTokenBasic (user: string, password: string): string {
+  private buildAuthTokenBasic(user: string, password: string): string {
     return `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`
   }
 
-  private buildAuthTokenCam (user: string, password: string, namespace: string): string {
-    return `CAMNamespace ${Buffer.from(`${user}:${password}:${namespace}`).toString('base64')}`
+  private buildAuthTokenCam(
+    user: string,
+    password: string,
+    namespace: string
+  ): string {
+    return `CAMNamespace ${Buffer.from(
+      `${user}:${password}:${namespace}`
+    ).toString('base64')}`
   }
 
-  public async startSession (user: string, password: string, namespace: string, impersonate: string) {
+  public async startSession(
+    user: string,
+    password: string,
+    namespace: string,
+    impersonate: string
+  ) {
     const url = '/api/v1/Configuration/ProductVersion/$value'
 
     // eslint-disable-next-line no-useless-catch
@@ -121,35 +134,44 @@ class RestService {
         additionalHeaders['TM1-Impersonate'] = impersonate
       }
 
-      const version = await this.GET(url, { headers: additionalHeaders, responseType: 'text' })
-      this._version = version as unknown as string
+      const { data: version } = await this.GET<string>(url, {
+        headers: additionalHeaders,
+        responseType: 'text'
+      })
+      this._version = version
     } catch (error) {
       throw error
     }
   }
 
-  get version () {
+  get version() {
     return this._version
   }
 
-  async logout () {
-    return this.POST('/api/v1/ActiveSession/tm1.Close', null, { headers: { Connection: 'close' } })
+  async logout() {
+    return this.POST('/api/v1/ActiveSession/tm1.Close', null, {
+      headers: { Connection: 'close' }
+    })
   }
 
-  async GET (url: string, config: AxiosRequestConfig = {}) {
-    return this.http.get(url, config)
+  async GET<T = any>(url: string, config: AxiosRequestConfig = {}) {
+    return this.http.get<T>(url, config)
   }
 
-  async POST (url: string, data: any, config: AxiosRequestConfig = {}) {
-    return this.http.post(url, JSON.stringify(data), config)
+  async POST<T = any>(url: string, data: any, config: AxiosRequestConfig = {}) {
+    return this.http.post<T>(url, JSON.stringify(data), config)
   }
 
-  async PATCH (url: string, data: any, config: AxiosRequestConfig = {}) {
-    return this.http.patch(url, JSON.stringify(data), config)
+  async PATCH<T = any>(
+    url: string,
+    data: any,
+    config: AxiosRequestConfig = {}
+  ) {
+    return this.http.patch<T>(url, JSON.stringify(data), config)
   }
 
-  async DELETE (url: string, config: AxiosRequestConfig = {}) {
-    return this.http.delete(url, config)
+  async DELETE<T = any>(url: string, config: AxiosRequestConfig = {}) {
+    return this.http.delete<T>(url, config)
   }
 }
 

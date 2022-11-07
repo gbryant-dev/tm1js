@@ -1,15 +1,16 @@
 import CaseAndSpaceInsensitiveSet from '../utils/case-and-space-insensitive-set'
+import { GroupResponse } from './group'
 
 class User {
-  public name: string;
-  public password?: string;
-  public groups?: CaseAndSpaceInsensitiveSet<string>;
-  public friendlyName?: string;
-  private _type?: UserTypeString;
-  public isActive?: boolean;
-  public enabled?: boolean;
+  public name: string
+  public password?: string
+  public groups: CaseAndSpaceInsensitiveSet<string>
+  public friendlyName?: string
+  private _type?: UserTypeString
+  public isActive?: boolean
+  public enabled?: boolean
 
-  constructor (
+  constructor(
     name: string,
     password?: string,
     groups?: string[],
@@ -51,31 +52,31 @@ class User {
     this.enabled = enabled
   }
 
-  get type () {
+  get type() {
     return UserType[this._type.toString()]
   }
 
-  set type (value: UserTypeString) {
+  set type(value: UserTypeString) {
     this._type = value
   }
 
-  addGroup (groupName: string) {
+  addGroup(groupName: string) {
     if (!this.groups.has(groupName)) {
       this.groups.add(groupName)
     }
   }
 
-  removeGroup (groupName: string) {
+  removeGroup(groupName: string) {
     if (this.groups.has(groupName)) {
       this.groups.delete(groupName)
     }
   }
 
-  static fromJson (data: any) {
+  static fromJson(data: UserResponse) {
     return new User(
       data.Name,
       data.Password,
-      data.Groups?.map(group => group.Name) ?? [],
+      data.Groups?.map((group) => group.Name) ?? [],
       data.FriendlyName,
       data.Type,
       data.IsActive,
@@ -83,11 +84,11 @@ class User {
     )
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  constructBody () {
+  constructBody() {
     const body = {
       Name: this.name,
       FriendlyName: this.friendlyName ?? this.name,
@@ -101,7 +102,7 @@ class User {
 
     if (this.groups?.size > 0) {
       body['Groups@odata.bind'] = []
-      this.groups.forEach(group => {
+      this.groups.forEach((group) => {
         body['Groups@odata.bind'].push(`Groups('${group}')`)
       })
     }
@@ -120,4 +121,18 @@ enum UserType {
 
 type UserTypeString = keyof typeof UserType
 
-export { User, UserType, UserTypeString }
+interface UserResponse {
+  Name: string
+  FriendlyName: string
+  Password: string
+  Type: UserTypeString
+  IsActive: boolean
+  Enabled: boolean
+  Groups: GroupResponse[]
+}
+
+interface UsersResponse {
+  value: UserResponse[]
+}
+
+export { User, UserType, UserTypeString, UserResponse, UsersResponse }

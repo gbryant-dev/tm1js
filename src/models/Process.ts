@@ -3,14 +3,14 @@ const END_GENERATED_STATEMENTS = '#****End: Generated Statements****'
 const AUTO_GENERATED_STATEMENTS = `${BEGIN_GENERATED_STATEMENTS}\r\n${END_GENERATED_STATEMENTS}\r\n`
 
 class Process {
-  public name: string;
-  public hasSecurityAccess = false;
-  public prologProcedure = '';
-  public metadataProcedure = '';
-  public dataProcedure = '';
-  public epilogProcedure = '';
+  public name: string
+  public hasSecurityAccess = false
+  public prologProcedure = ''
+  public metadataProcedure = ''
+  public dataProcedure = ''
+  public epilogProcedure = ''
   public dataSource: ProcessDataSource = {
-    type: 'None',
+    Type: 'None',
     dataSourceNameForClient: null,
     dataSourceNameForServer: null,
     asciiDecimalSeparator: '.',
@@ -27,12 +27,12 @@ class Process {
     usesUnicode: false
   }
 
-  public variables: ProcessVariable[] = [];
-  public parameters: ProcessParameter[] = [];
-  public UIData = 'CubeAction=1511\fDataAction=1503\fCubeLogChanges=0\f';
-  public variablesUIData: string[] = [];
+  public variables: ProcessVariable[] = []
+  public parameters: ProcessParameter[] = []
+  public UIData = 'CubeAction=1511\fDataAction=1503\fCubeLogChanges=0\f'
+  public variablesUIData: string[] = []
 
-  constructor (
+  constructor(
     name: string,
     hasSecurityAccess?: boolean,
     procedure?: ProcessProcedure,
@@ -55,8 +55,9 @@ class Process {
     this.variablesUIData = variablesUIData ?? []
   }
 
-  static addGeneratedStatement (code = ''): string {
-    const pattern = /#\*\*\*\*Begin: Generated Statements[\s\S]*#\*\*\*\*End: Generated Statements\*\*\*\*/g
+  static addGeneratedStatement(code = ''): string {
+    const pattern =
+      /#\*\*\*\*Begin: Generated Statements[\s\S]*#\*\*\*\*End: Generated Statements\*\*\*\*/g
     if (pattern.test(code)) {
       return code
     } else {
@@ -64,9 +65,7 @@ class Process {
     }
   }
 
-  static fromJson (data: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { Type, ...dataSource } = data.DataSource
+  static fromJson(data: ProcessResponse) {
     return new Process(
       data.Name,
       data.HasSecurityAccess,
@@ -76,7 +75,7 @@ class Process {
         data: data.DataProcedure,
         epilog: data.EpilogProcedure
       },
-      dataSource,
+      data.DataSource,
       data.Parameters,
       data.Variables,
       data.UIData,
@@ -84,11 +83,11 @@ class Process {
     )
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 
-  addVariable (name: string, type: ProcessVariableType) {
+  addVariable(name: string, type: ProcessVariableType) {
     const variable: ProcessVariable = {
       Name: name,
       Type: type,
@@ -107,15 +106,20 @@ class Process {
     this.variablesUIData.push(variableUIData)
   }
 
-  removeVariable (name: string) {
-    const index = this.variables.findIndex(v => v.Name === name)
+  removeVariable(name: string) {
+    const index = this.variables.findIndex((v) => v.Name === name)
     if (index !== -1) {
       this.variables.splice(index, 1)
       this.variablesUIData.splice(index, 1)
     }
   }
 
-  addParameter (name: string, value: string | number, prompt?: string, type?: 'String' | 'Numeric') {
+  addParameter(
+    name: string,
+    value: string | number,
+    prompt?: string,
+    type?: 'String' | 'Numeric'
+  ) {
     // Infer type if not provided
 
     const paramType = type || (typeof value === 'string' ? 'String' : 'Numeric')
@@ -129,14 +133,14 @@ class Process {
     this.parameters.push(parameter)
   }
 
-  removeParameter (name: string) {
-    const index = this.parameters.findIndex(p => p.Name === name)
+  removeParameter(name: string) {
+    const index = this.parameters.findIndex((p) => p.Name === name)
     if (index !== 1) {
       this.parameters.splice(index, 1)
     }
   }
 
-  constructBody () {
+  constructBody() {
     const body = {}
     body['Name'] = this.name
     body['HasSecurityAccess'] = this.hasSecurityAccess
@@ -151,7 +155,7 @@ class Process {
     body['DataSource'] = {}
 
     // Create DataSource body based on type
-    switch (this.dataSource.type) {
+    switch (this.dataSource.Type) {
       case 'None':
         body['DataSource'] = {
           Type: 'None'
@@ -210,48 +214,79 @@ class Process {
 }
 
 interface ProcessProcedure {
-  prolog?: string;
-  metadata?: string;
-  data?: string;
-  epilog?: string;
+  prolog?: string
+  metadata?: string
+  data?: string
+  epilog?: string
 }
 
-type ProcessVariableType = 'String' | 'Numeric';
+type ProcessVariableType = 'String' | 'Numeric'
 
 interface ProcessVariable {
-  Name: string;
-  Type: ProcessVariableType;
-  Position?: number;
-  StartByte?: number;
-  EndByte?: number;
+  Name: string
+  Type: ProcessVariableType
+  Position?: number
+  StartByte?: number
+  EndByte?: number
 }
 
-type DataSourceType = 'None' | 'ASCII' | 'ODBC' | 'TM1DimensionSubset' | 'TM1CubeView';
+type DataSourceType =
+  | 'None'
+  | 'ASCII'
+  | 'ODBC'
+  | 'TM1DimensionSubset'
+  | 'TM1CubeView'
 
 interface ProcessDataSource {
-  type: DataSourceType;
-  dataSourceNameForClient?: string;
-  dataSourceNameForServer?: string;
-  asciiDecimalSeparator?: string; // Default: .
-  asciiDelimiterChar?: string; // Default: ,
-  asciiDelimiterType?: 'Character' | 'FixedWidth'; // Default: Character
-  asciiHeaderRecords?: number; // Default: 1
-  asciiQuoteCharacter?: string; // Default: "
-  asciiThousandSeparator?: string; // Default: ,
-  subset?: string;
-  view?: string;
-  userName?: string;
-  password?: string;
-  query?: string;
-  usesUnicode?: boolean;
-
+  Type: DataSourceType
+  dataSourceNameForClient?: string
+  dataSourceNameForServer?: string
+  asciiDecimalSeparator?: string // Default: .
+  asciiDelimiterChar?: string // Default: ,
+  asciiDelimiterType?: 'Character' | 'FixedWidth' // Default: Character
+  asciiHeaderRecords?: number // Default: 1
+  asciiQuoteCharacter?: string // Default: "
+  asciiThousandSeparator?: string // Default: ,
+  subset?: string
+  view?: string
+  userName?: string
+  password?: string
+  query?: string
+  usesUnicode?: boolean
 }
 
 interface ProcessParameter {
-  Name: string;
-  Prompt?: string;
-  Value?: string | number;
-  Type: ProcessVariableType;
+  Name: string
+  Prompt?: string
+  Value?: string | number
+  Type: ProcessVariableType
 }
 
-export { Process, ProcessProcedure, ProcessParameter, ProcessVariable, ProcessDataSource, DataSourceType }
+interface ProcessResponse {
+  Name: string
+  HasSecurityAccess: boolean
+  PrologProcedure: string
+  MetadataProcedure: string
+  DataProcedure: string
+  EpilogProcedure: string
+  UIData: string
+  Variables: ProcessVariable[]
+  VariablesUIData: string[]
+  Parameters: ProcessParameter[]
+  DataSource: ProcessDataSource // TODO: refine!
+}
+
+interface ProcessesResponse {
+  value: ProcessResponse[]
+}
+
+export {
+  Process,
+  ProcessProcedure,
+  ProcessParameter,
+  ProcessVariable,
+  ProcessDataSource,
+  DataSourceType,
+  ProcessResponse,
+  ProcessesResponse
+}

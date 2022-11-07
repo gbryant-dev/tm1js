@@ -1,4 +1,9 @@
-import { Chore, ChoreTask } from '../models/chore'
+import {
+  Chore,
+  ChoreResponse,
+  ChoresResponse,
+  ChoreTask
+} from '../models/chore'
 import { RestService } from './rest-service'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 
@@ -7,7 +12,7 @@ import { fixedEncodeURIComponent } from '../utils/helpers'
  */
 class ChoreService {
   private http: RestService
-  constructor (http: RestService) {
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -18,10 +23,12 @@ class ChoreService {
    * @returns An instance of the `Chore` model
    */
 
-  async get (choreName: string): Promise<Chore> {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')?$expand=Tasks($expand=Process($select=Name,Parameters))`
-    const response = await this.http.GET(url)
-    return Chore.fromJson(response)
+  async get(choreName: string): Promise<Chore> {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')?$expand=Tasks($expand=Process($select=Name,Parameters))`
+    const response = await this.http.GET<ChoreResponse>(url)
+    return Chore.fromJson(response.data)
   }
 
   /**
@@ -30,10 +37,13 @@ class ChoreService {
    * @returns An array of the `Chore` model
    */
 
-  async getAll (): Promise<Chore[]> {
-    const url = '/api/v1/Chores?$expand=Tasks($expand=Process($select=Name,Parameters))'
-    const response = await this.http.GET(url)
-    return response['value'].map((chore: any) => Chore.fromJson(chore))
+  async getAll(): Promise<Chore[]> {
+    const url =
+      '/api/v1/Chores?$expand=Tasks($expand=Process($select=Name,Parameters))'
+    const response = await this.http.GET<ChoresResponse>(url)
+    return response.data.value.map((chore: ChoreResponse) =>
+      Chore.fromJson(chore)
+    )
   }
 
   /**
@@ -42,10 +52,10 @@ class ChoreService {
    * @returns An array from chore names
    */
 
-  async getAllNames (): Promise<string[]> {
+  async getAllNames(): Promise<string[]> {
     const url = '/api/v1/Chores?$select=Name'
     const response = await this.http.GET(url)
-    return response['value'].map((c: any) => c['Name'])
+    return response.data.value.map((c: { Name: string }) => c.Name)
   }
 
   /**
@@ -55,7 +65,7 @@ class ChoreService {
    * @returns
    */
 
-  async create (chore: Chore): Promise<any> {
+  async create(chore: Chore): Promise<any> {
     const url = '/api/v1/Chores'
     return this.http.POST(url, chore.body)
   }
@@ -65,7 +75,7 @@ class ChoreService {
    *
    * @param {Chore} chore An instance of the `Chore` model
    */
-  async update (chore: Chore): Promise<void> {
+  async update(chore: Chore): Promise<void> {
     // Disable chore if active before updates
     const reactivate = chore.active
     if (reactivate) {
@@ -113,7 +123,7 @@ class ChoreService {
    * @param {string} choreName The name of the chore
    * @returns
    */
-  async delete (choreName: string): Promise<any> {
+  async delete(choreName: string): Promise<any> {
     const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')`
     return this.http.DELETE(url)
   }
@@ -126,7 +136,7 @@ class ChoreService {
    * @returns
    */
 
-  async addTask (choreName: string, task: ChoreTask) {
+  async addTask(choreName: string, task: ChoreTask) {
     const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')`
     const body = { Tasks: [task.body] }
     return this.http.PATCH(url, body)
@@ -140,8 +150,10 @@ class ChoreService {
    * @returns
    */
 
-  async deleteTask (choreName: string, step: number) {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/Tasks('${step}')`
+  async deleteTask(choreName: string, step: number) {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')/Tasks('${step}')`
     return this.http.DELETE(url)
   }
 
@@ -152,8 +164,10 @@ class ChoreService {
    * @returns
    */
 
-  async updateTask (choreName: string, task: ChoreTask) {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/Tasks('${task.step}')`
+  async updateTask(choreName: string, task: ChoreTask) {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')/Tasks('${task.step}')`
     return this.http.PATCH(url, task.body)
   }
 
@@ -164,9 +178,12 @@ class ChoreService {
    * @returns
    */
 
-  async execute (choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Execute`
-    return this.http.POST(url, null)
+  async execute(choreName: string): Promise<any> {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')/tm1.Execute`
+    const response = await this.http.POST<string>(url, null)
+    return response.data
   }
 
   /**
@@ -176,12 +193,13 @@ class ChoreService {
    * @returns
    */
 
-  async executeChore (choreName: string): Promise<any> {
+  async executeChore(choreName: string): Promise<any> {
     const url = '/api/v1/ExecuteChore'
     const body = {
       'Chore@odata.bind': `Chores('${fixedEncodeURIComponent(choreName)}')`
     }
-    return this.http.POST(url, body)
+    const response = await this.http.POST(url, body)
+    return response.data
   }
 
   /**
@@ -191,8 +209,10 @@ class ChoreService {
    * @returns
    */
 
-  async activate (choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Activate`
+  async activate(choreName: string): Promise<any> {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')/tm1.Activate`
     return this.http.POST(url, null)
   }
 
@@ -203,8 +223,10 @@ class ChoreService {
    * @returns
    */
 
-  async deactivate (choreName: string): Promise<any> {
-    const url = `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')/tm1.Deactivate`
+  async deactivate(choreName: string): Promise<any> {
+    const url = `/api/v1/Chores('${fixedEncodeURIComponent(
+      choreName
+    )}')/tm1.Deactivate`
     return this.http.POST(url, null)
   }
 
@@ -215,9 +237,11 @@ class ChoreService {
    * @returns {boolean} If the chore exists
    */
 
-  async exists (choreName: string): Promise<boolean> {
+  async exists(choreName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')?$select=Name`)
+      await this.http.GET(
+        `/api/v1/Chores('${fixedEncodeURIComponent(choreName)}')?$select=Name`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {

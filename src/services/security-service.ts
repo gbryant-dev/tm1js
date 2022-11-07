@@ -1,12 +1,12 @@
-import { Group } from '../models/group'
-import { User } from '../models/user'
+import { Group, GroupResponse, GroupsResponse } from '../models/group'
+import { User, UserResponse, UsersResponse } from '../models/user'
 import { fixedEncodeURIComponent } from '../utils/helpers'
 import { RestService } from './rest-service'
 
 /** Service to handle security operations in TM1 */
 class SecurityService {
-  private http: RestService;
-  constructor (http: RestService) {
+  private http: RestService
+  constructor(http: RestService) {
     this.http = http
   }
 
@@ -16,9 +16,11 @@ class SecurityService {
    * @returns {User[]} Instances of the `User` model
    */
 
-  async getAllUsers (): Promise<User[]> {
-    const response = await this.http.GET('/api/v1/Users?$expand=Groups')
-    return response['value'].map((user: any) => User.fromJson(user))
+  async getAllUsers(): Promise<User[]> {
+    const response = await this.http.GET<UsersResponse>(
+      '/api/v1/Users?$expand=Groups'
+    )
+    return response.data.value.map((user: UserResponse) => User.fromJson(user))
   }
 
   /**
@@ -28,9 +30,13 @@ class SecurityService {
    * @returns {User} An instance of the `User` model
    */
 
-  async getUser (userName: string): Promise<User> {
-    const response = await this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')?$expand=Groups,Sessions`)
-    return User.fromJson(response)
+  async getUser(userName: string): Promise<User> {
+    const response = await this.http.GET<UserResponse>(
+      `/api/v1/Users('${fixedEncodeURIComponent(
+        userName
+      )}')?$expand=Groups,Sessions`
+    )
+    return User.fromJson(response.data)
   }
 
   /**
@@ -39,9 +45,11 @@ class SecurityService {
    * @returns {User} An instance of the `User` model
    */
 
-  async getCurrentUser (): Promise<User> {
-    const response = await this.http.GET('/api/v1/ActiveUser?$expand=Groups,Sessions')
-    return User.fromJson(response)
+  async getCurrentUser(): Promise<User> {
+    const response = await this.http.GET<UserResponse>(
+      '/api/v1/ActiveUser?$expand=Groups,Sessions'
+    )
+    return User.fromJson(response.data)
   }
 
   /**
@@ -51,7 +59,7 @@ class SecurityService {
    * @returns
    */
 
-  async createUser (user: User) {
+  async createUser(user: User) {
     return this.http.POST('/api/v1/Users', user.body)
   }
 
@@ -62,7 +70,7 @@ class SecurityService {
    * @returns
    */
 
-  async updateUser (user: User) {
+  async updateUser(user: User) {
     // Remove groups that are no longer in the user object
     const groups = await this.getUserGroups(user.name)
     for (const group of groups) {
@@ -70,7 +78,10 @@ class SecurityService {
         await this.removeUserFromGroup(user.name, group.name)
       }
     }
-    return this.http.PATCH(`/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`, user.body)
+    return this.http.PATCH(
+      `/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`,
+      user.body
+    )
   }
 
   /**
@@ -80,8 +91,10 @@ class SecurityService {
    * @returns
    */
 
-  async deleteUser (userName: string) {
-    return this.http.DELETE(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')`)
+  async deleteUser(userName: string) {
+    return this.http.DELETE(
+      `/api/v1/Users('${fixedEncodeURIComponent(userName)}')`
+    )
   }
 
   /**
@@ -90,9 +103,11 @@ class SecurityService {
    * @returns {Group[]} Instances of the `Group` model
    */
 
-  async getAllGroups (): Promise<Group[]> {
-    const response = await this.http.GET('/api/v1/Groups')
-    return response['value'].map(group => Group.fromJson(group))
+  async getAllGroups(): Promise<Group[]> {
+    const response = await this.http.GET<GroupsResponse>('/api/v1/Groups')
+    return response.data.value.map((group: GroupResponse) =>
+      Group.fromJson(group)
+    )
   }
 
   /**
@@ -102,9 +117,11 @@ class SecurityService {
    * @returns {Group} An instance of the `Group` model
    */
 
-  async getGroup (groupName: string): Promise<Group> {
-    const response = await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')?$expand=Users`)
-    return Group.fromJson(response)
+  async getGroup(groupName: string): Promise<Group> {
+    const response = await this.http.GET<GroupResponse>(
+      `/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')?$expand=Users`
+    )
+    return Group.fromJson(response.data)
   }
 
   /**
@@ -114,9 +131,13 @@ class SecurityService {
    * @returns {Group[]} Instances of the `Group` model
    */
 
-  async getUserGroups (userName: string): Promise<Group[]> {
-    const response = await this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups`)
-    return response['value'].map((group: Group) => Group.fromJson(group))
+  async getUserGroups(userName: string): Promise<Group[]> {
+    const response = await this.http.GET<GroupsResponse>(
+      `/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups`
+    )
+    return response.data.value.map((group: GroupResponse) =>
+      Group.fromJson(group)
+    )
   }
 
   /**
@@ -126,7 +147,7 @@ class SecurityService {
    * @returns
    */
 
-  async createGroup (group: Group) {
+  async createGroup(group: Group) {
     return this.http.POST('/api/v1/Groups', group.body)
   }
 
@@ -137,8 +158,10 @@ class SecurityService {
    * @returns
    */
 
-  async deleteGroup (groupName: string) {
-    return this.http.DELETE(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`)
+  async deleteGroup(groupName: string) {
+    return this.http.DELETE(
+      `/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`
+    )
   }
 
   /**
@@ -149,16 +172,23 @@ class SecurityService {
    * @returns
    */
 
-  async addUserToGroups (user: User, groups: string[]) {
+  async addUserToGroups(user: User, groups: string[]) {
     const currentGroups = await this.getUserGroups(user.name)
 
     const body = {
       'Groups@odata.bind': [
-        ...currentGroups.map((group: Group) => `Groups('${fixedEncodeURIComponent(group.name)}')`),
-        ...groups.map((group: string) => `Groups('${fixedEncodeURIComponent(group)}')`)
+        ...currentGroups.map(
+          (group: Group) => `Groups('${fixedEncodeURIComponent(group.name)}')`
+        ),
+        ...groups.map(
+          (group: string) => `Groups('${fixedEncodeURIComponent(group)}')`
+        )
       ]
     }
-    return this.http.PATCH(`/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`, body)
+    return this.http.PATCH(
+      `/api/v1/Users('${fixedEncodeURIComponent(user.name)}')`,
+      body
+    )
   }
 
   /**
@@ -169,8 +199,10 @@ class SecurityService {
    * @returns
    */
 
-  async removeUserFromGroup (userName: string, groupName: string) {
-    const url = `/api/v1/Users('${fixedEncodeURIComponent(userName)}')/Groups?$id=Groups('${fixedEncodeURIComponent(groupName)}')`
+  async removeUserFromGroup(userName: string, groupName: string) {
+    const url = `/api/v1/Users('${fixedEncodeURIComponent(
+      userName
+    )}')/Groups?$id=Groups('${fixedEncodeURIComponent(groupName)}')`
     return this.http.DELETE(url)
   }
 
@@ -181,9 +213,11 @@ class SecurityService {
    * @returns {boolean} If the user exists
    */
 
-  async userExists (userName: string): Promise<boolean> {
+  async userExists(userName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Users('${fixedEncodeURIComponent(userName)}')`)
+      await this.http.GET(
+        `/api/v1/Users('${fixedEncodeURIComponent(userName)}')`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {
@@ -200,9 +234,11 @@ class SecurityService {
    * @returns {boolean} If the group exists
    */
 
-  async groupExists (groupName: string): Promise<boolean> {
+  async groupExists(groupName: string): Promise<boolean> {
     try {
-      await this.http.GET(`/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`)
+      await this.http.GET(
+        `/api/v1/Groups('${fixedEncodeURIComponent(groupName)}')`
+      )
       return true
     } catch (e) {
       if (e.status === 404) {

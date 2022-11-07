@@ -1,23 +1,32 @@
-import { Edge } from './edge'
-import { Subset } from './subset'
-import { HierarchyElement, ElementTypeString } from './element'
-import { ElementAttribute, AttributeTypeString } from './element-attribute'
+import { Edge, EdgeResponse } from './edge'
+import { Subset, SubsetResponse } from './subset'
+import { HierarchyElement, ElementTypeString, ElementResponse } from './element'
+import {
+  ElementAttribute,
+  AttributeTypeString,
+  ElementAttributeResponse
+} from './element-attribute'
 import { TupleMap } from '../utils/tuple-map'
 import { CaseAndSpaceInsensitiveMap } from '../utils/case-and-space-insensitive-map'
 import { caseAndSpaceInsensitiveEquals } from '../utils/helpers'
+import { DimensionResponse } from './dimension'
 
 const LEAVES_HIERARCHY = 'Leaves'
 
 class Hierarchy {
-  public name: string;
-  public dimensionName: string;
-  public subsets?: Subset[] = [];
+  public name: string
+  public dimensionName: string
+  public subsets?: Subset[] = []
 
-  private _elements: CaseAndSpaceInsensitiveMap<string, HierarchyElement>;
-  private _elementAttributes?: CaseAndSpaceInsensitiveMap<string, ElementAttribute>;
-  public readonly _edges: TupleMap;
+  private _elements: CaseAndSpaceInsensitiveMap<string, HierarchyElement>
+  private _elementAttributes?: CaseAndSpaceInsensitiveMap<
+    string,
+    ElementAttribute
+  >
 
-  constructor (
+  public readonly _edges: TupleMap
+
+  constructor(
     name: string,
     dimensionName: string,
     elements?: HierarchyElement[],
@@ -56,94 +65,96 @@ class Hierarchy {
     }
   }
 
-  get edges () {
+  get edges() {
     return this._edges.entries()
   }
 
-  get elements (): HierarchyElement[] {
+  get elements(): HierarchyElement[] {
     return Array.from(this._elements.values())
   }
 
-  get elementAttributes (): ElementAttribute[] {
+  get elementAttributes(): ElementAttribute[] {
     return Array.from(this._elementAttributes.values())
   }
 
-  static fromJson (data: any) {
+  static fromJson(data: HierarchyResponse) {
     return new Hierarchy(
       data.Name,
       data.UniqueName.substring(1, data.UniqueName.indexOf('].[')),
-      data.Elements.map(element => HierarchyElement.fromJson(element)),
-      data.Edges.map(edge => Edge.fromJson(edge)),
-      data.ElementAttributes.map(ea => ElementAttribute.fromJson(ea)),
-      data.Subsets.map(subset => Subset.fromJson(subset))
+      data.Elements.map((element) => HierarchyElement.fromJson(element)),
+      data.Edges.map((edge) => Edge.fromJson(edge)),
+      data.ElementAttributes.map((ea) => ElementAttribute.fromJson(ea)),
+      data.Subsets.map((subset: SubsetResponse) => Subset.fromJson(subset))
     )
   }
 
-  addElement (elementName: string, elementType: ElementTypeString) {
-    this._elements.set(elementName, new HierarchyElement(elementName, elementType))
+  addElement(elementName: string, elementType: ElementTypeString) {
+    this._elements.set(
+      elementName,
+      new HierarchyElement(elementName, elementType)
+    )
   }
 
-  updateElement (elementName: string, elementType: ElementTypeString) {
+  updateElement(elementName: string, elementType: ElementTypeString) {
     if (!this._elements.has(elementName)) {
-      this._elements.set(elementName, new HierarchyElement(elementName, elementType))
+      this._elements.set(
+        elementName,
+        new HierarchyElement(elementName, elementType)
+      )
     } else {
       this._elements.get(elementName).type = elementType
     }
   }
 
-  deleteElement (elementName: string) {
+  deleteElement(elementName: string) {
     if (this._elements.has(elementName)) {
       this._elements.delete(elementName)
     }
   }
 
-  addEdge (parent: string, component: string, weight = 1) {
+  addEdge(parent: string, component: string, weight = 1) {
     this._edges.set([parent, component], weight)
   }
 
-  updateEdge (parent: string, component: string, weight: number) {
+  updateEdge(parent: string, component: string, weight: number) {
     this._edges.set([parent, component], weight)
   }
 
-  deleteEdge (parent: string, component: string) {
+  deleteEdge(parent: string, component: string) {
     if (this._edges.has([parent, component])) {
       this._edges.delete([parent, component])
     }
   }
 
-  addElementAttribute (name: string, type: AttributeTypeString) {
+  addElementAttribute(name: string, type: AttributeTypeString) {
     this._elementAttributes.set(name, new ElementAttribute(name, type))
   }
 
-  deleteElementAttribute (name: string) {
+  deleteElementAttribute(name: string) {
     // if (this._elementAttributes.has(name)) {
     return this._elementAttributes.delete(name)
     // }
   }
 
-  isLeavesHierarchy (): boolean {
+  isLeavesHierarchy(): boolean {
     return caseAndSpaceInsensitiveEquals(this.name, LEAVES_HIERARCHY)
   }
 
-  constructBody () {
+  constructBody() {
     const body = {}
     body['Name'] = this.name
     body['Elements'] = []
 
-    this._elements.forEach(
-      (elem) => {
-        body['Elements'].push(elem.body)
-      }
-    )
+    this._elements.forEach((elem) => {
+      body['Elements'].push(elem.body)
+    })
 
     body['Edges'] = []
-    this._edges.forEach(
-      (weight: number, edge) => {
-        const [parent, component] = edge
-        const e = new Edge(parent, component, weight)
-        body['Edges'].push(e.body)
-      }
-    )
+    this._edges.forEach((weight: number, edge) => {
+      const [parent, component] = edge
+      const e = new Edge(parent, component, weight)
+      body['Edges'].push(e.body)
+    })
 
     // body['ElementAttributes'] = [];
     // for (const ea of this.elementAttributes) {
@@ -153,9 +164,23 @@ class Hierarchy {
     return body
   }
 
-  get body () {
+  get body() {
     return this.constructBody()
   }
 }
 
-export { Hierarchy }
+interface HierarchyResponse {
+  Name: string
+  UniqueName: string
+  Elements: ElementResponse[]
+  Edges: EdgeResponse[]
+  Dimension: DimensionResponse
+  ElementAttributes: ElementAttributeResponse[]
+  Subsets: SubsetResponse[]
+}
+
+interface HierarchiesResponse {
+  value: HierarchyResponse[]
+}
+
+export { Hierarchy, HierarchyResponse, HierarchiesResponse }
