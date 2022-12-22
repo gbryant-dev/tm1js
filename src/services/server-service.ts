@@ -1,7 +1,8 @@
+import { Configuration, ServerSettings } from '../models'
 import { RestService } from './rest-service'
 
 /**
- * Service to handle interactions with the TM1 server inself
+ * Service to handle interactions with the TM1 server itself
  */
 
 class ServerService {
@@ -71,9 +72,34 @@ class ServerService {
    * @returns {Configuration}
    */
 
-  // TODO: Add type for Configuration
-  async getConfiguration(): Promise<any> {
-    const response = await this.http.GET('/api/v1/Configuration')
+  async getConfiguration(): Promise<Configuration> {
+    const response = await this.http.GET<Configuration>('/api/v1/Configuration')
+    return response.data
+  }
+
+  /**
+   * Get the *active* configuration of the TM1 server
+   *
+   * @returns {ServerSettings}
+   */
+
+  async getActiveConfiguration(): Promise<ServerSettings> {
+    const response = await this.http.GET<ServerSettings>(
+      '/api/v1/ActiveConfiguration'
+    )
+    return response.data
+  }
+
+  /**
+   * Get the static configuration of the TM1 server
+   *
+   * @returns {ServerSettings}
+   */
+
+  async getStaticConfiguration(): Promise<ServerSettings> {
+    const response = await this.http.GET<ServerSettings>(
+      '/api/v1/StaticConfiguration'
+    )
     return response.data
   }
 }

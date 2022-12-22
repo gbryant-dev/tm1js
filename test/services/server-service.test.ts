@@ -28,8 +28,10 @@ describe('ServerService', () => {
 
   it('Should get the configuration of the TM1 server', async () => {
     const configuration = await global.tm1.server.getConfiguration()
-    console.log(Object.keys(configuration))
     expect(configuration).not.toBeUndefined()
     expect(configuration).toBeInstanceOf(Object)
+    expect('ServerName' in configuration).toBeTruthy()
+    expect('HTTPPortNumber' in configuration).toBeTruthy()
+    expect('AdminHost' in configuration).toBeTruthy()
   })
 })
